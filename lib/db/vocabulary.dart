@@ -3,6 +3,7 @@ import 'dart:convert';
 
 final String tableVocabulary = 'vocabulary';
 final String columnUId = '_id';
+final String columnHashCode = 'hashCode';
 final String columnTitle = 'title';
 final String columnHeteronyms = 'heteronyms';
 final String columnLearnt = 'learnt';
@@ -95,6 +96,7 @@ class Definition {
 
 class Vocabulary {
   int id;
+  int hashTitle;
   String title;
   List<Heteronym> heteronyms;
   int learnt;
@@ -108,7 +110,8 @@ class Vocabulary {
   Map<String, dynamic> toJson() {
     var map = <String, dynamic>{
       columnTitle: title,
-      columnLearnt: learnt
+      columnLearnt: learnt,
+      columnHashCode: hashCode
     };
     if (id != null) {
       map[columnUId] = id;
@@ -118,6 +121,7 @@ class Vocabulary {
   void clone(Vocabulary target) {
     id = target.id;
     title = target.title;
+    hashTitle = target.hashCode;
     learnt = target.learnt;
     heteronyms = target.heteronyms;
   }
@@ -130,6 +134,7 @@ class Vocabulary {
   Vocabulary.fromJson(Map<String, dynamic> map) {
     id = map[columnUId];
     title = map[columnTitle];
+    hashTitle = title.hashCode;
     learnt = map.containsKey(columnLearnt)?map[columnLearnt]:0;
     heteronyms = (map[columnHeteronyms] is String)?
       json.decode(map[columnHeteronyms]).map<Heteronym>((string) => Heteronym.fromString(string)).toList():
@@ -146,6 +151,7 @@ class VocabularyProvider {
       await db.execute('''
         create table $tableVocabulary ( 
           $columnUId integer primary key autoincrement, 
+          $columnHashCode integer,
           $columnTitle text not null,
           $columnLearnt integer not null)
         ''');
@@ -159,9 +165,24 @@ class VocabularyProvider {
 
   Future<Vocabulary> getVocabulary(int id) async {
     List<Map> maps = await db.query(tableVocabulary,
-        columns: [columnUId, columnLearnt, columnTitle],
+        columns: [columnUId, columnLearnt, columnTitle, columnHashCode],
         where: '$columnUId = ?',
         whereArgs: [id]);
+    if (maps.length > 0) {
+      return Vocabulary.fromJson(maps.first);
+    }
+    return null;
+  }
+
+  Future<Vocabulary> getVocabularyWithTitle(String title) async {
+    return await getVocabularyWithTitleHash(title.hashCode);
+  }
+
+  Future<Vocabulary> getVocabularyWithTitleHash(int titleHashCode) async {
+    List<Map> maps = await db.query(tableVocabulary,
+        columns: [columnUId, columnLearnt, columnTitle, columnHashCode],
+        where: '$columnHashCode = ?',
+        whereArgs: [titleHashCode]);
     if (maps.length > 0) {
       return Vocabulary.fromJson(maps.first);
     }
