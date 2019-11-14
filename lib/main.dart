@@ -1,7 +1,18 @@
+import 'dart:convert';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
+import 'db/vocabulary.dart';
 
 void main() {
   runApp(MyApp());
+}
+
+// Assumes the given path is a text-file-asset.
+Future<String> getFileData(String path) async {
+  return await rootBundle.loadString(path);
 }
 
 class MyApp extends StatelessWidget {
@@ -9,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Oh Tai Gi',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -22,7 +33,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Oh Tai Gi'),
     );
   }
 }
@@ -47,6 +58,31 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  List<Vocabulary> vocabularies = [];
+  AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+  _MyHomePageState() {
+    initialize();
+  }
+
+
+  void initialize() async {
+    String contents = await getFileData("assets/dict/dict-twblg.json");
+    List<Vocabulary> vs = json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList();
+    _setVocabularyList(vs);
+  }
+
+  void tryToPlayAudio() async {
+    Vocabulary v = vocabularies[_counter];
+    for(int i = 0; i < v.heteronyms.length; ++i) {
+      String aid = v.heteronyms[i].aid.toString().padLeft(5, '0');
+      int result = await audioPlayer.play("http://t.moedict.tw/${aid}.ogg");
+      // if (result == 1) {
+      //   print("Play http://t.moedict.tw/${aid}.ogg success");
+      // } else {
+      //   print("Play http://t.moedict.tw/${aid}.ogg failed");
+      // }
+    }
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -56,6 +92,13 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
+      tryToPlayAudio();
+    });
+  }
+
+  void _setVocabularyList(List<Vocabulary> vs) {
+    setState(() {
+      this.vocabularies = vs;
     });
   }
 
@@ -67,6 +110,44 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    List<Widget> children = <Widget>[
+    ];
+    if(_counter < vocabularies.length) {
+      Vocabulary v = vocabularies[_counter];
+      children.add(Text(
+        v.title,
+        style: Theme.of(context).textTheme.display2,
+      ));
+
+      for(int i = 0; i < v.heteronyms.length; ++i) {
+        children.add(Text(
+          "${i+1}: ${v.heteronyms[i].trs}" ,
+          style: Theme.of(context).textTheme.display1,
+        ));
+        for(int j = 0; j < v.heteronyms[i].definitions.length; ++j) {
+          children.add(Text(
+            "${v.heteronyms[i].definitions[j].def}" ,
+            style: Theme.of(context).textTheme.display1,
+          ));
+        }
+      }
+      if(children.length == 0) {
+        children.add(
+          Text(
+            '讀取中...',
+            style: Theme.of(context).textTheme.display1,
+          )
+        );
+      } 
+      // children.add(Text(
+      //   v.heteronyms[0].definitions[0].def,
+      //   style: Theme.of(context).textTheme.display1,
+      // ));
+      // children.add(Text(
+      //   v.heteronyms[0].definitions[0].exp,
+      //   style: Theme.of(context).textTheme.display1,
+      // ));
+    }
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -91,16 +172,9 @@ class _MyHomePageState extends State<MyHomePage> {
           // center the children vertically; the main axis here is the vertical
           // axis because Columns are vertical (the cross axis would be
           // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children,
         ),
       ),
       floatingActionButton: FloatingActionButton(
