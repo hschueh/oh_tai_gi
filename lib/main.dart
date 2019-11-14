@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   void initialize() async {
-    String contents = await getFileData("assets/dict/dict-twblg.json");
+    String contents = await getFileData("assets/dict/dict-twblg-ext.json");
     List<Vocabulary> vs = json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList();
     _setVocabularyList(vs);
   }
