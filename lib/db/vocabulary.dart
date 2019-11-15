@@ -44,10 +44,7 @@ class Heteronym {
     definitions = target.definitions;
   }
   
-  Heteronym.fromString(String string) {
-    Heteronym h = Heteronym.fromJson(json.decode(string));
-    clone(h);
-  }
+  Heteronym.fromString(String string) : this.fromJson(json.decode(string));
 
   Heteronym.fromJson(Map<String, dynamic> map) {
     trs = map[columnTRS];
@@ -82,10 +79,7 @@ class Definition {
     exp = target.exp;
   }
 
-  Definition.fromString(String string) {
-    Definition d = new Definition.fromJson(json.decode(string));
-    clone(d);
-  }
+  Definition.fromString(String string)  : this.fromJson(json.decode(string));
 
   Definition.fromJson(Map<String, dynamic> map) {
     type = map[columnType];
@@ -126,10 +120,7 @@ class Vocabulary {
     heteronyms = target.heteronyms;
   }
 
-  Vocabulary.fromString(String string) {
-    Vocabulary v = new Vocabulary.fromJson(json.decode(string));
-    clone(v);
-  }
+  Vocabulary.fromString(String string) : this.fromJson(json.decode(string));
 
   Vocabulary.fromJson(Map<String, dynamic> map) {
     id = map[columnUId];
