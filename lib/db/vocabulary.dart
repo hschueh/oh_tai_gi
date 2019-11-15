@@ -9,7 +9,7 @@ final String columnHeteronyms = 'heteronyms';
 final String columnLearnt = 'learnt';
 
 final String columnTRS = 'trs';
-final String columnAudioId = 'aid';
+final String columnAudioId = 'audio_id';
 final String columnId = 'id';
 final String columnReading = 'reading';
 final String columnDefinitions = 'definitions';

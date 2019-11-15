@@ -162,5 +162,44 @@ void main() {
         expect(vs[1].heteronyms[0].aid, 13493);
         expect(vs[1].heteronyms[0].definitions.length, 1);
     });
+
+    test('Test: Parse vocabulary with audio_id.', () {
+      Vocabulary v = Vocabulary.fromString("""
+        {
+          "title": "三",
+          "radical": "一",
+          "stroke_count": 3,
+          "non_radical_stroke_count": 2,
+          "heteronyms": [
+            {
+              "audio_id": "13205",
+              "id": "20006",
+              "trs": "sàm",
+              "reading": "文",
+              "definitions": [
+                {
+                  "def": "介於二和四之間的自然數。如：「二、三、四、五……」。大寫作「参」，阿拉伯數字作「3」。"
+                },
+                {
+                  "def": "姓。如明代有三成志。"
+                },
+                {
+                  "def": "第三位的。"
+                },
+                {
+                  "def": "表多數或多次的。"
+                }
+              ]
+            }
+          ]
+        }
+        """);
+
+        expect(v.title, "三");
+        expect(v.learnt, 0);
+        expect(v.heteronyms.length, 1);
+        expect(v.heteronyms[0].aid, 13205);
+        expect(v.heteronyms[0].definitions.length, 4);
+    });
   });
 }
