@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'db/vocabulary.dart';
 
+
+const bool IS_DEBUG = false;
 void main() {
   runApp(MyApp());
 }
@@ -60,7 +63,11 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   List<Vocabulary> vocabularies = [];
   AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+  static String prefAudioFormat = (Platform.isIOS)?"mp3":"ogg";
   _MyHomePageState() {
+    if(IS_DEBUG) {
+      AudioPlayer.logEnabled = true;
+    }
     initialize();
   }
 
@@ -75,12 +82,10 @@ class _MyHomePageState extends State<MyHomePage> {
     Vocabulary v = vocabularies[_counter];
     for(int i = 0; i < v.heteronyms.length; ++i) {
       String aid = v.heteronyms[i].aid.toString().padLeft(5, '0');
-      int result = await audioPlayer.play("http://t.moedict.tw/${aid}.ogg");
-      // if (result == 1) {
-      //   print("Play http://t.moedict.tw/${aid}.ogg success");
-      // } else {
-      //   print("Play http://t.moedict.tw/${aid}.ogg failed");
-      // }
+      int result = await audioPlayer.play("http://t.moedict.tw/$aid.$prefAudioFormat", isLocal: false);
+      if(IS_DEBUG) {
+        print("Play http://t.moedict.tw/$aid.$prefAudioFormat: $result");
+      }
     }
   }
 
@@ -99,6 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _setVocabularyList(List<Vocabulary> vs) {
     setState(() {
       this.vocabularies = vs;
+      tryToPlayAudio();
     });
   }
 
@@ -155,6 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
+        widthFactor: 1,
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
