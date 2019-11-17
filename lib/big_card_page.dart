@@ -5,39 +5,13 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 import 'db/vocabulary.dart';
+import 'destination.dart';
 import 'utils.dart';
 
-
 const bool IS_DEBUG = false;
-// void main() {
-//   runApp(MyApp());
-// }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Oh Tai Gi',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Oh Tai Gi'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class BigCardPage extends StatefulWidget {
+  BigCardPage({Key key, this.destination}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -48,18 +22,18 @@ class MyHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
+  final Destination destination;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _BigCardPageState createState() => _BigCardPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _BigCardPageState extends State<BigCardPage> {
+  int _index = 0;
   List<Vocabulary> vocabularies = [];
   AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
   static String prefAudioFormat = (Platform.isIOS)?"mp3":"ogg";
-  _MyHomePageState() {
+  _BigCardPageState() {
     if(IS_DEBUG) {
       AudioPlayer.logEnabled = true;
     }
@@ -73,8 +47,10 @@ class _MyHomePageState extends State<MyHomePage> {
     _setVocabularyList(vs);
   }
 
-  void tryToPlayAudio() async {
-    Vocabulary v = vocabularies[_counter];
+  void _tryToPlayAudio() async {
+    if(_index >= vocabularies.length)
+      return;
+    Vocabulary v = vocabularies[_index];
     for(int i = 0; i < v.heteronyms.length; ++i) {
       String aid = v.heteronyms[i].aid.toString().padLeft(5, '0');
       int result = await audioPlayer.play("http://t.moedict.tw/$aid.$prefAudioFormat", isLocal: false);
@@ -84,22 +60,22 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _incrementCounter() {
+  void _next() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
-      _counter++;
-      tryToPlayAudio();
+      _index++;
+      _tryToPlayAudio();
     });
   }
 
   void _setVocabularyList(List<Vocabulary> vs) {
     setState(() {
       this.vocabularies = vs;
-      tryToPlayAudio();
+      _tryToPlayAudio();
     });
   }
 
@@ -114,8 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Widget> children = <Widget>[
     ];
     String title = "讀取中...";
-    if(_counter < vocabularies.length) {
-      Vocabulary v = vocabularies[_counter];
+    if(_index < vocabularies.length) {
+      Vocabulary v = vocabularies[_index];
       title = v.title;
       for(int i = 0; i < v.heteronyms.length; ++i) {
         children.add(Text(
@@ -132,14 +108,11 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text(widget.destination.title),
+        backgroundColor: widget.destination.color,
       ),
       body: Center(
         widthFactor: 1,
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: _next,
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.

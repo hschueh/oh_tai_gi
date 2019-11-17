@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:oh_tai_gi/big_card_page.dart';
 
-class Destination {
-  const Destination(this.index, this.title, this.icon, this.color);
-  final int index;
-  final String title;
-  final IconData icon;
-  final MaterialColor color;
-}
+import 'destination.dart';
 
 const List<Destination> allDestinations = <Destination>[
   Destination(0, 'Random Pick', Icons.shuffle, Colors.teal),
   Destination(1, 'List', Icons.list, Colors.cyan),
   Destination(2, 'Trend', Icons.trending_up, Colors.orange),
   Destination(3, 'Review', Icons.repeat, Colors.blue),
-  Destination(4, 'Settings', Icons.settings, Colors.blue)
+  Destination(4, 'Settings', Icons.settings, Colors.grey)
 ];
 
 class RootPage extends StatelessWidget {
@@ -164,7 +159,7 @@ class _DestinationViewState extends State<DestinationView> {
           builder: (BuildContext context) {
             switch(settings.name) {
               case '/':
-                return RootPage(destination: widget.destination);
+                return BigCardPage(destination: widget.destination);
               case '/list':
                 return ListPage(destination: widget.destination);
               case '/text':
