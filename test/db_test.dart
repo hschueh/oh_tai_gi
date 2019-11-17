@@ -100,7 +100,7 @@ void main() {
         expect(v.heteronyms[1].aid, 1303);
     });
 
-    test('Test: Parse multiple vocabularies.', () {
+    test('Test: Parse multiple vocabulary.', () {
       List<Vocabulary> vs = json.decode("""
         [
           {
