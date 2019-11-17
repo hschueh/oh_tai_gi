@@ -8,7 +8,7 @@ class BigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if(_vocabulary == null)
-      return Card(child: Text("讀取中"));
+      return Center(child: CircularProgressIndicator());
 
     List<Widget> children = <Widget>[];
     String title = _vocabulary.title;
