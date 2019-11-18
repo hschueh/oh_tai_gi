@@ -63,11 +63,6 @@ class _BigCardPageState extends State<BigCardPage> {
 
   void _next() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
       _index++;
       _tryToPlayAudio();
     });
@@ -98,7 +93,7 @@ class _BigCardPageState extends State<BigCardPage> {
         backgroundColor: widget.destination.color,
       ),
       body: Container(
-        margin: const EdgeInsets.fromLTRB(16.0, 32.0, 16.0, 32.0),
+        margin: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
         child: BigCard(v),
       ),
       floatingActionButton: FloatingActionButton(

@@ -12,6 +12,35 @@ const List<Destination> allDestinations = <Destination>[
   Destination(4, 'Settings', Icons.settings, Colors.grey)
 ];
 
+
+class UnfinishedPage extends StatelessWidget {
+  const UnfinishedPage({ Key key, this.destination }) : super(key: key);
+
+  final Destination destination;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(destination.title),
+        backgroundColor: destination.color,
+      ),
+      backgroundColor: destination.color[50],
+      body:Center(
+        child:Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.announcement, size: 120,),
+            Text("Page under construction!", style: Theme.of(context).textTheme.headline,)
+          ],
+        )
+      ),
+    );
+  }
+}
+
+
 class RootPage extends StatelessWidget {
   const RootPage({ Key key, this.destination }) : super(key: key);
 
@@ -179,6 +208,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomePage> {
   List<Key> _destinationKeys;
+  List<Widget> _destinationPages;
   List<AnimationController> _faders;
   AnimationController _hide;
   int _currentIndex = 0;
@@ -192,6 +222,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
     }).toList();
     _faders[_currentIndex].value = 1.0;
     _destinationKeys = List<Key>.generate(allDestinations.length, (int index) => GlobalKey()).toList();
+    _destinationPages = List<Widget>.generate(
+      allDestinations.length,
+      (int index) {
+        switch (index) {
+          case 0:
+            return BigCardPage(destination: allDestinations[index]);
+            break;
+          default:
+            return UnfinishedPage(destination: allDestinations[index]);
+        }
+      }).toList();
     _hide = AnimationController(vsync: this, duration: kThemeAnimationDuration);
   }
 
@@ -236,12 +277,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
                 opacity: _faders[destination.index].drive(CurveTween(curve: Curves.fastOutSlowIn)),
                 child: KeyedSubtree(
                   key: _destinationKeys[destination.index],
-                  child: DestinationView(
-                    destination: destination,
-                    onNavigation: () {
-                      _hide.forward();
-                    },
-                  ),
+                  child: _destinationPages[destination.index],
                 ),
               );
               if (destination.index == _currentIndex) {
