@@ -10,8 +10,8 @@ class SmallCard extends StatelessWidget {
     List<Widget> children = <Widget>[];
     for(int i = 0; i < _vocabulary.heteronyms.length; ++i) {
       children.add(Text(
-        "${i+1}: ${_vocabulary.heteronyms[i].trs}" ,
-        style: Theme.of(context).textTheme.body2,
+        "${_vocabulary.heteronyms[i].trs}" ,
+        style: Theme.of(context).textTheme.subhead,
       ));
       for(int j = 0; j < _vocabulary.heteronyms[i].definitions.length; ++j) {
         children.add(
@@ -28,7 +28,9 @@ class SmallCard extends StatelessWidget {
       }
     }
     return Flexible(
-      flex: 7, child: ListView(children: children), fit: FlexFit.tight
+      flex: 7,
+      fit: FlexFit.tight,
+      child: ListView(children: children),
     );
   }
 
@@ -45,22 +47,32 @@ class SmallCard extends StatelessWidget {
       return Center(child: CircularProgressIndicator());
 
     return Card(
+      margin: const EdgeInsets.all(4.0),
       child: Container(
         height: 100,
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Flexible(child: Text(
-              _vocabulary.title,
-              style: Theme.of(context).textTheme.body2,
-            ), flex: 3, fit: FlexFit.tight),
-            Flexible(child: InkWell(
-              splashColor: Colors.blue.withAlpha(30),
-              onTap: (){
-                _tryToPlayAudio(_vocabulary, context);
-              },
-              child: Icon(Icons.volume_up, size: 25,),
-            ), flex: 2, fit: FlexFit.loose),
+            Flexible(
+              child: Text(
+                _vocabulary.title,
+                style: Theme.of(context).textTheme.subhead,
+              ),
+              flex: 2,
+              fit: FlexFit.tight,
+            ),
+            Flexible(
+              child: InkWell(
+                splashColor: Colors.blue.withAlpha(30),
+                onTap: (){
+                  _tryToPlayAudio(_vocabulary, context);
+                },
+                child: Icon(Icons.volume_up, size: 25,),
+              ),
+              flex: 1,
+              fit: FlexFit.tight,
+            ),
             buildBody(context),
           ]
         ),
