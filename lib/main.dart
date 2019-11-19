@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:oh_tai_gi/big_card_page.dart';
+import 'package:oh_tai_gi/small_card_page.dart';
 
+import 'audio_player_holder.dart';
 import 'destination.dart';
 
 const List<Destination> allDestinations = <Destination>[
@@ -227,10 +229,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
       (int index) {
         switch (index) {
           case 0:
-            return BigCardPage(destination: allDestinations[index]);
+            return AudioPlayerHolder(child: BigCardPage(key: UniqueKey(), destination: allDestinations[index]));
+            break;
+          case 3:
+            return AudioPlayerHolder(child: SmallCardListPage(key: UniqueKey(), destination: allDestinations[index]));
             break;
           default:
-            return UnfinishedPage(destination: allDestinations[index]);
+            return UnfinishedPage(key: UniqueKey(), destination: allDestinations[index]);
         }
       }).toList();
     _hide = AnimationController(vsync: this, duration: kThemeAnimationDuration);

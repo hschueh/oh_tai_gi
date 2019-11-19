@@ -166,14 +166,15 @@ class VocabularyProvider {
     return vocabulary;
   }
 
-  Future<void> insertAll(List<Vocabulary> vocabularyList) async {
+  Future<List<dynamic>> insertAll(List<Vocabulary> vocabularyList) async {
+    Batch batch = db.batch();
     for(int i = 0; i < vocabularyList.length; ++i)
-      await db.insert(tableVocabulary, vocabularyList[i].toJson());
+      batch.insert(tableVocabulary, vocabularyList[i].toJson());
+    return await batch.commit(continueOnError: true);
   }
 
   Future<Vocabulary> getVocabulary(int id) async {
     List<Map> maps = await db.query(tableVocabulary,
-        columns: [columnUId, columnLearnt, columnTitle, columnHashCode],
         where: '$columnUId = ?',
         whereArgs: [id]);
     if (maps.length > 0) {
@@ -182,8 +183,8 @@ class VocabularyProvider {
     return null;
   }
 
-  Future<List<Vocabulary>> getVocabularyList({offset: 0}) async {
-    List<Map> maps = await db.query(tableVocabulary, limit: 50, offset: 0, orderBy: '$columnLearnt ASC');
+  Future<List<Vocabulary>> getVocabularyList({offset: 0, limit: 50,}) async {
+    List<Map> maps = await db.query(tableVocabulary, limit: limit, offset: offset, orderBy: '$columnLearnt ASC');
     if (maps.length > 0) {
       return List.generate(maps.length, (i) {
         return Vocabulary.fromJson(maps[i]);
@@ -198,7 +199,6 @@ class VocabularyProvider {
 
   Future<Vocabulary> getVocabularyWithTitleHash(int titleHashCode) async {
     List<Map> maps = await db.query(tableVocabulary,
-        columns: [columnUId, columnLearnt, columnTitle, columnHashCode],
         where: '$columnHashCode = ?',
         whereArgs: [titleHashCode]);
     if (maps.length > 0) {
@@ -209,6 +209,10 @@ class VocabularyProvider {
 
   Future<int> delete(int id) async {
     return await db.delete(tableVocabulary, where: '$columnUId = ?', whereArgs: [id]);
+  }
+
+  Future<int> deleteWithHashTitle(int titleHashCode) async {
+    return await db.delete(tableVocabulary, where: '$columnHashCode = ?', whereArgs: [titleHashCode]);
   }
 
   Future<int> update(Vocabulary vocabulary) async {

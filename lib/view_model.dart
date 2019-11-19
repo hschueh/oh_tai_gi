@@ -1,94 +1,81 @@
-// import 'dart:async';
+import 'dart:async';
 
-// import 'package:oh_tai_gi/db/vocabulary.dart';
+import 'package:oh_tai_gi/db/vocabulary.dart';
 
-// abstract class BaseViewModel<T> {
-//   var _dataSourceController = StreamController<T>.broadcast();
+abstract class BaseViewModel<T> {
+  var _dataSourceController = StreamController<T>.broadcast();
 
-//   Sink get inputData => _dataSourceController;
+  Sink get inputData => _dataSourceController;
 
-//   Stream get outputData => _dataSourceController.stream;
+  Stream get outputData => _dataSourceController.stream;
 
-//   dispose() {
-//     _dataSourceController.close();
-//   }
-// }
+  dispose() {
+    _dataSourceController.close();
+  }
+}
 
-// class VocabularyListViewModel extends BaseViewModel<List<int>> {
-//   List<Vocabulary> storyList = List();
-//   var offset = -1;
+class VocabularyListViewModel extends BaseViewModel<List<int>> {
+  List<Vocabulary> vocabularyList = List();
+  var offset = -1;
 
-//   Stream<List<Vocabulary>> get outStoryList => outputData.map((stories) {
-//         storyList.addAll(stories.stories);
-//         return storyList;
-//       });
+  Stream<List<Vocabulary>> get outStoryList => outputData.map((stories) {
+        vocabularyList.addAll(stories.stories);
+        return vocabularyList;
+      });
+}
 
-//   // refreshStoryList() async {
-//   //   offset = 0;
-//   //   storyList.clear();
-//   //   StoryListModel model = await NetWorkRepo.requestNewsList(offset);
-//   //   inputData.add(model);
-//   // }
+/*
+class StoryListViewModel extends BaseViewModel<StoryListModel> {
+  List<StoryModel> storyList = List();
+  var offset = -1;
 
-//   // loadNextPage() async {
-//   //   offset++;
-//   //   StoryListModel model = await NetWorkRepo.requestNewsList(offset);
-//   //   inputData.add(model);
-//   // }
-// }
+  Stream<List<StoryModel>> get outStoryList => outputData.map((stories) {
+        storyList.addAll(stories.stories);
+        return storyList;
+      });
 
-// /*
-// class StoryListViewModel extends BaseViewModel<StoryListModel> {
-//   List<StoryModel> storyList = List();
-//   var offset = -1;
+  refreshStoryList() async {
+    offset = 0;
+    storyList.clear();
+    StoryListModel model = await NetWorkRepo.requestNewsList(offset);
+    inputData.add(model);
+  }
 
-//   Stream<List<StoryModel>> get outStoryList => outputData.map((stories) {
-//         storyList.addAll(stories.stories);
-//         return storyList;
-//       });
+  loadNextPage() async {
+    offset++;
+    StoryListModel model = await NetWorkRepo.requestNewsList(offset);
+    inputData.add(model);
+  }
+}
 
-//   refreshStoryList() async {
-//     offset = 0;
-//     storyList.clear();
-//     StoryListModel model = await NetWorkRepo.requestNewsList(offset);
-//     inputData.add(model);
-//   }
+class StoryContentViewModel extends BaseViewModel<StoryContentModel> {
+  int storyId;
 
-//   loadNextPage() async {
-//     offset++;
-//     StoryListModel model = await NetWorkRepo.requestNewsList(offset);
-//     inputData.add(model);
-//   }
-// }
+  StoryContentViewModel(this.storyId);
 
-// class StoryContentViewModel extends BaseViewModel<StoryContentModel> {
-//   int storyId;
+  Stream<StoryContentModel> get outStoryContent =>
+      outputData.map((storyContent) {
+        return storyContent;
+      });
 
-//   StoryContentViewModel(this.storyId);
+  Stream<String> get outStoryTitle => outputData.map((storyContent) {
+        if (storyContent == null) {
+          return "加载中";
+        }
+        return storyContent.title;
+      });
 
-//   Stream<StoryContentModel> get outStoryContent =>
-//       outputData.map((storyContent) {
-//         return storyContent;
-//       });
+  Stream<String> get outStoryHtml => outputData.asyncMap((storyContent) {
+        if (storyContent == null) {
+          return "";
+        }
+        return makeStoryContextHtml(storyContent);
+      });
 
-//   Stream<String> get outStoryTitle => outputData.map((storyContent) {
-//         if (storyContent == null) {
-//           return "加载中";
-//         }
-//         return storyContent.title;
-//       });
-
-//   Stream<String> get outStoryHtml => outputData.asyncMap((storyContent) {
-//         if (storyContent == null) {
-//           return "";
-//         }
-//         return makeStoryContextHtml(storyContent);
-//       });
-
-//   fetchStoryContent() async {
-//     StoryContentModel contentModel =
-//         await NetWorkRepo.requestNewsContent(storyId);
-//     inputData.add(contentModel);
-//   }
-// }
-// */
+  fetchStoryContent() async {
+    StoryContentModel contentModel =
+        await NetWorkRepo.requestNewsContent(storyId);
+    inputData.add(contentModel);
+  }
+}
+*/

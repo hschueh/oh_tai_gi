@@ -13,8 +13,8 @@ class BigCard extends StatelessWidget {
         style: Theme.of(context).textTheme.display1,
       ));
       for(int j = 0; j < _vocabulary.heteronyms[i].definitions.length; ++j) {
-        children.add(Container(
-          child: Row(
+        children.add(
+          Row(
             children: <Widget>[
               SizedBox(width: 10.0),
               Flexible(child:Text(
@@ -23,7 +23,7 @@ class BigCard extends StatelessWidget {
               )),
             ],
           )
-        ));
+        );
       }
     }
     return ListView(children: children);
@@ -39,6 +39,7 @@ class BigCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
+          onTap: (){},
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
