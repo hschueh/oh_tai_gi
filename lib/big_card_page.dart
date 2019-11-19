@@ -99,6 +99,16 @@ class _BigCardPageState extends State<BigCardPage> {
       body: Container(
         margin: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
         child: Dismissible(
+          background: Container(
+            padding: const EdgeInsets.only(left: 15),
+            alignment: Alignment.centerLeft,
+            color: Colors.green, child:Icon(Icons.mood, size: 64,)
+          ),
+          secondaryBackground: Container(
+            padding: const EdgeInsets.only(right: 15),
+            alignment: Alignment.centerRight,
+            color: Colors.yellow, child:Icon(Icons.mood_bad, size: 64,)
+          ),
           onDismissed: (DismissDirection direction){
             if(direction == DismissDirection.startToEnd) {
               _next(true);
@@ -108,12 +118,13 @@ class _BigCardPageState extends State<BigCardPage> {
           },
           child:BigCard(v),
           key: UniqueKey(),
-        )),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _next(true),
-        tooltip: 'Increment',
-        child: Icon(Icons.thumb_up),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        ),
+      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => _next(true),
+      //   tooltip: 'Increment',
+      //   child: Icon(Icons.thumb_up),
+      // ),
     );
   }
 }
