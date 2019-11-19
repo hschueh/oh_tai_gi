@@ -1,4 +1,4 @@
-package com.example.oh_tai_gi
+package com.gonnaggstudio.oh_tai_gi
 
 import android.os.Bundle
 

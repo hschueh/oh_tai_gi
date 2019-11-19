@@ -32,6 +32,7 @@ class BigCardPage extends StatefulWidget {
 class _BigCardPageState extends State<BigCardPage> {
   int _index = 0;
   List<Vocabulary> vocabularies = [];
+  VocabularyProvider vp;
   AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
   static String prefAudioFormat = (Platform.isIOS)?"mp3":"ogg";
   _BigCardPageState() {
@@ -43,8 +44,16 @@ class _BigCardPageState extends State<BigCardPage> {
 
 
   void initialize() async {
+    vp = VocabularyProvider();
+    await vp.open('vocabulary.db');
+    List<Vocabulary> vs = await vp.getVocabularyList();
+    if(vs.length > 0) {
+      _setVocabularyList(vs);
+      return;
+    }
     String contents = await getFileData("assets/dict/dict-twblg-ext.json");
-    List<Vocabulary> vs = json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList();
+    vs = json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList();
+    await vp.insertAll(vs);
     _setVocabularyList(vs);
   }
 
