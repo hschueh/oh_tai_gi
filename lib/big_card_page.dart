@@ -4,10 +4,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/ui/big_card.dart';
 
-import 'audio_player_holder.dart';
+import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'db/vocabulary.dart';
 import 'destination.dart';
-import 'utils.dart';
+import 'package:oh_tai_gi/utils/utils.dart';
 
 const bool IS_DEBUG = false;
 

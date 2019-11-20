@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:oh_tai_gi/big_card_page.dart';
 import 'package:oh_tai_gi/small_card_page.dart';
 
-import 'audio_player_holder.dart';
+import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'destination.dart';
 
 const List<Destination> allDestinations = <Destination>[

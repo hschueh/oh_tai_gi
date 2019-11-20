@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oh_tai_gi/audio_player_holder.dart';
+import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
 
 class SmallCard extends StatelessWidget {

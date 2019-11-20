@@ -6,7 +6,7 @@ import 'package:oh_tai_gi/ui/small_card.dart';
 
 import 'db/vocabulary.dart';
 import 'destination.dart';
-import 'utils.dart';
+import 'package:oh_tai_gi/utils/utils.dart';
 
 const bool IS_DEBUG = false;
 
