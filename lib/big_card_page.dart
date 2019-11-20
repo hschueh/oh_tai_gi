@@ -99,15 +99,20 @@ class _BigCardPageState extends State<BigCardPage> {
       body: Container(
         margin: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
         child: Dismissible(
-          background: Container(
-            padding: const EdgeInsets.only(left: 15),
-            alignment: Alignment.centerLeft,
-            color: Colors.green, child:Icon(Icons.mood, size: 64,)
+          background: Card(
+            color: Colors.green,
+            child:Container(
+              padding: const EdgeInsets.only(left: 15),
+              alignment: Alignment.centerLeft,
+              child:Icon(Icons.mood, size: 64,)
+            )
           ),
-          secondaryBackground: Container(
-            padding: const EdgeInsets.only(right: 15),
-            alignment: Alignment.centerRight,
-            color: Colors.yellow, child:Icon(Icons.mood_bad, size: 64,)
+          secondaryBackground: Card(
+            color: Colors.yellow,
+            child:Container(
+              padding: const EdgeInsets.only(right: 15),
+              alignment: Alignment.centerRight,child:Icon(Icons.mood_bad, size: 64,)
+            )
           ),
           onDismissed: (DismissDirection direction){
             if(direction == DismissDirection.startToEnd) {
