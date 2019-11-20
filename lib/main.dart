@@ -215,6 +215,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
   AnimationController _hide;
   int _currentIndex = 0;
 
+  final GlobalKey<SmallCardListPageState> _keySmallCardPage = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -232,7 +234,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
             return AudioPlayerHolder(child: BigCardPage(key: UniqueKey(), destination: allDestinations[index]));
             break;
           case 3:
-            return AudioPlayerHolder(child: SmallCardListPage(key: UniqueKey(), destination: allDestinations[index]));
+            return AudioPlayerHolder(child: SmallCardListPage(key: _keySmallCardPage, destination: allDestinations[index]));
             break;
           default:
             return UnfinishedPage(key: UniqueKey(), destination: allDestinations[index]);
@@ -287,6 +289,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
               );
               if (destination.index == _currentIndex) {
                 _faders[destination.index].forward();
+                if(_currentIndex == 3) {
+                  _keySmallCardPage.currentState.refresh();
+                }
                 return view;
               } else {
                 _faders[destination.index].reverse();

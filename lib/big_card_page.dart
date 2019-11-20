@@ -34,9 +34,6 @@ class _BigCardPageState extends State<BigCardPage> {
   List<Vocabulary> vocabularies = [];
   VocabularyProvider vp;
   _BigCardPageState() {
-    if(IS_DEBUG) {
-      AudioPlayer.logEnabled = true;
-    }
     initialize();
   }
 
@@ -65,6 +62,15 @@ class _BigCardPageState extends State<BigCardPage> {
   }
 
   void _next(bool thumbUp) {
+    Vocabulary v = vocabularies[_index];
+    v.learnt = v.learnt+1;
+    vp.update(v).then(
+      (result) => {
+        if(IS_DEBUG) {
+          print("Update result: $result")
+        }
+      }
+    );
     setState(() {
       _index++;
       _tryToPlayAudio();

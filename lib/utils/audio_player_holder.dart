@@ -7,10 +7,11 @@ class AudioPlayerHolder extends InheritedWidget {
 
   final AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
   static String prefAudioFormat = (Platform.isIOS)?"mp3":"ogg";
-
   AudioPlayerHolder({
     Widget child
-  }) :super(child: child);
+  }) :super(child: child) {
+    // AudioPlayer.logEnabled = true;
+  }
 
   static AudioPlayerHolder of(BuildContext context) {
     return context.inheritFromWidgetOfExactType(AudioPlayerHolder);

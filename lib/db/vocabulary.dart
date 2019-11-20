@@ -183,8 +183,8 @@ class VocabularyProvider {
     return null;
   }
 
-  Future<List<Vocabulary>> getVocabularyList({offset: 0, limit: 50,}) async {
-    List<Map> maps = await db.query(tableVocabulary, limit: limit, offset: offset, orderBy: '$columnLearnt ASC');
+  Future<List<Vocabulary>> getVocabularyList({offset: 0, limit: 50, dynamic where, List<dynamic> whereArgs}) async {
+    List<Map> maps = await db.query(tableVocabulary, limit: limit, offset: offset, where: where, whereArgs: whereArgs, orderBy: '$columnLearnt ASC');
     if (maps.length > 0) {
       return List.generate(maps.length, (i) {
         return Vocabulary.fromJson(maps[i]);
