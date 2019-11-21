@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:oh_tai_gi/big_card_page.dart';
 import 'package:oh_tai_gi/small_card_page.dart';
+import 'package:oh_tai_gi/ui/configuration_page.dart';
 
 import 'package:oh_tai_gi/utils/audio_player_holder.dart';
+import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'destination.dart';
 
 const List<Destination> allDestinations = <Destination>[
   Destination(0, 'Random Pick', Icons.shuffle, Colors.teal),
   Destination(1, 'List', Icons.list, Colors.cyan),
-  Destination(2, 'Trend', Icons.trending_up, Colors.orange),
+  Destination(2, 'Mini Game', Icons.videogame_asset, Colors.orange),
   Destination(3, 'Review', Icons.repeat, Colors.blue),
   Destination(4, 'Settings', Icons.settings, Colors.grey)
 ];
@@ -34,7 +36,7 @@ class UnfinishedPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.announcement, size: 120,),
-            Text("Page under construction!", style: Theme.of(context).textTheme.headline,)
+            Text("功能開發中...", style: Theme.of(context).textTheme.headline,)
           ],
         )
       ),
@@ -195,6 +197,8 @@ class _DestinationViewState extends State<DestinationView> {
                 return ListPage(destination: widget.destination);
               case '/text':
                 return TextPage(destination: widget.destination);
+              default:
+                return UnfinishedPage(destination: widget.destination);
             }
           },
         );
@@ -231,10 +235,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
       (int index) {
         switch (index) {
           case 0:
-            return AudioPlayerHolder(child: BigCardPage(key: UniqueKey(), destination: allDestinations[index]));
+            return BigCardPage(key: UniqueKey(), destination: allDestinations[index]);
             break;
           case 3:
-            return AudioPlayerHolder(child: SmallCardListPage(key: _keySmallCardPage, destination: allDestinations[index]));
+            return SmallCardListPage(key: _keySmallCardPage, destination: allDestinations[index]);
+            break;
+          case 4:
+            return ConfigurationPage(key: UniqueKey(), destination: allDestinations[index]);
             break;
           default:
             return UnfinishedPage(key: UniqueKey(), destination: allDestinations[index]);
@@ -274,7 +281,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: _handleScrollNotification,
-      child: Scaffold(
+      child: OTGConfig(child:AudioPlayerHolder(child:Scaffold(
         body: SafeArea(
           top: false,
           child: Stack(
@@ -325,10 +332,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
           ),
         ),
       ),
-    );
+    )));
   }
 }
 
-void main() {
+void main() async {
+  OTGConfig.initialize();
   runApp(MaterialApp(home: HomePage()));
 }

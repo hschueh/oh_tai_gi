@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
+import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 
 class BigCard extends StatelessWidget {
   final Vocabulary _vocabulary;
   BigCard(this._vocabulary,{Key key}) : super(key: key);
+
+  void _tryToPlayAudio(Vocabulary vocabulary, BuildContext context) async {
+    for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
+      await AudioPlayerHolder.of(context).tryToPlayAudio(vocabulary.heteronyms[i].aid);
+    }
+  }
 
   ListView buildBody(BuildContext context) {
     List<Widget> children = <Widget>[];
@@ -44,9 +51,21 @@ class BigCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                _vocabulary.title,
-                style: Theme.of(context).textTheme.display2,
+              Row(
+                children: [
+                  Text(
+                    _vocabulary.title,
+                    style: Theme.of(context).textTheme.display2,
+                  ),
+                  SizedBox(width: 15,),
+                  InkWell(
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: (){
+                      _tryToPlayAudio(_vocabulary, context);
+                    },
+                    child: Icon(Icons.volume_up, size: 35,),
+                  ),
+                ]
               ),
               Expanded(
                 child: buildBody(context)

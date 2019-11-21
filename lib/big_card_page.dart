@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/ui/big_card.dart';
 
 import 'package:oh_tai_gi/utils/audio_player_holder.dart';
+import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'db/vocabulary.dart';
 import 'destination.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
@@ -37,7 +37,6 @@ class _BigCardPageState extends State<BigCardPage> {
     initialize();
   }
 
-
   void initialize() async {
     vp = VocabularyProvider();
     await vp.open('vocabulary.db');
@@ -55,6 +54,10 @@ class _BigCardPageState extends State<BigCardPage> {
   void _tryToPlayAudio() async {
     if(_index >= vocabularies.length)
       return;
+    int connectivity = await getConnectivityResult();
+    int autoPlaySetting = OTGConfig.of(context).get(OTGConfig.keyAutoPlayAudio, 0);
+    if(autoPlaySetting > connectivity)
+      return;
     Vocabulary v = vocabularies[_index];
     for(int i = 0; i < v.heteronyms.length; ++i) {
       await AudioPlayerHolder.of(context).tryToPlayAudio(v.heteronyms[i].aid);
@@ -65,11 +68,7 @@ class _BigCardPageState extends State<BigCardPage> {
     Vocabulary v = vocabularies[_index];
     v.learnt = v.learnt+1;
     vp.update(v).then(
-      (result) => {
-        if(IS_DEBUG) {
-          print("Update result: $result")
-        }
-      }
+      (result) => print("Update result: $result")
     );
     setState(() {
       _index++;

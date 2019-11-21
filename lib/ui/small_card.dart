@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
+import 'package:oh_tai_gi/utils/otg_config.dart';
+import 'package:oh_tai_gi/utils/utils.dart';
 
 class SmallCard extends StatelessWidget {
   final Vocabulary _vocabulary;
@@ -41,11 +43,22 @@ class SmallCard extends StatelessWidget {
     }
   }
 
+  void _tryToPrepareAudio(Vocabulary vocabulary, BuildContext context) async {
+    int connectivity = await getConnectivityResult();
+    int autoPlaySetting = OTGConfig.of(context).get(OTGConfig.keyAutoPlayAudio, 0);
+    if(autoPlaySetting > connectivity)
+      return;
+    for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
+      await AudioPlayerHolder.of(context).prepareAudio(vocabulary.heteronyms[i].aid);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if(_vocabulary == null)
       return Center(child: CircularProgressIndicator());
-
+    // Not working properly.
+    // _tryToPrepareAudio(_vocabulary, context);
     return Card(
       margin: const EdgeInsets.all(4.0),
       child: Container(
