@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:oh_tai_gi/big_card_page.dart';
 import 'package:oh_tai_gi/small_card_page.dart';
 import 'package:oh_tai_gi/ui/configuration_page.dart';
@@ -336,7 +337,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
   }
 }
 
-void main() async {
-  OTGConfig.initialize();
-  runApp(MaterialApp(home: HomePage()));
+void main() {
+  OTGConfig.initialize().then((_) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+        runApp(MaterialApp(home: HomePage()));
+      });
+    }
+  );
 }
