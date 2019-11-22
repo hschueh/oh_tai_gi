@@ -170,7 +170,9 @@ class VocabularyProvider {
     Batch batch = db.batch();
     for(int i = 0; i < vocabularyList.length; ++i)
       batch.insert(tableVocabulary, vocabularyList[i].toJson());
-    return await batch.commit(continueOnError: true);
+    List<dynamic> ret = await batch.commit(continueOnError: true);
+    ret.asMap().forEach((index, value) => vocabularyList[index].id = value);
+    return vocabularyList;
   }
 
   Future<Vocabulary> getVocabulary(int id) async {

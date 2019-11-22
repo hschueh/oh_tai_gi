@@ -18,9 +18,7 @@ class SmallCardListPage extends StatefulWidget {
 class SmallCardListPageState extends State<SmallCardListPage> {
   List<Vocabulary> vocabularies = [];
   VocabularyProvider vp;
-  SmallCardListPageState() {
-    retrieveVocabularyList();
-  }
+  SmallCardListPageState();
 
   refresh() {
     retrieveVocabularyList();

@@ -18,6 +18,7 @@ environment:
 
 dependencies:
   audioplayers: ^0.13.2
+  flip_card: ^0.4.4
   sqflite: ^1.1.7+1
   shared_preferences: ^0.5.4+5
   connectivity: ^0.4.5+3
@@ -48,6 +49,8 @@ flutter:
   assets:
      - assets/dict/dict-twblg.json
      - assets/dict/dict-twblg-ext.json
+     - assets/audio/win.wav
+     - assets/audio/correct.wav
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

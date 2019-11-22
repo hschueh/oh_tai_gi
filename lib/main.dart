@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:oh_tai_gi/ui/big_card_page.dart';
+import 'package:oh_tai_gi/ui/flip_game_page.dart';
 import 'package:oh_tai_gi/ui/small_card_page.dart';
 import 'package:oh_tai_gi/ui/configuration_page.dart';
 
@@ -220,6 +221,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
   int _currentIndex = 0;
 
   final GlobalKey<SmallCardListPageState> _keySmallCardPage = GlobalKey();
+  final GlobalKey<FlipGamePageState> _keyFlipCardPage = GlobalKey();
+  
 
   @override
   void initState() {
@@ -236,6 +239,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
         switch (index) {
           case 0:
             return BigCardPage(key: UniqueKey(), destination: allDestinations[index]);
+            break;
+          case 2:
+            return FlipGamePage(key: _keyFlipCardPage, destination: allDestinations[index]);
             break;
           case 3:
             return SmallCardListPage(key: _keySmallCardPage, destination: allDestinations[index]);
@@ -298,6 +304,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
                 _faders[destination.index].forward();
                 if(_currentIndex == 3) {
                   _keySmallCardPage.currentState.refresh();
+                } else if (_currentIndex == 2) {
+                  _keyFlipCardPage.currentState.refresh();
                 }
                 return view;
               } else {
