@@ -39,7 +39,7 @@ class SmallCard extends StatelessWidget {
 
   void _tryToPlayAudio(Vocabulary vocabulary, BuildContext context) async {
     for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
-      await AudioPlayerHolder.of(context).tryToPlayAudio(vocabulary.heteronyms[i].aid);
+      await AudioPlayerHolder.tryToPlayAudio(vocabulary.heteronyms[i].aid);
     }
   }
 
@@ -49,7 +49,7 @@ class SmallCard extends StatelessWidget {
     if(autoPlaySetting > connectivity)
       return;
     for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
-      await AudioPlayerHolder.of(context).prepareAudio(vocabulary.heteronyms[i].aid);
+      await AudioPlayerHolder.prepareAudio(vocabulary.heteronyms[i].aid);
     }
   }
 

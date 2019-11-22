@@ -5,7 +5,6 @@ import 'package:oh_tai_gi/big_card_page.dart';
 import 'package:oh_tai_gi/small_card_page.dart';
 import 'package:oh_tai_gi/ui/configuration_page.dart';
 
-import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'destination.dart';
 
@@ -282,7 +281,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: _handleScrollNotification,
-      child: OTGConfig(child:AudioPlayerHolder(child:Scaffold(
+      child: OTGConfig(child:Scaffold(
         body: SafeArea(
           top: false,
           child: Stack(
@@ -333,7 +332,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
           ),
         ),
       ),
-    )));
+    ));
   }
 }
 
