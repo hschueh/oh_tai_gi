@@ -16,10 +16,11 @@ class FlipGamePage extends StatefulWidget {
 }
 
 class FlipGamePageState extends State<FlipGamePage> {
+  static const int GAME_SIZE = 6;
   List<Vocabulary> vocabularies = [];
-  List<int> shuffler = List<int>.generate(12, (i) => i);
+  List<int> shuffler = List<int>.generate(GAME_SIZE*2, (i) => i);
   int correctCnt = 0;
-  List<GlobalKey<FlipCardState>> keys = List<GlobalKey<FlipCardState>>.generate(12, (i) => GlobalKey<FlipCardState>());
+  List<GlobalKey<FlipCardState>> keys = List<GlobalKey<FlipCardState>>.generate(GAME_SIZE*2, (i) => GlobalKey<FlipCardState>());
   VocabularyProvider vp;
   GlobalKey<FlipCardState> flippedKey;
   Vocabulary flippedVocabulary;
@@ -37,11 +38,10 @@ class FlipGamePageState extends State<FlipGamePage> {
       key.currentState.toggleCard();
     } else {
       ++correctCnt;
-      if(correctCnt == 6) {
+      if(correctCnt == GAME_SIZE) {
         correctCnt = 0;
-        AudioPlayerHolder.playLocal("win.wav");
+        AudioPlayerHolder.playLocal("win.wav");// TODO: Should add learnt by one
         refresh();
-        keys.forEach((key) => key.currentState.toggleCard());
       } else {
         AudioPlayerHolder.playLocal("correct.wav");
       }
@@ -51,6 +51,11 @@ class FlipGamePageState extends State<FlipGamePage> {
   }
 
   refresh() {
+    keys.forEach((key) {
+      // toggle back to front
+      if(key.currentWidget != null && !key.currentState.isFront)
+        key.currentState.toggleCard();
+    });
     retrieveVocabularyList();
     shuffler.shuffle();
   }
@@ -76,9 +81,9 @@ class FlipGamePageState extends State<FlipGamePage> {
   @override
   Widget build(BuildContext context) {
     Widget body;
-    if(vocabularies.length >= 6) {
+    if(vocabularies.length >= GAME_SIZE) {
       body = GridView.builder(
-        itemCount: 12,
+        itemCount: GAME_SIZE*2,
         itemBuilder: (context, position) {
           int realPos = shuffler[position];
           return FlippableCard(vocabularies[(realPos/2).floor()], realPos%2 == 0, onFlip, keys[realPos], key: UniqueKey());
