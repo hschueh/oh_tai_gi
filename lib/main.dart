@@ -1,6 +1,8 @@
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:oh_tai_gi/ui/big_card_page.dart';
 import 'package:oh_tai_gi/ui/flip_game_page.dart';
 import 'package:oh_tai_gi/ui/small_card_page.dart';
@@ -346,10 +348,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
 }
 
 void main() {
+  FirebaseAnalytics analytics = FirebaseAnalytics();
   OTGConfig.initialize().then((_) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
-        runApp(MaterialApp(home: HomePage()));
+        runApp(
+          MaterialApp(
+            home: HomePage(),
+            navigatorObservers: [
+              FirebaseAnalyticsObserver(analytics: analytics),
+            ],
+          )
+        );
       });
     }
   );

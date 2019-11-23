@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>275648812286-9rf0bulrk550jv8v71t76f3fg3ed8sdq.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.275648812286-9rf0bulrk550jv8v71t76f3fg3ed8sdq</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBWfJ2ByhZyyIz1UOH1EebkxkQNBTJ0ThI</string>
+	<key>GCM_SENDER_ID</key>
+	<string>275648812286</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.gonnaggstudio.ohTaiGi</string>
+	<key>PROJECT_ID</key>
+	<string>ohtaigi-fd221</string>
+	<key>STORAGE_BUCKET</key>
+	<string>ohtaigi-fd221.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:275648812286:ios:a2a9fca88fb1f47bc041af</string>
+	<key>DATABASE_URL</key>
+	<string>https://ohtaigi-fd221.firebaseio.com</string>
+</dict>
+</plist>

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "275648812286",
+    "firebase_url": "https://ohtaigi-fd221.firebaseio.com",
+    "project_id": "ohtaigi-fd221",
+    "storage_bucket": "ohtaigi-fd221.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:275648812286:android:6c86c3668b543fb0c041af",
+        "android_client_info": {
+          "package_name": "com.gonnaggstudio.oh_tai_gi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "275648812286-nov274lm8vcfvibq3k8h5a3dke3ae56h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlsAGyiJeMywgQZXoX-4EgqdbJ4ywIzho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "275648812286-nov274lm8vcfvibq3k8h5a3dke3ae56h.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "275648812286-9rf0bulrk550jv8v71t76f3fg3ed8sdq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.gonnaggstudio.ohTaiGi"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
