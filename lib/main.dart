@@ -1,3 +1,4 @@
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,6 +10,7 @@ import 'package:oh_tai_gi/ui/small_card_page.dart';
 import 'package:oh_tai_gi/ui/configuration_page.dart';
 
 import 'package:oh_tai_gi/utils/otg_config.dart';
+import 'package:oh_tai_gi/utils/utils.dart';
 import 'destination.dart';
 
 const List<Destination> allDestinations = <Destination>[
@@ -221,6 +223,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
   List<AnimationController> _faders;
   AnimationController _hide;
   int _currentIndex = 0;
+  BannerAd banner;
 
   final GlobalKey<SmallCardListPageState> _keySmallCardPage = GlobalKey();
   final GlobalKey<FlipGamePageState> _keyFlipCardPage = GlobalKey();
@@ -256,6 +259,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
         }
       }).toList();
     _hide = AnimationController(vsync: this, duration: kThemeAnimationDuration);
+
+    banner = BannerAd(
+      // Replace the testAdUnitId with an ad unit id from the AdMob dash.
+      // https://developers.google.com/admob/android/test-ads
+      // https://developers.google.com/admob/ios/test-ads
+      adUnitId: getBannerAdUnitId(),
+      size: AdSize.smartBanner,
+      listener: (MobileAdEvent event) {
+        print("BannerAd event is $event");
+      },
+    );
+    getBannerHeight().then((height) {
+      banner..load()
+      ..show(
+        anchorOffset: height,
+        anchorType: AnchorType.top,
+      );
+    });
   }
 
   @override
@@ -321,24 +342,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
             }).toList(),
           ),
         ),
-        bottomNavigationBar: ClipRect(
-          child: SizeTransition(
-            sizeFactor: _hide,
-            axisAlignment: -1.0,
-            child: BottomNavigationBar(
-              currentIndex: _currentIndex,
-              onTap: (int index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              items: allDestinations.map((Destination destination) {
-                return BottomNavigationBarItem(
-                  icon: Icon(destination.icon),
-                  backgroundColor: destination.color,
-                  title: Text(destination.title)
-                );
-              }).toList(),
+        bottomNavigationBar: SafeArea(
+          bottom: true,
+          child: ClipRect(
+            child: SizeTransition(
+              sizeFactor: _hide,
+              axisAlignment: -1.0,
+              child: BottomNavigationBar(
+                currentIndex: _currentIndex,
+                onTap: (int index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                items: allDestinations.map((Destination destination) {
+                  return BottomNavigationBarItem(
+                    icon: Icon(destination.icon),
+                    backgroundColor: destination.color,
+                    title: Text(destination.title)
+                  );
+                }).toList(),
+              ),
             ),
           ),
         ),
@@ -349,6 +373,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
 
 void main() {
   FirebaseAnalytics analytics = FirebaseAnalytics();
+  FirebaseAdMob.instance.initialize(appId: getAdAppId());
   OTGConfig.initialize().then((_) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {

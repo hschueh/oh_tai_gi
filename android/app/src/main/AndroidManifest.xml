@@ -12,6 +12,9 @@
         android:label="oh_tai_gi"
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8550386526282187~6915989844"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
