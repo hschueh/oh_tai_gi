@@ -40,8 +40,17 @@ class FlipGamePageState extends State<FlipGamePage> {
       ++correctCnt;
       if(correctCnt == GAME_SIZE) {
         correctCnt = 0;
-        AudioPlayerHolder.playLocal("win.wav");// TODO: Should add learnt by one
-        refresh();
+        AudioPlayerHolder.playLocal("win.wav");
+
+        List<Vocabulary> vs = vocabularies.sublist(0, GAME_SIZE);
+        vs = vs.map((v){
+          v.learnt = v.learnt+1;
+          return v;
+        }).toList();
+        vp.updateAll(vs).then(
+          (result) => refresh()
+        );
+
       } else {
         AudioPlayerHolder.playLocal("correct.wav");
       }
@@ -98,7 +107,7 @@ class FlipGamePageState extends State<FlipGamePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(Icons.mood_bad),
-            Text("你還沒有學過的單詞！", style: Theme.of(context).textTheme.body1,)
+            Text("學過的單詞還不足以開始遊戲！", style: Theme.of(context).textTheme.body1,)
           ],
         )
       );

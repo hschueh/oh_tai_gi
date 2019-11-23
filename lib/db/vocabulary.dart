@@ -147,18 +147,29 @@ class Vocabulary {
 class VocabularyProvider {
   Database db;
 
+  VocabularyProvider._privateConstructor();
+
+  static final VocabularyProvider _instance = VocabularyProvider._privateConstructor();
+
+  factory VocabularyProvider(){
+    return _instance;
+  }
+
   Future open(String path) async {
-    db = await openDatabase(join(await getDatabasesPath(), path), version: 1,
-        onCreate: (Database db, int version) async {
-      await db.execute('''
-        create table $tableVocabulary ( 
-          $columnUId integer primary key autoincrement, 
-          $columnHashCode integer not null UNIQUE,
-          $columnTitle text not null,
-          $columnHeteronyms text not null,
-          $columnLearnt integer not null)
-        ''');
-    });
+    if(db == null) {
+      db = await openDatabase(join(await getDatabasesPath(), path), version: 1,
+          onCreate: (Database db, int version) async {
+        await db.execute('''
+          create table $tableVocabulary ( 
+            $columnUId integer primary key autoincrement, 
+            $columnHashCode integer not null UNIQUE,
+            $columnTitle text not null,
+            $columnHeteronyms text not null,
+            $columnLearnt integer not null)
+          ''');
+      });
+    }
+    return;
   }
 
   Future<Vocabulary> insert(Vocabulary vocabulary) async {
@@ -220,6 +231,15 @@ class VocabularyProvider {
   Future<int> update(Vocabulary vocabulary) async {
     return await db.update(tableVocabulary, vocabulary.toJson(),
         where: '$columnUId = ?', whereArgs: [vocabulary.id]);
+  }
+
+
+  Future<List<dynamic>> updateAll(List<Vocabulary> vocabularyList) async {
+    Batch batch = db.batch();
+    for(int i = 0; i < vocabularyList.length; ++i)
+      batch.update(tableVocabulary, vocabularyList[i].toJson(), where: '$columnUId = ?', whereArgs: [vocabularyList[i].id]);
+    List<dynamic> ret = await batch.commit(continueOnError: true);
+    return ret;
   }
 
   Future close() async => db.close();

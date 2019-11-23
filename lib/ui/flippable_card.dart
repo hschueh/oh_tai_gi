@@ -58,19 +58,19 @@ class FlippableCard extends StatelessWidget {
         width: 100,
         child: Card(
           child: InkWell(
-            splashColor: Colors.blue.withAlpha(30),
+            splashColor: Colors.orangeAccent.withAlpha(30),
             onTap: (){
               globalKey.currentState.toggleCard();
               _tryToPlayAudio(vocabulary, context);
             }),
-          color: Colors.greenAccent,
+          color: Colors.orange[200],
         ),
       ),
       back: Container(
         margin: EdgeInsets.all(2),
         height: 100,
         width: 100,
-        child: Card(color: Colors.greenAccent, child: buildBody(context),)
+        child: Card(color: Colors.orange[200], child: buildBody(context),)
       )
     );
   }
