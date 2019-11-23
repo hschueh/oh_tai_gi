@@ -42,13 +42,13 @@ class _BigCardPageState extends State<BigCardPage> {
     await vp.open('vocabulary.db');
     List<Vocabulary> vs = await vp.getVocabularyList();
     if(vs.length > 0) {
-      _setVocabularyList(vs);
+      _appendVocabularyList(vs);
       return;
     }
     String contents = await getFileData("assets/dict/dict-twblg-ext.json");
     vs = json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList();
     vs = await vp.insertAll(vs);
-    _setVocabularyList(vs);
+    _appendVocabularyList(vs);
   }
 
   void _tryToPlayAudio() async {
@@ -76,9 +76,9 @@ class _BigCardPageState extends State<BigCardPage> {
     });
   }
 
-  void _setVocabularyList(List<Vocabulary> vs) {
+  void _appendVocabularyList(List<Vocabulary> vs) {
     setState(() {
-      this.vocabularies = vs;
+      this.vocabularies.addAll(vs);
       _tryToPlayAudio();
     });
   }

@@ -65,6 +65,7 @@ class FlipGamePageState extends State<FlipGamePage> {
       if(key.currentWidget != null && !key.currentState.isFront)
         key.currentState.toggleCard();
     });
+    this.vocabularies.clear();
     retrieveVocabularyList();
     shuffler.shuffle();
   }
@@ -74,16 +75,13 @@ class FlipGamePageState extends State<FlipGamePage> {
       vp = VocabularyProvider();
       await vp.open('vocabulary.db');
     }
-    List<Vocabulary> vs = await vp.getVocabularyList(where: '$columnLearnt > ?', whereArgs: ["0"]);
-    if(vs.length > 0) {
-      _setVocabularyList(vs);
-      return;
-    }
+    List<Vocabulary> vs = await vp.getVocabularyList(where: '$columnLearnt > ?', whereArgs: [0], limit: GAME_SIZE);
+    _appendVocabularyList(vs);
   }
 
-  void _setVocabularyList(List<Vocabulary> vs) {
+  void _appendVocabularyList(List<Vocabulary> vs) {
     setState(() {
-      this.vocabularies = vs;
+      this.vocabularies.addAll(vs);
     });
   }
 

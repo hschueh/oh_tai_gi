@@ -307,6 +307,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
                 } else if (_currentIndex == 2) {
                   _keyFlipCardPage.currentState.refresh();
                 }
+                // TODO Does big card page need to refresh?
                 return view;
               } else {
                 _faders[destination.index].reverse();

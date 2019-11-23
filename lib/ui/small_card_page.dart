@@ -21,6 +21,7 @@ class SmallCardListPageState extends State<SmallCardListPage> {
   SmallCardListPageState();
 
   refresh() {
+    this.vocabularies.clear();
     retrieveVocabularyList();
   }
 
@@ -29,16 +30,13 @@ class SmallCardListPageState extends State<SmallCardListPage> {
       vp = VocabularyProvider();
       await vp.open('vocabulary.db');
     }
-    List<Vocabulary> vs = await vp.getVocabularyList(where: '$columnLearnt > ?', whereArgs: ["0"]);
-    if(vs.length > 0) {
-      _setVocabularyList(vs);
-      return;
-    }
+    List<Vocabulary> vs = await vp.getVocabularyList(where: '$columnLearnt > ?', whereArgs: [0]);
+    _appendVocabularyList(vs);
   }
 
-  void _setVocabularyList(List<Vocabulary> vs) {
+  void _appendVocabularyList(List<Vocabulary> vs) {
     setState(() {
-      this.vocabularies = vs;
+      this.vocabularies.addAll(vs);
     });
   }
 

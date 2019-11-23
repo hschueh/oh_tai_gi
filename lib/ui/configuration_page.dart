@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/destination.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
 
@@ -63,7 +64,30 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                   OTGConfig.valueAutoPlayAudio[_autoPlayAudio], style: Theme.of(context).textTheme.title
                 ),
               )
-            ],)
+            ],),
+            Row(children: <Widget>[
+              Expanded(child:Text("清空學習紀錄", style: Theme.of(context).textTheme.title)),
+              FlatButton(
+                color: Colors.cyan,
+                padding: EdgeInsets.all(8.0),
+                splashColor: Colors.cyanAccent,
+                onPressed: () {
+                  VocabularyProvider().getVocabularyList(limit: 100000, where: '$columnLearnt > ?', whereArgs: [0])
+                    .then((List<Vocabulary> vs){
+                      vs = vs.map((v){
+                        v.learnt = 0;
+                        return v;
+                      }).toList();
+                      VocabularyProvider().updateAll(vs).then(
+                        (result) => print("Clean learnt finished.")
+                      );
+                    });
+                },
+                child: Text(
+                  "清空", style: Theme.of(context).textTheme.title
+                ),
+              )
+            ],),
           ],
         )
       ),
