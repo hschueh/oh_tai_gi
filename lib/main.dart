@@ -1,4 +1,5 @@
 import 'package:firebase_admob/firebase_admob.dart';
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -12,6 +13,8 @@ import 'package:oh_tai_gi/ui/configuration_page.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
 import 'destination.dart';
+
+const USE_FIREBASE_ADMOB = false;
 
 const List<Destination> allDestinations = <Destination>[
   Destination(0, 'Random Pick', Icons.shuffle, Colors.teal),
@@ -223,7 +226,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
   List<AnimationController> _faders;
   AnimationController _hide;
   int _currentIndex = 0;
-  BannerAd banner;
+  Widget bannerAds = SizedBox(width: 0, height: 0,);
 
   final GlobalKey<SmallCardListPageState> _keySmallCardPage = GlobalKey();
   final GlobalKey<FlipGamePageState> _keyFlipCardPage = GlobalKey();
@@ -260,23 +263,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
       }).toList();
     _hide = AnimationController(vsync: this, duration: kThemeAnimationDuration);
 
-    banner = BannerAd(
-      // Replace the testAdUnitId with an ad unit id from the AdMob dash.
-      // https://developers.google.com/admob/android/test-ads
-      // https://developers.google.com/admob/ios/test-ads
-      adUnitId: getBannerAdUnitId(),
-      size: AdSize.smartBanner,
-      listener: (MobileAdEvent event) {
-        print("BannerAd event is $event");
-      },
-    );
-    getBannerHeight().then((height) {
-      banner..load()
-      ..show(
-        anchorOffset: height,
-        anchorType: AnchorType.top,
+    if(USE_FIREBASE_ADMOB) {
+      BannerAd banner = BannerAd(
+        adUnitId: getBannerAdUnitId(),
+        size: AdSize.smartBanner,
+        listener: (MobileAdEvent event) {
+          print("BannerAd event is $event");
+        },
       );
-    });
+      getBannerHeight().then((height) {
+        banner..load()
+        ..show(
+          anchorOffset: height,
+          anchorType: AnchorType.top,
+        );
+      });
+    } else {
+      bannerAds = AdmobBanner(
+       adUnitId: getBannerAdUnitId(),
+       adSize: AdmobBannerSize.BANNER,
+       onBannerCreated: (controller) {
+        print(controller);
+       },
+     );
+    }
   }
 
   @override
@@ -342,38 +352,48 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
             }).toList(),
           ),
         ),
-        bottomNavigationBar: SafeArea(
-          bottom: true,
-          child: ClipRect(
-            child: SizeTransition(
-              sizeFactor: _hide,
-              axisAlignment: -1.0,
-              child: BottomNavigationBar(
-                currentIndex: _currentIndex,
-                onTap: (int index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                items: allDestinations.map((Destination destination) {
-                  return BottomNavigationBarItem(
-                    icon: Icon(destination.icon),
-                    backgroundColor: destination.color,
-                    title: Text(destination.title)
-                  );
-                }).toList(),
+        bottomNavigationBar:
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children:[
+              bannerAds,
+              ClipRect(
+                child: SizeTransition(
+                  sizeFactor: _hide,
+                  axisAlignment: -1.0,
+                  child: BottomNavigationBar(
+                    currentIndex: _currentIndex,
+                    onTap: (int index) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
+                    },
+                    items: allDestinations.map((Destination destination) {
+                      return BottomNavigationBarItem(
+                        icon: Icon(destination.icon),
+                        backgroundColor: destination.color,
+                        title: Text(destination.title)
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
-            ),
+            ]
           ),
         ),
-      ),
-    ));
+      )
+    );
   }
 }
 
 void main() {
   FirebaseAnalytics analytics = FirebaseAnalytics();
-  FirebaseAdMob.instance.initialize(appId: getAdAppId());
+  if(USE_FIREBASE_ADMOB) {
+    FirebaseAdMob.instance.initialize(appId: getAdAppId());
+  } else {
+    Admob.initialize(getAdAppId());
+  }
   OTGConfig.initialize().then((_) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {

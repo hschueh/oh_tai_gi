@@ -1,4 +1,10 @@
 PODS:
+  - admob_flutter (0.3.4):
+    - Firebase/AdMob
+    - Firebase/Analytics
+    - FirebaseAnalytics (~> 6.1.3)
+    - Flutter
+    - Google-Mobile-Ads-SDK (~> 7.50)
   - audioplayers (0.0.1):
     - Flutter
   - connectivity (0.0.1):
@@ -98,6 +104,7 @@ PODS:
     - FMDB (~> 2.7.2)
 
 DEPENDENCIES:
+  - admob_flutter (from `.symlinks/plugins/admob_flutter/ios`)
   - audioplayers (from `.symlinks/plugins/audioplayers/ios`)
   - connectivity (from `.symlinks/plugins/connectivity/ios`)
   - device_info (from `.symlinks/plugins/device_info/ios`)
@@ -127,6 +134,8 @@ SPEC REPOS:
     - Reachability
 
 EXTERNAL SOURCES:
+  admob_flutter:
+    :path: ".symlinks/plugins/admob_flutter/ios"
   audioplayers:
     :path: ".symlinks/plugins/audioplayers/ios"
   connectivity:
@@ -147,6 +156,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite/ios"
 
 SPEC CHECKSUMS:
+  admob_flutter: 8033bcca85371a0554aa99d525a83a4770e679f0
   audioplayers: 84f968cea3f2deab00ec4f8ff53358b3c0b3992c
   connectivity: 6e94255659cc86dcbef1d452ad3e0491bb1b3e75
   device_info: cbf09d2ec12aa7110e0b09fabe54b5bd6c8efe74
