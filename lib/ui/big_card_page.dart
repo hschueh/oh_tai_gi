@@ -89,7 +89,7 @@ class _BigCardPageState extends State<BigCardPage> {
         margin: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
         child: Dismissible(
           background: Card(
-            color: Colors.green,
+            color: Colors.green[300],
             child:Container(
               padding: const EdgeInsets.only(left: 15),
               alignment: Alignment.centerLeft,
@@ -97,7 +97,7 @@ class _BigCardPageState extends State<BigCardPage> {
             )
           ),
           secondaryBackground: Card(
-            color: Colors.yellow,
+            color: Colors.yellow[300],
             child:Container(
               padding: const EdgeInsets.only(right: 15),
               alignment: Alignment.centerRight,child:Icon(Icons.mood_bad, size: 64,)
