@@ -53,6 +53,7 @@ flutter:
   assets:
      - assets/dict/dict-twblg.json
      - assets/dict/dict-twblg-ext.json
+     - assets/dict/dict-list.json
      - assets/audio/win.wav
      - assets/audio/correct.wav
 

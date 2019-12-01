@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:oh_tai_gi/ui/big_card_page.dart';
 import 'package:oh_tai_gi/ui/flip_game_page.dart';
+import 'package:oh_tai_gi/ui/list_page.dart';
 import 'package:oh_tai_gi/ui/small_card_page.dart';
 import 'package:oh_tai_gi/ui/configuration_page.dart';
 
@@ -247,6 +248,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
         switch (index) {
           case 0:
             return BigCardPage(key: UniqueKey(), destination: allDestinations[index]);
+            break;
+          case 1:
+            return VocabularyListPage(key: UniqueKey(), destination: allDestinations[index]);
             break;
           case 2:
             return FlipGamePage(key: _keyFlipCardPage, destination: allDestinations[index]);

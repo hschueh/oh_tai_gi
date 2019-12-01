@@ -73,7 +73,7 @@ class FlipGamePageState extends State<FlipGamePage> {
   void retrieveVocabularyList() async {
     if(vp == null) {
       vp = VocabularyProvider();
-      await vp.open('vocabulary.db');
+      await vp.open();
     }
     List<Vocabulary> vs = await vp.getVocabularyList(where: '$columnLearnt > ?', whereArgs: [0], limit: GAME_SIZE);
     _appendVocabularyList(vs);

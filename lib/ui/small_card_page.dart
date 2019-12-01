@@ -28,7 +28,7 @@ class SmallCardListPageState extends State<SmallCardListPage> {
   void retrieveVocabularyList() async {
     if(vp == null) {
       vp = VocabularyProvider();
-      await vp.open('vocabulary.db');
+      await vp.open();
     }
     List<Vocabulary> vs = await vp.getVocabularyList(where: '$columnLearnt > ?', whereArgs: [0]);
     _appendVocabularyList(vs);

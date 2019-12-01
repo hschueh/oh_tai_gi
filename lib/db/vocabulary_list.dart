@@ -1,3 +1,4 @@
+import 'package:oh_tai_gi/db/db_holder.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:convert';
@@ -38,7 +39,7 @@ class VocabularyList {
       columnTitle: title,
       columnCover: cover,
       columnProvider: provider,
-      columnList: list,
+      columnList: json.encode(list),
       columnHashCode: hashTitle
     };
     if (id != null) {
@@ -63,7 +64,13 @@ class VocabularyList {
     provider = map[columnProvider];
     cover = map[columnCover];
     hashTitle = title.hashCode;
-    list = map[columnList] is List<String>?map[columnList]:new List<String>.from(map[columnList]);
+    if(map[columnList] is List<String>) {
+      list = map[columnList];
+    } else if(map[columnList] is List) {
+      list = new List<String>.from(map[columnList]);
+    } else {
+      list = new List<String>.from(json.decode(map[columnList]));
+    }
   }
 }
 
@@ -78,20 +85,12 @@ class VocabularyListProvider {
     return _instance;
   }
 
-  Future open(String path) async {
+  Future open() async {
     if(db == null) {
-      db = await openDatabase(join(await getDatabasesPath(), path), version: 1,
-          onCreate: (Database db, int version) async {
-        await db.execute('''
-          create table $tableVocabularyList ( 
-            $columnUId integer primary key autoincrement, 
-            $columnHashCode integer not null,
-            $columnList text not null,
-            $columnTitle text not null,
-            $columnCover text not null,
-            $columnProvider text not null)
-          ''');
-      });
+      if(DBHolder().db == null) {
+        await DBHolder().initialize();
+      }
+      db = DBHolder().db;
     }
     return;
   }

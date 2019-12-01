@@ -1,5 +1,5 @@
+import 'package:oh_tai_gi/db/db_holder.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import 'dart:convert';
 
 final String tableVocabulary = 'vocabulary';
@@ -155,19 +155,12 @@ class VocabularyProvider {
     return _instance;
   }
 
-  Future open(String path) async {
+  Future open() async {
     if(db == null) {
-      db = await openDatabase(join(await getDatabasesPath(), path), version: 1,
-          onCreate: (Database db, int version) async {
-        await db.execute('''
-          create table $tableVocabulary ( 
-            $columnUId integer primary key autoincrement, 
-            $columnHashCode integer not null,
-            $columnTitle text not null,
-            $columnHeteronyms text not null,
-            $columnLearnt integer not null)
-          ''');
-      });
+      if(DBHolder().db == null) {
+        await DBHolder().initialize();
+      }
+      db = DBHolder().db;
     }
     return;
   }

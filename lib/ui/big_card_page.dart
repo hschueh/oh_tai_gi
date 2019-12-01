@@ -30,7 +30,7 @@ class _BigCardPageState extends State<BigCardPage> {
 
   void initialize() async {
     vp = VocabularyProvider();
-    await vp.open('vocabulary.db');
+    await vp.open();
     List<Vocabulary> vs = await vp.getVocabularyList();
     if(vs.length > 0) {
       _appendVocabularyList(vs);
