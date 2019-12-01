@@ -2,9 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'dart:convert';
 
+import 'package:oh_tai_gi/db/vocabulary_list.dart';
+
 void main() {
   group('Vocabulary', () {
-    test('Test: Parse single vocabulary.', () {
+    test('Test: Parse single vocabulary', () {
       Vocabulary v = Vocabulary.fromString("""
         {
           "title": "㔂",
@@ -36,7 +38,7 @@ void main() {
         expect(v.heteronyms[0].definitions.length, 1);
     });
 
-    test('Test: Parse single vocabulary with multiple heteronyms.', () {
+    test('Test: Parse single vocabulary with multiple heteronyms', () {
       Vocabulary v = Vocabulary.fromString("""
         {
           "title": "世",
@@ -100,7 +102,7 @@ void main() {
         expect(v.heteronyms[1].aid, 1303);
     });
 
-    test('Test: Parse multiple vocabulary.', () {
+    test('Test: Parse multiple vocabulary', () {
       List<Vocabulary> vs = json.decode("""
         [
           {
@@ -163,7 +165,7 @@ void main() {
         expect(vs[1].heteronyms[0].definitions.length, 1);
     });
 
-    test('Test: Parse vocabulary with audio_id.', () {
+    test('Test: Parse vocabulary with audio_id', () {
       Vocabulary v = Vocabulary.fromString("""
         {
           "title": "三",
@@ -200,6 +202,104 @@ void main() {
         expect(v.heteronyms.length, 1);
         expect(v.heteronyms[0].aid, 13205);
         expect(v.heteronyms[0].definitions.length, 4);
+    });
+
+
+    test('Test: Parse vocabulary list', () {
+      VocabularyList vl = VocabularyList.fromString("""
+        {
+          "title": "長途夜車 - 滅火器 Fire EX.",
+          "cover": "",
+          "privider": "O̍h Tâi Gí",
+          "list": [
+              "長途",
+              "暝車",
+              "時間",
+              "南",
+              "路燈",
+              "光線",
+              "伴",
+              "心事",
+              "思念",
+              "高速",
+              "公路",
+              "趕路",
+              "怎樣",
+              "時陣",
+              "離開",
+              "慣勢",
+              "認捌",
+              "失去",
+              "競爭",
+              "轉彎踅角",
+              "姑不而將",
+              "佗位",
+              "方向",
+              "港",
+              "陣",
+              "夢",
+              "下晡",
+              "成功",
+              "落車",
+              "這馬"
+          ]
+        }
+      """);
+
+      expect(vl.title, "長途夜車 - 滅火器 Fire EX.");
+      expect(vl.cover, "");
+      expect(vl.provider, "O̍h Tâi Gí");
+      expect(vl.list.length, 30);
+    });
+
+    test('Test: Parse vocabulary list as array', () {
+      List<VocabularyList> vls = json.decode("""
+      [
+        {
+          "title": "長途夜車 - 滅火器 Fire EX.",
+          "cover": "",
+          "privider": "O̍h Tâi Gí",
+          "list": [
+              "長途",
+              "暝車",
+              "時間",
+              "南",
+              "路燈",
+              "光線",
+              "伴",
+              "心事",
+              "思念",
+              "高速",
+              "公路",
+              "趕路",
+              "怎樣",
+              "時陣",
+              "離開",
+              "慣勢",
+              "認捌",
+              "失去",
+              "競爭",
+              "轉彎踅角",
+              "姑不而將",
+              "佗位",
+              "方向",
+              "港",
+              "陣",
+              "夢",
+              "下晡",
+              "成功",
+              "落車",
+              "這馬"
+          ]
+        }
+      ]
+      """).map<VocabularyList>((json) => VocabularyList.fromJson(json)).toList();
+
+      expect(vls.length, 1);
+      expect(vls[0].title, "長途夜車 - 滅火器 Fire EX.");
+      expect(vls[0].cover, "");
+      expect(vls[0].provider, "O̍h Tâi Gí");
+      expect(vls[0].list.length, 30);
     });
   });
 }
