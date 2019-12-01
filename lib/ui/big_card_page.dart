@@ -36,8 +36,10 @@ class _BigCardPageState extends State<BigCardPage> {
       _appendVocabularyList(vs);
       return;
     }
-    String contents = await getFileData("assets/dict/dict-twblg-ext.json");
-    vs = json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList();
+    String contents = await getFileData("assets/dict/dict-twblg.json");
+    vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
+    contents = await getFileData("assets/dict/dict-twblg-ext.json");
+    vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
     vs = await vp.insertAll(vs);
     _appendVocabularyList(vs);
   }

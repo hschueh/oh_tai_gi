@@ -115,7 +115,7 @@ class Vocabulary {
     var map = <String, dynamic>{
       columnTitle: title,
       columnLearnt: learnt,
-      columnHashCode: hashCode,
+      columnHashCode: hashTitle,
       columnHeteronyms: json.encode(heteronyms)
     };
     if (id != null) {
@@ -126,7 +126,7 @@ class Vocabulary {
   void clone(Vocabulary target) {
     id = target.id;
     title = target.title;
-    hashTitle = target.hashCode;
+    hashTitle = target.hashTitle;
     learnt = target.learnt;
     heteronyms = target.heteronyms;
   }
@@ -162,7 +162,7 @@ class VocabularyProvider {
         await db.execute('''
           create table $tableVocabulary ( 
             $columnUId integer primary key autoincrement, 
-            $columnHashCode integer not null UNIQUE,
+            $columnHashCode integer not null,
             $columnTitle text not null,
             $columnHeteronyms text not null,
             $columnLearnt integer not null)
