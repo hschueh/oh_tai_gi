@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oh_tai_gi/ui/small_card.dart';
+import 'package:oh_tai_gi/ui/small_vocabulary_card.dart';
 
 import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/destination.dart';
@@ -47,7 +47,7 @@ class SmallCardListPageState extends State<SmallCardListPage> {
       body = ListView.builder(
         itemCount: vocabularies.length,
         itemBuilder: (context, position) {
-          return SmallCard(vocabularies[position], key: UniqueKey());
+          return SmallVocabularyCard(vocabularies[position], key: UniqueKey());
         },
       );
     } else {

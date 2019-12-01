@@ -4,9 +4,9 @@ import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
 
-class SmallCard extends StatelessWidget {
+class SmallVocabularyCard extends StatelessWidget {
   final Vocabulary _vocabulary;
-  SmallCard(this._vocabulary,{Key key}) : super(key: key);
+  SmallVocabularyCard(this._vocabulary,{Key key}) : super(key: key);
 
   Widget buildBody(BuildContext context) {
     List<Widget> children = <Widget>[];
