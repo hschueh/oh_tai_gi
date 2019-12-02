@@ -23,10 +23,20 @@ class ListRoutePage extends StatefulWidget {
 
 class _ListRoutePageState extends State<ListRoutePage> {
   List<String> vocabularyTitles;
+  bool isList = true;
   void _setVocabularyTitles(BuildContext _context, List<String> list) {
     vocabularyTitles = list;
     Navigator.pushNamed(_context, "/list");
-    // TODO: Need to hook up learning page (aka BigCardPage).
+    isList = true;
+  }
+
+  void _toggleMode(BuildContext _context) {
+    if(isList)
+      Navigator.popAndPushNamed(_context, "/learn");
+    else
+      Navigator.popAndPushNamed(_context, "/list");
+    
+    isList = !isList;
   }
 
   @override
@@ -44,9 +54,9 @@ class _ListRoutePageState extends State<ListRoutePage> {
             builder: (BuildContext context) {
               switch(settings.name) {
                 case '/list':
-                  return SmallCardListPage(destination: widget.destination, vocabularyList: vocabularyTitles,);
+                  return SmallCardListPage(destination: widget.destination, vocabularyList: vocabularyTitles, switchToLearning: _toggleMode,);
                 case '/learn':
-                  return BigCardPage(destination: widget.destination, vocabularyList: vocabularyTitles,);
+                  return BigCardPage(destination: widget.destination, vocabularyList: vocabularyTitles, switchToList: _toggleMode,);
                 case '/':
                 default:
                   return VocabularyListPage(destination: widget.destination);

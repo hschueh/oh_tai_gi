@@ -7,10 +7,11 @@ import 'package:oh_tai_gi/destination.dart';
 const bool IS_DEBUG = false;
 
 class SmallCardListPage extends StatefulWidget {
-  SmallCardListPage({Key key, this.destination, this.vocabularyList}) : super(key: key);
+  SmallCardListPage({Key key, this.destination, this.vocabularyList, this.switchToLearning}) : super(key: key);
 
   final List<String> vocabularyList;
   final Destination destination;
+  final Function switchToLearning;
 
   @override
   SmallCardListPageState createState() => SmallCardListPageState();
@@ -84,15 +85,15 @@ class SmallCardListPageState extends State<SmallCardListPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.destination.title),
+        title: widget.switchToLearning!=null?Text("Browse List"):Text(widget.destination.title),
         backgroundColor: widget.destination.color,
       ),
       body: body,
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => _next(true),
-      //   tooltip: 'Increment',
-      //   child: Icon(Icons.thumb_up),
-      // ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: widget.switchToLearning!=null?FloatingActionButton(
+        onPressed: () => widget.switchToLearning(context),
+        tooltip: 'switchToLearning',
+        child: Icon(Icons.local_library),
+      ):null,
     );
   }
 }

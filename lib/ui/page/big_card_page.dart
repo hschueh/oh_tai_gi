@@ -12,10 +12,11 @@ import 'package:oh_tai_gi/utils/utils.dart';
 const bool IS_DEBUG = false;
 
 class BigCardPage extends StatefulWidget {
-  BigCardPage({Key key, this.destination, this.vocabularyList}) : super(key: key);
+  BigCardPage({Key key, this.destination, this.vocabularyList, this.switchToList}) : super(key: key);
 
   final Destination destination;
   final List<String> vocabularyList;
+  final Function switchToList;
 
   @override
   _BigCardPageState createState() => _BigCardPageState();
@@ -99,7 +100,7 @@ class _BigCardPageState extends State<BigCardPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.destination.title),
+        title: widget.switchToList!=null?Text("Learning"):Text(widget.destination.title),
         backgroundColor: widget.destination.color,
       ),
       body: Container(
@@ -131,11 +132,11 @@ class _BigCardPageState extends State<BigCardPage> {
           key: UniqueKey(),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => _next(true),
-      //   tooltip: 'Increment',
-      //   child: Icon(Icons.thumb_up),
-      // ),
+      floatingActionButton: widget.switchToList!=null?FloatingActionButton(
+        onPressed: () => widget.switchToList(context),
+        tooltip: 'switchToList',
+        child: Icon(Icons.list),
+      ):null,
     );
   }
 }
