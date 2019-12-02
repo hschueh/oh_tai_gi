@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:oh_tai_gi/ui/big_card.dart';
+import 'package:oh_tai_gi/ui/component/big_card.dart';
 
 import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';

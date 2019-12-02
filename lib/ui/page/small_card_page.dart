@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oh_tai_gi/ui/small_vocabulary_card.dart';
+import 'package:oh_tai_gi/ui/component/small_vocabulary_card.dart';
 
 import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/destination.dart';

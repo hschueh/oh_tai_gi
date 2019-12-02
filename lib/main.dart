@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:oh_tai_gi/ui/big_card_page.dart';
-import 'package:oh_tai_gi/ui/flip_game_page.dart';
-import 'package:oh_tai_gi/ui/list_page.dart';
-import 'package:oh_tai_gi/ui/small_card_page.dart';
-import 'package:oh_tai_gi/ui/configuration_page.dart';
+import 'package:oh_tai_gi/ui/page/big_card_page.dart';
+import 'package:oh_tai_gi/ui/page/flip_game_page.dart';
+import 'package:oh_tai_gi/ui/page/list_page.dart';
+import 'package:oh_tai_gi/ui/page/small_card_page.dart';
+import 'package:oh_tai_gi/ui/page/configuration_page.dart';
 
 import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'package:oh_tai_gi/utils/utils.dart';

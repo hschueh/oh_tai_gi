@@ -1,6 +1,6 @@
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
-import 'package:oh_tai_gi/ui/flippable_card.dart';
+import 'package:oh_tai_gi/ui/component/flippable_card.dart';
 
 import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/destination.dart';

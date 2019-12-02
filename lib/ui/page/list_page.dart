@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/db/vocabulary_list.dart';
 
 import 'package:oh_tai_gi/destination.dart';
-import 'package:oh_tai_gi/ui/big_card_page.dart';
-import 'package:oh_tai_gi/ui/small_card_page.dart';
-import 'package:oh_tai_gi/ui/small_vocabulary_list_card.dart';
+import 'package:oh_tai_gi/ui/page/big_card_page.dart';
+import 'package:oh_tai_gi/ui/page/small_card_page.dart';
+import 'package:oh_tai_gi/ui/component/small_vocabulary_list_card.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
 
 const bool IS_DEBUG = false;
