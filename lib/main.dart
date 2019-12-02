@@ -201,7 +201,7 @@ class _DestinationViewState extends State<DestinationView> {
           builder: (BuildContext context) {
             switch(settings.name) {
               case '/':
-                return BigCardPage(destination: widget.destination);
+                return RootPage(destination: widget.destination);
               case '/list':
                 return ListPage(destination: widget.destination);
               case '/text':
@@ -250,7 +250,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
             return BigCardPage(key: UniqueKey(), destination: allDestinations[index]);
             break;
           case 1:
-            return VocabularyListPage(key: UniqueKey(), destination: allDestinations[index]);
+            return ListDataHolder(child:ListRoutePage(key: UniqueKey(), onNavigation: () => _hide.forward(),destination: allDestinations[index]));
             break;
           case 2:
             return FlipGamePage(key: _keyFlipCardPage, destination: allDestinations[index]);

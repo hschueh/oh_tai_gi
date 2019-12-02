@@ -1,6 +1,5 @@
 import 'package:oh_tai_gi/db/db_holder.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import 'dart:convert';
 
 final String tableVocabularyList = 'vocabulary_list';

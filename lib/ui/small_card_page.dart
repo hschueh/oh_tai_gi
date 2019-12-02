@@ -7,8 +7,9 @@ import 'package:oh_tai_gi/destination.dart';
 const bool IS_DEBUG = false;
 
 class SmallCardListPage extends StatefulWidget {
-  SmallCardListPage({Key key, this.destination}) : super(key: key);
+  SmallCardListPage({Key key, this.destination, this.vocabularyList}) : super(key: key);
 
+  final List<String> vocabularyList;
   final Destination destination;
 
   @override
@@ -19,6 +20,13 @@ class SmallCardListPageState extends State<SmallCardListPage> {
   List<Vocabulary> vocabularies = [];
   VocabularyProvider vp;
   SmallCardListPageState();
+  @override
+  void initState() {
+    super.initState();
+    if(widget != null && widget.vocabularyList != null) {
+      refresh();
+    }
+  }
 
   refresh() {
     this.vocabularies.clear();
@@ -30,8 +38,19 @@ class SmallCardListPageState extends State<SmallCardListPage> {
       vp = VocabularyProvider();
       await vp.open();
     }
-    List<Vocabulary> vs = await vp.getVocabularyList(where: '$columnLearnt > ?', whereArgs: [0]);
-    _appendVocabularyList(vs);
+
+    if(widget.vocabularyList == null) {
+      List<Vocabulary> vs = await vp.getVocabularyList(where: '$columnLearnt > ?', whereArgs: [0]);
+      _appendVocabularyList(vs);
+    } else {
+      List<Vocabulary> vs = [];
+      for(int i = 0; i < widget.vocabularyList.length; ++i) {
+        Vocabulary v = await vp.getVocabularyWithTitle(widget.vocabularyList[i]);
+        if(v != null)
+          vs.add(v);
+      }
+      _appendVocabularyList(vs);
+    }
   }
 
   void _appendVocabularyList(List<Vocabulary> vs) {

@@ -4,10 +4,90 @@ import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/db/vocabulary_list.dart';
 
 import 'package:oh_tai_gi/destination.dart';
+import 'package:oh_tai_gi/ui/big_card_page.dart';
+import 'package:oh_tai_gi/ui/small_card_page.dart';
 import 'package:oh_tai_gi/ui/small_vocabulary_list_card.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
 
 const bool IS_DEBUG = false;
+
+class ListRoutePage extends StatefulWidget {
+  const ListRoutePage({ Key key, this.destination, this.onNavigation }) : super(key: key);
+
+  final Destination destination;
+  final VoidCallback onNavigation;
+
+  @override
+  _ListRoutePageState createState() => _ListRoutePageState();
+}
+
+class _ListRoutePageState extends State<ListRoutePage> {
+  List<String> vocabularyTitles;
+  void _setVocabularyTitles(BuildContext _context, List<String> list) {
+    vocabularyTitles = list;
+    Navigator.pushNamed(_context, "/list");
+    // TODO: Need to hook up learning page (aka BigCardPage).
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListDataHolder(
+        vocabularyTitles: vocabularyTitles,
+        setVocabularyTitles: _setVocabularyTitles,
+        child: Navigator(
+        observers: <NavigatorObserver>[
+          ViewNavigatorObserver(widget.onNavigation),
+        ],
+        onGenerateRoute: (RouteSettings settings) {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (BuildContext context) {
+              switch(settings.name) {
+                case '/list':
+                  return SmallCardListPage(destination: widget.destination, vocabularyList: vocabularyTitles,);
+                case '/learn':
+                  return BigCardPage(destination: widget.destination, vocabularyList: vocabularyTitles,);
+                case '/':
+                default:
+                  return VocabularyListPage(destination: widget.destination);
+              }
+            },
+          );
+        },
+      )
+    );
+  }
+}
+
+
+class ViewNavigatorObserver extends NavigatorObserver {
+  ViewNavigatorObserver(this.onNavigation);
+
+  final VoidCallback onNavigation;
+
+  void didPop(Route<dynamic> route, Route<dynamic> previousRoute) {
+    onNavigation();
+  }
+  void didPush(Route<dynamic> route, Route<dynamic> previousRoute) {
+    onNavigation();
+  }
+}
+
+class ListDataHolder extends InheritedWidget {
+  ListDataHolder({ this.vocabularyTitles, this.setVocabularyTitles, Widget child }) :super(child: child);
+
+  final List<String> vocabularyTitles;
+  final Function setVocabularyTitles;
+
+  static ListDataHolder of(BuildContext context) {
+    return context.inheritFromWidgetOfExactType(ListDataHolder);
+  }
+
+  @override
+  bool updateShouldNotify(InheritedWidget oldWidget) {
+    return (oldWidget as ListDataHolder).vocabularyTitles.toString() != vocabularyTitles.toString();
+  }
+}
 
 class VocabularyListPage extends StatefulWidget {
   VocabularyListPage({Key key, this.destination}) : super(key: key);
@@ -57,7 +137,10 @@ class VocabularyListPageState extends State<VocabularyListPage> {
       body = ListView.builder(
         itemCount: vocabularyLists.length,
         itemBuilder: (context, position) {
-          return SmallVocabularyListCard(vocabularyLists[position], key: UniqueKey());
+          return SmallVocabularyListCard(
+            vocabularyLists[position],
+            ListDataHolder.of(context).setVocabularyTitles,
+            key: UniqueKey());
         },
       );
     } else {

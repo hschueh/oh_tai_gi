@@ -3,7 +3,8 @@ import 'package:oh_tai_gi/db/vocabulary_list.dart';
 
 class SmallVocabularyListCard extends StatelessWidget {
   final VocabularyList _vocabularyList;
-  SmallVocabularyListCard(this._vocabularyList,{Key key}) : super(key: key);
+  final Function _onTap;
+  SmallVocabularyListCard(this._vocabularyList, this._onTap, {Key key}) : super(key: key);
 
 
   @override
@@ -15,9 +16,7 @@ class SmallVocabularyListCard extends StatelessWidget {
 
       child: InkWell(
         splashColor: Colors.blue[200].withAlpha(30),
-        onTap: (){
-          // TODO: somehow show vocabulary in list.
-        },
+        onTap: () => _onTap(context, _vocabularyList.list),
         child: Container(
           height: 100,
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),

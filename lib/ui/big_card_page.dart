@@ -12,9 +12,10 @@ import 'package:oh_tai_gi/utils/utils.dart';
 const bool IS_DEBUG = false;
 
 class BigCardPage extends StatefulWidget {
-  BigCardPage({Key key, this.destination}) : super(key: key);
+  BigCardPage({Key key, this.destination, this.vocabularyList}) : super(key: key);
 
   final Destination destination;
+  final List<String> vocabularyList;
 
   @override
   _BigCardPageState createState() => _BigCardPageState();
@@ -24,24 +25,38 @@ class _BigCardPageState extends State<BigCardPage> {
   int _index = 0;
   List<Vocabulary> vocabularies = [];
   VocabularyProvider vp;
-  _BigCardPageState() {
+  _BigCardPageState();
+
+  @override
+  void initState() {
+    super.initState();
     initialize();
   }
 
   void initialize() async {
     vp = VocabularyProvider();
     await vp.open();
-    List<Vocabulary> vs = await vp.getVocabularyList();
-    if(vs.length > 0) {
+    if(widget.vocabularyList == null) {
+      List<Vocabulary> vs = await vp.getVocabularyList();
+      if(vs.length > 0) {
+        _appendVocabularyList(vs);
+        return;
+      }
+      String contents = await getFileData("assets/dict/dict-twblg.json");
+      vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
+      contents = await getFileData("assets/dict/dict-twblg-ext.json");
+      vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
+      vs = await vp.insertAll(vs);
       _appendVocabularyList(vs);
-      return;
+    } else {
+      List<Vocabulary> vs = [];
+      for(int i = 0; i < widget.vocabularyList.length; ++i) {
+        Vocabulary v = await vp.getVocabularyWithTitle(widget.vocabularyList[i]);
+        if(v != null)
+          vs.add(v);
+      }
+      _appendVocabularyList(vs);
     }
-    String contents = await getFileData("assets/dict/dict-twblg.json");
-    vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
-    contents = await getFileData("assets/dict/dict-twblg-ext.json");
-    vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
-    vs = await vp.insertAll(vs);
-    _appendVocabularyList(vs);
   }
 
   void _tryToPlayAudio() async {
