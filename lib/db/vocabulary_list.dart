@@ -1,9 +1,11 @@
 import 'package:oh_tai_gi/db/db_holder.dart';
+import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'dart:convert';
 
 final String tableVocabularyList = 'vocabulary_list';
 final String columnUId = '_id';
+final String columnMId = 'mongoId';
 final String columnTitle = 'title';
 final String columnCover = 'cover';
 final String columnProvider = 'privider';
@@ -22,6 +24,7 @@ int valueOf(dynamic obj) {
 class VocabularyList {
   int id;
   int hashTitle;
+  String mid;
   String title;
   String cover;
   String provider;
@@ -44,10 +47,14 @@ class VocabularyList {
     if (id != null) {
       map[columnUId] = id;
     }
+    if (mid != null) {
+      map[columnMId] = mid;
+    }
     return map;
   }
   void clone(VocabularyList target) {
     id = target.id;
+    mid = target.mid;
     title = target.title;
     provider = target.provider;
     list = target.list;
@@ -59,6 +66,7 @@ class VocabularyList {
 
   VocabularyList.fromJson(Map<String, dynamic> map) {
     id = map[columnUId];
+    mid = map[columnMId];
     title = map[columnTitle];
     provider = map[columnProvider];
     cover = map[columnCover];
@@ -126,6 +134,22 @@ class VocabularyListProvider {
       });
     }
     return <VocabularyList>[];
+  }
+
+  Future<List<VocabularyList>> fetchVocabularyLists() async {
+    final response = await http.get('http://ohtaigi.ddns.net:3000/list');
+    if (response.statusCode == 200) {
+      // If server returns an OK response, parse the JSON.
+      return json.decode(response.body)
+        .map<VocabularyList>((json) {
+          dynamic mid = (json as Map).remove(columnUId);
+          (json as Map)[columnMId] = mid;
+          return VocabularyList.fromJson(json);
+        }).toList();
+    } else {
+      // If that response was not OK, throw an error.
+      return [];
+    }
   }
 
   Future<VocabularyList> getVocabularyListWithTitle(String title) async {

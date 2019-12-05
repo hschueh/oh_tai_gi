@@ -16,6 +16,7 @@ class DBHolder {
         await db.execute('''
           create table ${vl.tableVocabularyList} ( 
             ${vl.columnUId} integer primary key autoincrement, 
+            ${vl.columnMId} text unique,
             ${vl.columnHashCode} integer not null,
             ${vl.columnList} text not null,
             ${vl.columnTitle} text not null,
