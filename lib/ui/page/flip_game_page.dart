@@ -104,7 +104,7 @@ class FlipGamePageState extends State<FlipGamePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(Icons.mood_bad),
+            Image.asset("assets/launcher/icon_tired.png"),
             Text("學過的單詞還不足以開始遊戲！", style: Theme.of(context).textTheme.body1,)
           ],
         )

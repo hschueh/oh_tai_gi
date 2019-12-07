@@ -164,7 +164,7 @@ class VocabularyListPageState extends State<VocabularyListPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(Icons.mood_bad),
+            Image.asset("assets/launcher/icon_tired.png"),
             Text("資料庫中沒有單字表", style: Theme.of(context).textTheme.body1,)
           ],
         )

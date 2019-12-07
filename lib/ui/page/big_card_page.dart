@@ -111,14 +111,15 @@ class _BigCardPageState extends State<BigCardPage> {
             child:Container(
               padding: const EdgeInsets.only(left: 15),
               alignment: Alignment.centerLeft,
-              child:Icon(Icons.mood, size: 64,)
+              child:Image.asset("assets/launcher/icon_pos.png")
             )
           ),
           secondaryBackground: Card(
             color: Colors.yellow[300],
             child:Container(
               padding: const EdgeInsets.only(right: 15),
-              alignment: Alignment.centerRight,child:Icon(Icons.mood_bad, size: 64,)
+              alignment: Alignment.centerRight,
+              child:Image.asset("assets/launcher/icon_neg.png")
             )
           ),
           onDismissed: (DismissDirection direction){

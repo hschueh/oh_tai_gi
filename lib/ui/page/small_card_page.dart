@@ -77,7 +77,7 @@ class SmallCardListPageState extends State<SmallCardListPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(Icons.mood_bad),
+            Image.asset("assets/launcher/icon_tired.png"),
             Text("你還沒有學過的單詞！", style: Theme.of(context).textTheme.body1,)
           ],
         )

@@ -57,6 +57,9 @@ flutter:
      - assets/dict/dict-list.json
      - assets/audio/win.wav
      - assets/audio/correct.wav
+     - assets/launcher/icon_pos.png
+     - assets/launcher/icon_neg.png
+     - assets/launcher/icon_tired.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
