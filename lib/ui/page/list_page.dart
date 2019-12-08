@@ -22,10 +22,10 @@ class ListRoutePage extends StatefulWidget {
 }
 
 class _ListRoutePageState extends State<ListRoutePage> {
-  List<String> vocabularyTitles;
+  VocabularyList vocabularyList;
   bool isList = true;
-  void _setVocabularyTitles(BuildContext _context, List<String> list) {
-    vocabularyTitles = list;
+  void _setVocabularyList(BuildContext _context, VocabularyList list) {
+    vocabularyList = list;
     Navigator.pushNamed(_context, "/list");
     isList = true;
   }
@@ -42,8 +42,8 @@ class _ListRoutePageState extends State<ListRoutePage> {
   @override
   Widget build(BuildContext context) {
     return ListDataHolder(
-        vocabularyTitles: vocabularyTitles,
-        setVocabularyTitles: _setVocabularyTitles,
+        vocabularyList: vocabularyList,
+        setVocabularyList: _setVocabularyList,
         child: Navigator(
         observers: <NavigatorObserver>[
           ViewNavigatorObserver(widget.onNavigation),
@@ -54,9 +54,9 @@ class _ListRoutePageState extends State<ListRoutePage> {
             builder: (BuildContext context) {
               switch(settings.name) {
                 case '/list':
-                  return SmallCardListPage(destination: widget.destination, vocabularyList: vocabularyTitles, switchToLearning: _toggleMode,);
+                  return SmallCardListPage(destination: widget.destination, vocabularyList: vocabularyList, switchToLearning: _toggleMode,);
                 case '/learn':
-                  return BigCardPage(destination: widget.destination, vocabularyList: vocabularyTitles, switchToList: _toggleMode,);
+                  return BigCardPage(destination: widget.destination, vocabularyList: vocabularyList, switchToList: _toggleMode,);
                 case '/':
                 default:
                   return VocabularyListPage(destination: widget.destination);
@@ -84,10 +84,10 @@ class ViewNavigatorObserver extends NavigatorObserver {
 }
 
 class ListDataHolder extends InheritedWidget {
-  ListDataHolder({ this.vocabularyTitles, this.setVocabularyTitles, Widget child }) :super(child: child);
+  ListDataHolder({ this.vocabularyList, this.setVocabularyList, Widget child }) :super(child: child);
 
-  final List<String> vocabularyTitles;
-  final Function setVocabularyTitles;
+  final VocabularyList vocabularyList;
+  final Function setVocabularyList;
 
   static ListDataHolder of(BuildContext context) {
     return context.inheritFromWidgetOfExactType(ListDataHolder);
@@ -95,7 +95,7 @@ class ListDataHolder extends InheritedWidget {
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) {
-    return (oldWidget as ListDataHolder).vocabularyTitles.toString() != vocabularyTitles.toString();
+    return (oldWidget as ListDataHolder).vocabularyList.toString() != vocabularyList.toString();
   }
 }
 
@@ -153,7 +153,7 @@ class VocabularyListPageState extends State<VocabularyListPage> {
         itemBuilder: (context, position) {
           return SmallVocabularyListCard(
             vocabularyLists[position],
-            ListDataHolder.of(context).setVocabularyTitles,
+            ListDataHolder.of(context).setVocabularyList,
             key: UniqueKey());
         },
       );

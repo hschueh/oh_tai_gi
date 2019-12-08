@@ -17,7 +17,7 @@ Future<int> getConnectivityResult() async{
   } else if (connectivityResult == ConnectivityResult.wifi) {
     return 1;
   }
-  return 2;
+  return -1;
 }
 
 String getAdAppId() {

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers/audio_cache.dart';
+import 'package:oh_tai_gi/utils/utils.dart';
 
 class AudioPlayerHolder {
   static AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
@@ -13,6 +14,8 @@ class AudioPlayerHolder {
   }
 
   static Future<void> tryToPlayAudio(int originalAid) async {
+    if(await getConnectivityResult() < 0)
+      return;
     String aid = originalAid.toString().padLeft(5, '0');
     int result = await audioPlayer.play("http://t.moedict.tw/$aid.$prefAudioFormat", isLocal: false);
     print("Play http://t.moedict.tw/$aid.$prefAudioFormat: $result");

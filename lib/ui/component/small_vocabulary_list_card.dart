@@ -16,7 +16,7 @@ class SmallVocabularyListCard extends StatelessWidget {
 
       child: InkWell(
         splashColor: Colors.blue[200].withAlpha(30),
-        onTap: () => _onTap(context, _vocabularyList.list),
+        onTap: () => _onTap(context, _vocabularyList),
         child: Container(
           height: 100,
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),

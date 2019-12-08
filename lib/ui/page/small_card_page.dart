@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oh_tai_gi/db/vocabulary_list.dart';
 import 'package:oh_tai_gi/ui/component/small_vocabulary_card.dart';
 
 import 'package:oh_tai_gi/db/vocabulary.dart';
@@ -9,7 +10,7 @@ const bool IS_DEBUG = false;
 class SmallCardListPage extends StatefulWidget {
   SmallCardListPage({Key key, this.destination, this.vocabularyList, this.switchToLearning}) : super(key: key);
 
-  final List<String> vocabularyList;
+  final VocabularyList vocabularyList;
   final Destination destination;
   final Function switchToLearning;
 
@@ -45,8 +46,8 @@ class SmallCardListPageState extends State<SmallCardListPage> {
       _appendVocabularyList(vs);
     } else {
       List<Vocabulary> vs = [];
-      for(int i = 0; i < widget.vocabularyList.length; ++i) {
-        Vocabulary v = await vp.getVocabularyWithTitle(widget.vocabularyList[i]);
+      for(int i = 0; i < widget.vocabularyList.list.length; ++i) {
+        Vocabulary v = await vp.getVocabularyWithTitle(widget.vocabularyList.list[i]);
         if(v != null)
           vs.add(v);
       }
@@ -85,7 +86,7 @@ class SmallCardListPageState extends State<SmallCardListPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: widget.switchToLearning!=null?Text("Browse List"):Text(widget.destination.title),
+        title: widget.switchToLearning!=null?Text(widget.vocabularyList.title):Text(widget.destination.title),
         backgroundColor: widget.destination.color,
       ),
       body: body,

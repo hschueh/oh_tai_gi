@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:oh_tai_gi/db/vocabulary_list.dart';
 import 'package:oh_tai_gi/ui/component/big_card.dart';
 
 import 'package:oh_tai_gi/utils/audio_player_holder.dart';
@@ -15,7 +16,7 @@ class BigCardPage extends StatefulWidget {
   BigCardPage({Key key, this.destination, this.vocabularyList, this.switchToList}) : super(key: key);
 
   final Destination destination;
-  final List<String> vocabularyList;
+  final VocabularyList vocabularyList;
   final Function switchToList;
 
   @override
@@ -51,8 +52,8 @@ class _BigCardPageState extends State<BigCardPage> {
       _appendVocabularyList(vs);
     } else {
       List<Vocabulary> vs = [];
-      for(int i = 0; i < widget.vocabularyList.length; ++i) {
-        Vocabulary v = await vp.getVocabularyWithTitle(widget.vocabularyList[i]);
+      for(int i = 0; i < widget.vocabularyList.list.length; ++i) {
+        Vocabulary v = await vp.getVocabularyWithTitle(widget.vocabularyList.list[i]);
         if(v != null)
           vs.add(v);
       }
@@ -100,7 +101,7 @@ class _BigCardPageState extends State<BigCardPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: widget.switchToList!=null?Text("Learning"):Text(widget.destination.title),
+        title: widget.switchToList!=null?Text(widget.vocabularyList.title):Text(widget.destination.title),
         backgroundColor: widget.destination.color,
       ),
       body: Container(

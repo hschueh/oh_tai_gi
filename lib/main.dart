@@ -18,11 +18,11 @@ import 'destination.dart';
 const USE_FIREBASE_ADMOB = false;
 
 const List<Destination> allDestinations = <Destination>[
-  Destination(0, 'Random Pick', Icons.shuffle, Colors.teal),
-  Destination(1, 'List', Icons.list, Colors.cyan),
-  Destination(2, 'Mini Game', Icons.videogame_asset, Colors.orange),
-  Destination(3, 'Review', Icons.repeat, Colors.blue),
-  Destination(4, 'Settings', Icons.settings, Colors.grey)
+  Destination(0, '隨選隨學', Icons.shuffle, Colors.teal),
+  Destination(1, '主題列表', Icons.list, Colors.cyan),
+  Destination(2, '複習遊戲', Icons.videogame_asset, Colors.orange),
+  Destination(3, '學習歷程', Icons.repeat, Colors.blue),
+  Destination(4, '設置', Icons.settings, Colors.grey)
 ];
 
 
@@ -403,6 +403,7 @@ void main() {
       .then((_) {
         runApp(
           MaterialApp(
+            debugShowCheckedModeBanner: false,
             home: HomePage(),
             navigatorObservers: [
               FirebaseAnalyticsObserver(analytics: analytics),
