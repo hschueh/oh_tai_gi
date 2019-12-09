@@ -154,7 +154,8 @@ class VocabularyListPageState extends State<VocabularyListPage> {
           return SmallVocabularyListCard(
             vocabularyLists[position],
             ListDataHolder.of(context).setVocabularyList,
-            key: UniqueKey());
+            key: UniqueKey(),
+          );
         },
       );
     } else {
@@ -167,7 +168,7 @@ class VocabularyListPageState extends State<VocabularyListPage> {
             Image.asset("assets/launcher/icon_tired.png"),
             Text("資料庫中沒有單字表", style: Theme.of(context).textTheme.body1,)
           ],
-        )
+        ),
       );
     }
     return Scaffold(
@@ -176,11 +177,6 @@ class VocabularyListPageState extends State<VocabularyListPage> {
         backgroundColor: widget.destination.color,
       ),
       body: body,
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => _next(true),
-      //   tooltip: 'Increment',
-      //   child: Icon(Icons.thumb_up),
-      // ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

@@ -104,35 +104,55 @@ class _BigCardPageState extends State<BigCardPage> {
         title: widget.switchToList!=null?Text(widget.vocabularyList.title):Text(widget.destination.title),
         backgroundColor: widget.destination.color,
       ),
-      body: Container(
-        margin: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
-        child: Dismissible(
-          background: Card(
-            color: Colors.green[300],
-            child:Container(
-              padding: const EdgeInsets.only(left: 15),
-              alignment: Alignment.centerLeft,
-              child:Image.asset("assets/launcher/icon_pos.png")
-            )
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children:[
+          Flexible(
+            fit: FlexFit.loose,
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(32.0, 16.0, 32.0, 0),
+              child: Dismissible(
+                background: Card(
+                  color: Colors.green[300],
+                  child:Container(
+                    padding: const EdgeInsets.only(left: 15),
+                    alignment: Alignment.centerLeft,
+                    child:Image.asset("assets/launcher/icon_pos.png")
+                  )
+                ),
+                secondaryBackground: Card(
+                  color: Colors.yellow[300],
+                  child:Container(
+                    padding: const EdgeInsets.only(right: 15),
+                    alignment: Alignment.centerRight,
+                    child:Image.asset("assets/launcher/icon_neg.png")
+                  )
+                ),
+                onDismissed: (DismissDirection direction){
+                  if(direction == DismissDirection.startToEnd) {
+                    _next(true);
+                  } else if(direction == DismissDirection.endToStart) {
+                    _next(false);
+                  }
+                },
+                child:BigCard(v),
+                key: UniqueKey(),
+              ),
+            ),
           ),
-          secondaryBackground: Card(
-            color: Colors.yellow[300],
-            child:Container(
-              padding: const EdgeInsets.only(right: 15),
-              alignment: Alignment.centerRight,
-              child:Image.asset("assets/launcher/icon_neg.png")
-            )
-          ),
-          onDismissed: (DismissDirection direction){
-            if(direction == DismissDirection.startToEnd) {
-              _next(true);
-            } else if(direction == DismissDirection.endToStart) {
-              _next(false);
-            }
-          },
-          child:BigCard(v),
-          key: UniqueKey(),
-        ),
+          _index==0?Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children:[
+              Icon(Icons.help),
+              Text(
+                "記得了就往右滑，還沒記住往左滑",
+                style: Theme.of(context).textTheme.subtitle
+              )
+            ]
+          ):SizedBox(width: 0, height: 0,),
+        ]
       ),
       floatingActionButton: widget.switchToList!=null?FloatingActionButton(
         onPressed: () => widget.switchToList(context),

@@ -284,12 +284,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
       });
     } else {
       bannerAds = AdmobBanner(
-       adUnitId: getBannerAdUnitId(),
-       adSize: AdmobBannerSize.BANNER,
-       onBannerCreated: (controller) {
-        print(controller);
-       },
-     );
+        adUnitId: getBannerAdUnitId(),
+        adSize: AdmobBannerSize.BANNER,
+        onBannerCreated: (controller) {
+          print(controller);
+        },
+      );
     }
   }
 
