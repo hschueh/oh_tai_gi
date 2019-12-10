@@ -118,7 +118,10 @@ class _BigCardPageState extends State<BigCardPage> {
                   child:Container(
                     padding: const EdgeInsets.only(left: 15),
                     alignment: Alignment.centerLeft,
-                    child:Image.asset("assets/launcher/icon_pos.png")
+                    child: Image.asset("assets/launcher/icon_pos.png",
+                      filterQuality: FilterQuality.high,
+                      scale: 1.2,
+                    ),
                   )
                 ),
                 secondaryBackground: Card(
@@ -126,7 +129,11 @@ class _BigCardPageState extends State<BigCardPage> {
                   child:Container(
                     padding: const EdgeInsets.only(right: 15),
                     alignment: Alignment.centerRight,
-                    child:Image.asset("assets/launcher/icon_neg.png")
+                    child: Image.asset(
+                      "assets/launcher/icon_neg.png",
+                      filterQuality: FilterQuality.high,
+                      scale: 1.2,
+                    ),
                   )
                 ),
                 onDismissed: (DismissDirection direction){

@@ -1,9 +1,11 @@
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/db/vocabulary_list.dart';
 import 'package:oh_tai_gi/ui/component/small_vocabulary_card.dart';
 
 import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/destination.dart';
+import 'package:oh_tai_gi/utils/otg_config.dart';
 
 const bool IS_DEBUG = false;
 
@@ -71,6 +73,15 @@ class SmallCardListPageState extends State<SmallCardListPage> {
           return SmallVocabularyCard(vocabularies[position], key: UniqueKey());
         },
       );
+
+      if(widget.switchToLearning!=null && OTGConfig.of(context).get(OTGConfig.discoveryToggle, 0) == 0) {
+        FeatureDiscovery.discoverFeatures(
+          context,
+          const <String>{
+            "switch_to_learning",
+          },
+        );
+      }
     } else {
       body = Container(
         alignment: Alignment.center,
@@ -90,11 +101,31 @@ class SmallCardListPageState extends State<SmallCardListPage> {
         backgroundColor: widget.destination.color,
       ),
       body: body,
-      floatingActionButton: widget.switchToLearning!=null?FloatingActionButton(
-        onPressed: () => widget.switchToLearning(context),
-        tooltip: 'switchToLearning',
-        child: Icon(Icons.local_library),
-      ):null,
+      floatingActionButton: widget.switchToLearning!=null?
+        DescribedFeatureOverlay(
+          featureId: 'switch_to_learning', // Unique id that identifies this overlay.
+          tapTarget: const Icon(Icons.local_library), // The widget that will be displayed as the tap target.
+          title: Text('進入學習模式'),
+          description: Text('點擊進入字卡學習模式，\n也可以選擇直接瀏覽此主題的字彙。'),
+          backgroundColor: Theme.of(context).primaryColor,
+          targetColor: Colors.white,
+          textColor: Colors.white,
+          contentLocation: ContentLocation.above,
+          onComplete: () async {
+            OTGConfig.of(context).setKeyInt(OTGConfig.discoveryToggle, 1);
+            return true;
+          },
+          onDismiss: () async {
+            OTGConfig.of(context).setKeyInt(OTGConfig.discoveryToggle, 1);
+            return true;
+          },
+          child: FloatingActionButton(
+            onPressed: () => widget.switchToLearning(context),
+            tooltip: '開始學習',
+            child: Icon(Icons.local_library),
+          )
+        ):
+        null,
     );
   }
 }

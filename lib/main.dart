@@ -1,3 +1,4 @@
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -402,13 +403,13 @@ void main() {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
         runApp(
-          MaterialApp(
+          FeatureDiscovery(child:MaterialApp(
             debugShowCheckedModeBanner: false,
             home: HomePage(),
             navigatorObservers: [
               FirebaseAnalyticsObserver(analytics: analytics),
             ],
-          )
+          ))
         );
       });
     }
