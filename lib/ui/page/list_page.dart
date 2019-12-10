@@ -126,10 +126,15 @@ class VocabularyListPageState extends State<VocabularyListPage> {
       await vlp.open();
     }
     List<VocabularyList> vs = await vlp.getVocabularyLists();
-    if(vs.length == 0) {
-      vs.insertAll(0, await vlp.fetchVocabularyLists());
-      vs = await vlp.insertAll(vs);
-    }
+    List<VocabularyList> listsFromServer = await vlp.fetchVocabularyLists();
+    List<VocabularyList> listsToInsert = [];
+    listsFromServer.forEach((list){
+      if(!vs.contains(list))
+        listsToInsert.add(list);
+    });
+    listsToInsert = await vlp.insertAll(listsToInsert);
+    vs.insertAll(0, listsToInsert);
+
     if(vs.length == 0) {
       String contents = await getFileData("assets/dict/dict-list.json");
       vs.insertAll(0, json.decode(contents).map<VocabularyList>((json) => VocabularyList.fromJson(json)).toList());

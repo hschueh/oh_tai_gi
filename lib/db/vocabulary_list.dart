@@ -79,6 +79,14 @@ class VocabularyList {
       list = new List<String>.from(json.decode(map[columnList]));
     }
   }
+
+  @override
+  bool operator ==(Object other) =>
+    identical(this, other) ||
+    other is VocabularyList &&
+    runtimeType == other.runtimeType &&
+    title == other.title &&
+    json.encode(list) == json.encode(other.list);
 }
 
 class VocabularyListProvider {
