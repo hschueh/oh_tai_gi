@@ -144,8 +144,8 @@ class VocabularyListProvider {
     return <VocabularyList>[];
   }
 
-  Future<List<VocabularyList>> fetchVocabularyLists() async {
-    final response = await http.get('http://ohtaigi.ddns.net:3000/list');
+  Future<List<VocabularyList>> fetchVocabularyLists({num skip = 0}) async {
+    final response = await http.get('http://ohtaigi.ddns.net:3000/list?skip=$skip');
     if (response.statusCode == 200) {
       // If server returns an OK response, parse the JSON.
       return json.decode(response.body)

@@ -61,6 +61,14 @@ class _BigCardPageState extends State<BigCardPage> {
     }
   }
 
+  void retrieveNextBatch() async {
+      List<Vocabulary> vs = await vp.getVocabularyList(offset: vocabularies.length);
+      if(vs.length > 0) {
+        _appendVocabularyList(vs);
+        return;
+      }
+  }
+
   void _tryToPlayAudio() async {
     if(_index >= vocabularies.length)
       return;
@@ -143,7 +151,7 @@ class _BigCardPageState extends State<BigCardPage> {
                     _next(false);
                   }
                 },
-                child:BigCard(v),
+                child:BigCard(v, isEnd: widget.vocabularyList != null && _index >= vocabularies.length,),
                 key: UniqueKey(),
               ),
             ),

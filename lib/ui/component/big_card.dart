@@ -4,7 +4,8 @@ import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 
 class BigCard extends StatelessWidget {
   final Vocabulary _vocabulary;
-  BigCard(this._vocabulary,{Key key}) : super(key: key);
+  final bool isEnd;
+  BigCard(this._vocabulary,{Key key, this.isEnd = false}) : super(key: key);
 
   void _tryToPlayAudio(Vocabulary vocabulary, BuildContext context) async {
     for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
@@ -38,8 +39,19 @@ class BigCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(_vocabulary == null)
+    if(_vocabulary == null) {
+      if(isEnd) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset("assets/launcher/icon_tired.png"),
+            Text("學完囉，返回上個頁面挑選其他的字彙表或馬上開始複習吧", style: Theme.of(context).textTheme.body1,)
+          ],
+        );
+      }
       return Center(child: CircularProgressIndicator());
+    }
 
     return Card(
       child: Container(
