@@ -221,6 +221,10 @@ class VocabularyProvider {
     return await db.delete(tableVocabulary, where: '$columnHashCode = ?', whereArgs: [titleHashCode]);
   }
 
+  Future<int> deleteAll() async {
+    return await db.delete(tableVocabulary);
+  }
+
   Future<int> update(Vocabulary vocabulary) async {
     return await db.update(tableVocabulary, vocabulary.toJson(),
         where: '$columnUId = ?', whereArgs: [vocabulary.id]);

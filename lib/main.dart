@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:oh_tai_gi/ui/page/big_card_page.dart';
 import 'package:oh_tai_gi/ui/page/flip_game_page.dart';
 import 'package:oh_tai_gi/ui/page/list_page.dart';
@@ -203,7 +204,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
 }
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   FirebaseAnalytics analytics = FirebaseAnalytics();
+  // Usually could be disable unless we want to check if the crashlytics accually works.
+  Crashlytics.instance.enableInDevMode = false;
+  
+  FlutterError.onError = Crashlytics.instance.recordFlutterError;
+
   if(USE_FIREBASE_ADMOB) {
     FirebaseAdMob.instance.initialize(appId: getAdAppId());
   } else {
