@@ -41,7 +41,7 @@ class _BigCardPageState extends State<BigCardPage> {
     if(widget.vocabularyList == null) {
       String dbVer = OTGConfig.of(context).get(OTGConfig.keyDBVer, "0");
       List<Vocabulary> vs;
-      if(dbVer == "20200102") {
+      if(dbVer == "20200103") {
         List<Vocabulary> vs = await vp.getVocabularyList();
         if(vs.length > 0) {
           _appendVocabularyList(vs);
@@ -56,7 +56,7 @@ class _BigCardPageState extends State<BigCardPage> {
       vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
       if(vs.length > 0) {
         vs = await vp.insertAll(vs);
-        OTGConfig.of(context).setKeyString(OTGConfig.keyDBVer, "20200102");
+        OTGConfig.of(context).setKeyString(OTGConfig.keyDBVer, "20200103");
         _appendVocabularyList(vs);
       }
     } else {
