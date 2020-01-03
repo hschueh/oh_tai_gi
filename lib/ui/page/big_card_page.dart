@@ -99,6 +99,8 @@ class _BigCardPageState extends State<BigCardPage> {
     );
     setState(() {
       _index++;
+      if(_index >= vocabularies.length)
+        retrieveNextBatch();
       _tryToPlayAudio();
     });
   }

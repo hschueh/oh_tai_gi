@@ -23,6 +23,7 @@ class SmallCardListPage extends StatefulWidget {
 class SmallCardListPageState extends State<SmallCardListPage> {
   List<Vocabulary> vocabularies = [];
   VocabularyProvider vp;
+  bool shouldReload = true;
   SmallCardListPageState();
   @override
   void initState() {
@@ -38,13 +39,14 @@ class SmallCardListPageState extends State<SmallCardListPage> {
   }
 
   void retrieveVocabularyList() async {
+    shouldReload = false;
     if(vp == null) {
       vp = VocabularyProvider();
       await vp.open();
     }
 
     if(widget.vocabularyList == null) {
-      List<Vocabulary> vs = await vp.getVocabularyList(where: '$columnLearnt > ?', whereArgs: [0]);
+      List<Vocabulary> vs = await vp.getVocabularyList(offset: this.vocabularies.length, where: '$columnLearnt > ?', whereArgs: [0]);
       _appendVocabularyList(vs);
     } else {
       List<Vocabulary> vs = [];
@@ -60,6 +62,8 @@ class SmallCardListPageState extends State<SmallCardListPage> {
   void _appendVocabularyList(List<Vocabulary> vs) {
     setState(() {
       this.vocabularies.addAll(vs);
+      if(vs.length > 0)
+        shouldReload = true;
     });
   }
 
@@ -67,10 +71,21 @@ class SmallCardListPageState extends State<SmallCardListPage> {
   Widget build(BuildContext context) {
     Widget body;
     if(vocabularies.length > 0) {
-      body = ListView.builder(
-        itemCount: vocabularies.length,
-        itemBuilder: (context, position) {
-          return SmallVocabularyCard(vocabularies[position], key: UniqueKey());
+      body = NotificationListener<ScrollNotification>(
+        child: ListView.builder(
+          itemCount: vocabularies.length,
+          itemBuilder: (context, position) {
+            return SmallVocabularyCard(vocabularies[position], key: UniqueKey());
+          },
+        ),
+        onNotification: (ScrollNotification scrollInfo) {
+          if (widget.vocabularyList == null &&
+            shouldReload &&
+            scrollInfo.metrics.pixels ==
+              scrollInfo.metrics.maxScrollExtent) {
+            retrieveVocabularyList();
+          }
+          return true;
         },
       );
 
