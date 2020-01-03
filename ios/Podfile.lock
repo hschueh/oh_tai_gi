@@ -10,8 +10,11 @@ PODS:
   - connectivity (0.0.1):
     - Flutter
     - Reachability
+  - Crashlytics (3.14.0):
+    - Fabric (~> 1.10.2)
   - device_info (0.0.1):
     - Flutter
+  - Fabric (1.10.2)
   - Firebase/AdMob (6.12.0):
     - Firebase/CoreOnly
     - Google-Mobile-Ads-SDK (~> 7.50)
@@ -28,6 +31,11 @@ PODS:
     - Flutter
   - firebase_analytics (0.0.1):
     - Firebase/Analytics (~> 6.0)
+    - Firebase/Core
+    - Flutter
+  - firebase_crashlytics (0.0.1):
+    - Crashlytics
+    - Fabric
     - Firebase/Core
     - Flutter
   - FirebaseAnalytics (6.1.5):
@@ -111,6 +119,7 @@ DEPENDENCIES:
   - Firebase/Analytics
   - firebase_admob (from `.symlinks/plugins/firebase_admob/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
+  - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
   - Flutter (from `.symlinks/flutter/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
@@ -118,6 +127,8 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - Crashlytics
+    - Fabric
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -146,6 +157,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_admob/ios"
   firebase_analytics:
     :path: ".symlinks/plugins/firebase_analytics/ios"
+  firebase_crashlytics:
+    :path: ".symlinks/plugins/firebase_crashlytics/ios"
   Flutter:
     :path: ".symlinks/flutter/ios"
   path_provider:
@@ -159,10 +172,13 @@ SPEC CHECKSUMS:
   admob_flutter: 8033bcca85371a0554aa99d525a83a4770e679f0
   audioplayers: 84f968cea3f2deab00ec4f8ff53358b3c0b3992c
   connectivity: 6e94255659cc86dcbef1d452ad3e0491bb1b3e75
+  Crashlytics: 540b7e5f5da5a042647227a5e3ac51d85eed06df
   device_info: cbf09d2ec12aa7110e0b09fabe54b5bd6c8efe74
+  Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
   Firebase: da031bc7012374e3bed17a6731b89327b29863b9
   firebase_admob: d8c2bc95b5e0069406280ce6adb816cdee6aa595
   firebase_analytics: 2f3ab38886ff9d915b076d5aae2f964dc5ce7549
+  firebase_crashlytics: 0066966d67fee22065fdcf1c9703a97c4fdbae2e
   FirebaseAnalytics: 4e53a7eb7b76bc703c4d9239bc964545e9b23361
   FirebaseCore: bcd6c112429249d7921e907d661e8955a3549e26
   FirebaseCoreDiagnostics: af29e43048607588c050889d19204f4d7b758c9f

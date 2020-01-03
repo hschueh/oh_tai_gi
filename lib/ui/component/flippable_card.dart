@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:flip_card/flip_card.dart';
+import 'package:oh_tai_gi/utils/otg_config.dart';
 
 class FlippableCard extends StatelessWidget {
   final Vocabulary vocabulary;
@@ -61,6 +62,9 @@ class FlippableCard extends StatelessWidget {
             splashColor: Colors.orangeAccent.withAlpha(30),
             onTap: (){
               globalKey.currentState.toggleCard();
+              int playAudio = OTGConfig.of(context).get(OTGConfig.keyPlayAudioInGame, 0);
+              if(playAudio == 0)
+                return;
               _tryToPlayAudio(vocabulary, context);
             }),
           color: Colors.orange[200],

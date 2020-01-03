@@ -3,10 +3,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class OTGConfig extends InheritedWidget {
   static String get keyAutoPlayAudio => 'apa'; // 0: always. 1: only wifi. 2: never.
+  static String get keyPlayAudioInGame => 'paig'; // 0: no. 1: yes.
   static String get keyDBVer => 'dbver'; // 0: always. 1: only wifi. 2: never.
   static String get discoveryMain => 'dMain';
   static String get discoveryToggle => 'dToggle';
   static List<String> get valueAutoPlayAudio => ["永遠自動播放", "僅在wifi環境下", "永不"];
+  static List<String> get valuePlayAudioInGame => ["不播放語音", "播放(較簡單)"];
 
   static Map<String, dynamic> _config;
   static SharedPreferences _prefs;
@@ -17,6 +19,7 @@ class OTGConfig extends InheritedWidget {
     _prefs = await SharedPreferences.getInstance();
     _config = {
       keyAutoPlayAudio: _prefs.get(keyAutoPlayAudio)??0,
+      keyPlayAudioInGame: _prefs.get(keyPlayAudioInGame)??1,
       discoveryMain: _prefs.get(discoveryMain)??0,
       discoveryToggle: _prefs.get(discoveryToggle)??0,
       keyDBVer: _prefs.get(keyDBVer)??"0",

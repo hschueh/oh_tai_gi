@@ -26,6 +26,7 @@ class ConfigurationPage extends StatefulWidget {
 
 class _ConfigurationPageState extends State<ConfigurationPage> {
   int _autoPlayAudio;
+  int _playAudioInGame;
 
   _ConfigurationPageState();
   
@@ -34,6 +35,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     super.didChangeDependencies();
     setState(() {
       _autoPlayAudio = OTGConfig.of(context).get(OTGConfig.keyAutoPlayAudio, 0);
+      _playAudioInGame = OTGConfig.of(context).get(OTGConfig.keyPlayAudioInGame, 1);
     });
   }
 
@@ -62,6 +64,23 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                 },
                 child: Text(
                   OTGConfig.valueAutoPlayAudio[_autoPlayAudio], style: Theme.of(context).textTheme.title
+                ),
+              )
+            ],),
+            Row(children: <Widget>[
+              Expanded(child:Text("翻牌遊戲播放語音", style: Theme.of(context).textTheme.title)),
+              FlatButton(
+                color: Colors.cyan,
+                padding: EdgeInsets.all(8.0),
+                splashColor: Colors.cyanAccent,
+                onPressed: () {
+                  setState(() {
+                    _playAudioInGame = ((_playAudioInGame)+1)%OTGConfig.valuePlayAudioInGame.length;
+                    OTGConfig.of(context).setKeyInt(OTGConfig.keyPlayAudioInGame, _playAudioInGame);
+                  });
+                },
+                child: Text(
+                  OTGConfig.valuePlayAudioInGame[_playAudioInGame], style: Theme.of(context).textTheme.title
                 ),
               )
             ],),

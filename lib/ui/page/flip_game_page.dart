@@ -62,8 +62,11 @@ class FlipGamePageState extends State<FlipGamePage> {
   refresh() {
     keys.forEach((key) {
       // toggle back to front
-      if(key.currentWidget != null && !key.currentState.isFront)
-        key.currentState.toggleCard();
+      if(key.currentWidget != null && !key.currentState.isFront) {
+        Future.delayed(const Duration(milliseconds: 1000), () {
+          key.currentState.toggleCard();
+        });
+      }
     });
     this.vocabularies.clear();
     retrieveVocabularyList();
