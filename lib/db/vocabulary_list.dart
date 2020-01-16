@@ -182,6 +182,10 @@ class VocabularyListProvider {
     return await db.delete(tableVocabularyList, where: '$columnHashCode = ?', whereArgs: [titleHashCode]);
   }
 
+  Future<int> deleteAll() async {
+    return await db.delete(tableVocabularyList);
+  }
+
   Future<int> update(VocabularyList vocabulary) async {
     return await db.update(tableVocabularyList, vocabulary.toJson(),
         where: '$columnUId = ?', whereArgs: [vocabulary.id]);

@@ -90,7 +90,7 @@ class ListDataHolder extends InheritedWidget {
   final Function setVocabularyList;
 
   static ListDataHolder of(BuildContext context) {
-    return context.inheritFromWidgetOfExactType(ListDataHolder);
+    return context.dependOnInheritedWidgetOfExactType<ListDataHolder>();
   }
 
   @override
@@ -109,14 +109,15 @@ class VocabularyListPage extends StatefulWidget {
 }
 
 class VocabularyListPageState extends State<VocabularyListPage> {
-  List<VocabularyList> vocabularyLists = [];
+  List<VocabularyList> _vocabularyLists = [];
   VocabularyListProvider vlp;
+  int _newCount = 0;
   VocabularyListPageState() {
     refresh();
   }
 
   refresh() {
-    this.vocabularyLists.clear();
+    this._vocabularyLists.clear();
     retrieveVocabularyList();
   }
 
@@ -140,24 +141,30 @@ class VocabularyListPageState extends State<VocabularyListPage> {
       vs.insertAll(0, json.decode(contents).map<VocabularyList>((json) => VocabularyList.fromJson(json)).toList());
       vs = await vlp.insertAll(vs);
     }
-    _appendVocabularyList(vs);
+    _appendVocabularyList(vs, listsToInsert.length);
   }
 
-  void _appendVocabularyList(List<VocabularyList> vs) {
+  void _appendVocabularyList(List<VocabularyList> vs, int newCount) {
     setState(() {
-      this.vocabularyLists.addAll(vs);
+      this._vocabularyLists.addAll(vs);
+      // Highlight the new list only when there's any old list existed.
+      if(newCount != vs.length)
+        this._newCount = newCount;
+      else
+        this._newCount = 0;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     Widget body;
-    if(vocabularyLists.length > 0) {
+    if(_vocabularyLists.length > 0) {
       body = ListView.builder(
-        itemCount: vocabularyLists.length,
+        itemCount: _vocabularyLists.length,
         itemBuilder: (context, position) {
-          return SmallVocabularyListCard(
-            vocabularyLists[position],
+          return new SmallVocabularyListCard(
+            _vocabularyLists[position],
+            _newCount > position,
             ListDataHolder.of(context).setVocabularyList,
             key: UniqueKey(),
           );

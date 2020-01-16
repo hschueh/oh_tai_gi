@@ -162,7 +162,9 @@ class _BigCardPageState extends State<BigCardPage> {
                     _next(false);
                   }
                 },
-                child:BigCard(v, isEnd: widget.vocabularyList != null && _index >= vocabularies.length,),
+                child:BigCard(v, isEnd: widget.vocabularyList != null &&
+                                        _index >= widget.vocabularyList.list.length &&
+                                        _index >= vocabularies.length,),
                 key: UniqueKey(),
               ),
             ),

@@ -4,7 +4,8 @@ import 'package:oh_tai_gi/db/vocabulary_list.dart';
 class SmallVocabularyListCard extends StatelessWidget {
   final VocabularyList _vocabularyList;
   final Function _onTap;
-  SmallVocabularyListCard(this._vocabularyList, this._onTap, {Key key}) : super(key: key);
+  final bool isNew;
+  SmallVocabularyListCard(this._vocabularyList, this.isNew, this._onTap, {Key key}) : super(key: key);
 
 
   @override
@@ -12,8 +13,12 @@ class SmallVocabularyListCard extends StatelessWidget {
     if(_vocabularyList == null)
       return Center(child: CircularProgressIndicator());
     return Card(
+      shape: isNew
+        ? new RoundedRectangleBorder(
+          side: new BorderSide(color: Colors.cyan[200], width: 6.0),
+          borderRadius: new BorderRadius.circular(4.0))
+        : null,
       margin: const EdgeInsets.all(4.0),
-
       child: InkWell(
         splashColor: Colors.blue[200].withAlpha(30),
         onTap: () => _onTap(context, _vocabularyList),

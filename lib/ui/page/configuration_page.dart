@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
+import 'package:oh_tai_gi/db/vocabulary_list.dart';
 import 'package:oh_tai_gi/destination.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
 
@@ -101,6 +102,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                         (result) => print("Clean learnt finished.")
                       );
                     });
+                  VocabularyListProvider().deleteAll();
                 },
                 child: Text(
                   "清空", style: Theme.of(context).textTheme.title

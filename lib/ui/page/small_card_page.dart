@@ -97,6 +97,8 @@ class SmallCardListPageState extends State<SmallCardListPage> {
           },
         );
       }
+    } else if(widget.vocabularyList != null) {
+      body = Center(child: CircularProgressIndicator());
     } else {
       body = Container(
         alignment: Alignment.center,
