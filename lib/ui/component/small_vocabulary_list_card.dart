@@ -13,11 +13,6 @@ class SmallVocabularyListCard extends StatelessWidget {
     if(_vocabularyList == null)
       return Center(child: CircularProgressIndicator());
     return Card(
-      shape: isNew
-        ? new RoundedRectangleBorder(
-          side: new BorderSide(color: Colors.cyan[200], width: 6.0),
-          borderRadius: new BorderRadius.circular(4.0))
-        : null,
       margin: const EdgeInsets.all(4.0),
       child: InkWell(
         splashColor: Colors.blue[200].withAlpha(30),
@@ -25,8 +20,7 @@ class SmallVocabularyListCard extends StatelessWidget {
         child: Container(
           height: 100,
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: <Widget>[
               Align(
                 alignment: Alignment.topLeft,
@@ -40,6 +34,12 @@ class SmallVocabularyListCard extends StatelessWidget {
                 _vocabularyList.provider,
                 style: Theme.of(context).textTheme.subhead,
               )),
+              isNew
+                ? Align(
+                  alignment: Alignment.topRight,
+                  child:Icon(Icons.new_releases),
+                )
+                : SizedBox()
             ]
           ),
         )

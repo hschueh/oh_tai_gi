@@ -147,11 +147,7 @@ class VocabularyListPageState extends State<VocabularyListPage> {
   void _appendVocabularyList(List<VocabularyList> vs, int newCount) {
     setState(() {
       this._vocabularyLists.addAll(vs);
-      // Highlight the new list only when there's any old list existed.
-      if(newCount != vs.length)
-        this._newCount = newCount;
-      else
-        this._newCount = 0;
+      this._newCount = newCount;
     });
   }
 
