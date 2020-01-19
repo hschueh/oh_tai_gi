@@ -7,7 +7,8 @@ import 'package:oh_tai_gi/utils/utils.dart';
 
 class SmallVocabularyFoldableCard extends StatefulWidget {
   final Vocabulary _vocabulary;
-  SmallVocabularyFoldableCard(this._vocabulary,{Key key}) : super(key: key);
+  final bool foldable;
+  SmallVocabularyFoldableCard(this._vocabulary,{Key key, this.foldable = false}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _SmallVocabularyFoldableCardState();
@@ -18,14 +19,30 @@ class _SmallVocabularyFoldableCardState extends State<SmallVocabularyFoldableCar
 
   _SmallVocabularyFoldableCardState();
 
+
+  @override
+  void initState() {
+    super.initState();
+    _folded = widget.foldable?true:false;
+  }
+
   Widget buildBody(BuildContext context) {
     List<Widget> children = <Widget>[];
-    for(int i = 0; i < widget._vocabulary.heteronyms.length; ++i) {
+    bool needEllipsis = false;
+    for(int i = 0; i < widget._vocabulary.heteronyms.length && !needEllipsis; ++i) {
+      if(children.length > 3 && _folded) {
+        needEllipsis = true;
+        break;
+      }
       children.add(Text(
         "${widget._vocabulary.heteronyms[i].trs}" ,
         style: Theme.of(context).textTheme.subhead,
       ));
       for(int j = 0; j < widget._vocabulary.heteronyms[i].definitions.length; ++j) {
+        if(children.length > 3 && _folded) {
+          needEllipsis = true;
+          break;
+        }
         children.add(
           Row(
             children: <Widget>[
@@ -39,6 +56,13 @@ class _SmallVocabularyFoldableCardState extends State<SmallVocabularyFoldableCar
         );
       }
     }
+    if(needEllipsis)
+      children.add(
+        Text(
+          "點開看閣較濟..." ,
+          style: Theme.of(context).textTheme.body2.copyWith(color: Colors.blue[200]),
+        )
+      );
     return Flexible(
       flex: 7,
       fit: FlexFit.tight,
@@ -72,41 +96,49 @@ class _SmallVocabularyFoldableCardState extends State<SmallVocabularyFoldableCar
       return Center(child: CircularProgressIndicator());
       // Not working properly.
       // _tryToPrepareAudio(_vocabulary, context);
-    return Card(
-      margin: const EdgeInsets.all(4.0),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-        child: ConstrainedBox(
-          constraints: new BoxConstraints(
-            minHeight: 100.0,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Flexible(
-                child: Text(
-                  widget._vocabulary.title,
-                  style: Theme.of(context).textTheme.subhead,
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if(widget.foldable)
+            _folded = !_folded;
+        });
+      },
+      child:Card(
+        margin: const EdgeInsets.all(4.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          child: ConstrainedBox(
+            constraints: new BoxConstraints(
+              minHeight: 100.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Flexible(
+                  child: Text(
+                    widget._vocabulary.title,
+                    style: Theme.of(context).textTheme.subhead,
+                  ),
+                  flex: 2,
+                  fit: FlexFit.tight,
                 ),
-                flex: 2,
-                fit: FlexFit.tight,
-              ),
-              Flexible(
-                child: InkWell(
-                  splashColor: Colors.blue.withAlpha(30),
-                  onTap: (){
-                    _tryToPlayAudio(widget._vocabulary, context);
-                  },
-                  child: Icon(Icons.volume_up, size: 25,),
+                Flexible(
+                  child: InkWell(
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: (){
+                      _tryToPlayAudio(widget._vocabulary, context);
+                    },
+                    child: Icon(Icons.volume_up, size: 25,),
+                  ),
+                  flex: 1,
+                  fit: FlexFit.tight,
                 ),
-                flex: 1,
-                fit: FlexFit.tight,
-              ),
-              buildBody(context),
-            ]
-          ),
-        )
-      ),
+                buildBody(context),
+              ]
+            ),
+          )
+        ),
+      )
     );
   }
 }
