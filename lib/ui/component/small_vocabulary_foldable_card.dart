@@ -72,41 +72,41 @@ class _SmallVocabularyFoldableCardState extends State<SmallVocabularyFoldableCar
       return Center(child: CircularProgressIndicator());
       // Not working properly.
       // _tryToPrepareAudio(_vocabulary, context);
-      return Card(
-        margin: const EdgeInsets.all(4.0),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-          child: ConstrainedBox(
-            constraints: new BoxConstraints(
-              minHeight: 100.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Flexible(
-                  child: Text(
-                    widget._vocabulary.title,
-                    style: Theme.of(context).textTheme.subhead,
-                  ),
-                  flex: 2,
-                  fit: FlexFit.tight,
+    return Card(
+      margin: const EdgeInsets.all(4.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+        child: ConstrainedBox(
+          constraints: new BoxConstraints(
+            minHeight: 100.0,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Flexible(
+                child: Text(
+                  widget._vocabulary.title,
+                  style: Theme.of(context).textTheme.subhead,
                 ),
-                Flexible(
-                  child: InkWell(
-                    splashColor: Colors.blue.withAlpha(30),
-                    onTap: (){
-                      _tryToPlayAudio(widget._vocabulary, context);
-                    },
-                    child: Icon(Icons.volume_up, size: 25,),
-                  ),
-                  flex: 1,
-                  fit: FlexFit.tight,
+                flex: 2,
+                fit: FlexFit.tight,
+              ),
+              Flexible(
+                child: InkWell(
+                  splashColor: Colors.blue.withAlpha(30),
+                  onTap: (){
+                    _tryToPlayAudio(widget._vocabulary, context);
+                  },
+                  child: Icon(Icons.volume_up, size: 25,),
                 ),
-                buildBody(context),
-              ]
-            ),
-          )
-        ),
-      );
+                flex: 1,
+                fit: FlexFit.tight,
+              ),
+              buildBody(context),
+            ]
+          ),
+        )
+      ),
+    );
   }
 }
