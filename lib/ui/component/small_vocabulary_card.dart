@@ -39,7 +39,7 @@ class SmallVocabularyCard extends StatelessWidget {
 
   void _tryToPlayAudio(Vocabulary vocabulary, BuildContext context) async {
     for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
-      await AudioPlayerHolder.tryToPlayAudio(vocabulary.heteronyms[i].aid);
+      await AudioPlayerHolder.tryToPlayAudioReturnOnCompletion(vocabulary.heteronyms[i].aid);
     }
   }
 

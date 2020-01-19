@@ -1,10 +1,11 @@
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/material.dart';
-import 'package:oh_tai_gi/db/vocabulary_list.dart';
-import 'package:oh_tai_gi/ui/component/small_vocabulary_card.dart';
 
+import 'package:oh_tai_gi/db/vocabulary_list.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/destination.dart';
+import 'package:oh_tai_gi/ui/component/small_vocabulary_card.dart';
+import 'package:oh_tai_gi/ui/component/small_vocabulary_foldable_card.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
 
 const bool IS_DEBUG = false;
@@ -75,7 +76,7 @@ class SmallCardListPageState extends State<SmallCardListPage> {
         child: ListView.builder(
           itemCount: vocabularies.length,
           itemBuilder: (context, position) {
-            return SmallVocabularyCard(vocabularies[position], key: UniqueKey());
+            return SmallVocabularyFoldableCard(vocabularies[position], key: UniqueKey());
           },
         ),
         onNotification: (ScrollNotification scrollInfo) {

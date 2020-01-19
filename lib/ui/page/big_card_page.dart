@@ -87,7 +87,7 @@ class _BigCardPageState extends State<BigCardPage> {
       return;
     Vocabulary v = vocabularies[_index];
     for(int i = 0; i < v.heteronyms.length; ++i) {
-      await AudioPlayerHolder.tryToPlayAudio(v.heteronyms[i].aid);
+      await AudioPlayerHolder.tryToPlayAudioReturnOnCompletion(v.heteronyms[i].aid);
     }
   }
 
