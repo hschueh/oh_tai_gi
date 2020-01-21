@@ -199,6 +199,13 @@ class VocabularyProvider {
     return <Vocabulary>[];
   }
 
+  Future<List<Vocabulary>> searchVocabularyWithKeyword(String keyword, {offset: 0, limit: 50}) async {
+    return await getVocabularyList(offset: offset,
+      limit: limit,
+      where: '$columnTitle LIKE ? OR $columnHeteronyms LIKE ?',
+      whereArgs: ['%$keyword%', '%$keyword%']);
+  }
+
   Future<Vocabulary> getVocabularyWithTitle(String title) async {
     return await getVocabularyWithTitleHash(title.hashCode);
   }
