@@ -10,6 +10,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:oh_tai_gi/ui/page/big_card_page.dart';
 import 'package:oh_tai_gi/ui/page/flip_game_page.dart';
 import 'package:oh_tai_gi/ui/page/list_page.dart';
+import 'package:oh_tai_gi/ui/page/search_page.dart';
 import 'package:oh_tai_gi/ui/page/small_card_page.dart';
 import 'package:oh_tai_gi/ui/page/configuration_page.dart';
 import 'package:oh_tai_gi/ui/page/unused_page.dart';
@@ -25,7 +26,8 @@ const List<Destination> allDestinations = <Destination>[
   Destination(1, '主題詞彙', Icons.list, Colors.cyan),
   Destination(2, '𨑨迌溫習', Icons.videogame_asset, Colors.orange),
   Destination(3, '學習歷程', Icons.repeat, Colors.blue),
-  Destination(4, '設定', Icons.settings, Colors.grey)
+  Destination(4, '揣詞', Icons.search, Colors.green),
+  Destination(5, '設定', Icons.settings, Colors.grey)
 ];
 
 class HomePage extends StatefulWidget {
@@ -71,6 +73,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
             return SmallCardListPage(key: _keySmallCardPage, destination: allDestinations[index]);
             break;
           case 4:
+            return SearchPage(key: UniqueKey(), destination: allDestinations[index]);
+            break;
+          case 5:
             return ConfigurationPage(key: UniqueKey(), destination: allDestinations[index]);
             break;
           default:
