@@ -20,6 +20,8 @@ class SearchPageState extends State<SearchPage> {
   VocabularyProvider vp;
   bool shouldReload = true;
   bool toggleSearch = true;
+  bool searching = false;
+  String keyword;
   SearchPageState();
   @override
   void initState() {
@@ -30,7 +32,10 @@ class SearchPageState extends State<SearchPage> {
   }
 
   refresh() {
-    this.vocabularies.clear();
+    setState(() {
+      searching = true;
+      this.vocabularies.clear();
+    });
     retrieveVocabularyList();
   }
 
@@ -40,8 +45,13 @@ class SearchPageState extends State<SearchPage> {
       vp = VocabularyProvider();
       await vp.open();
     }
-    //TODO: use keyword.
-    List<Vocabulary> vs = await vp.getVocabularyList(offset: this.vocabularies.length, where: '$columnLearnt > ?', whereArgs: [0]);
+    if(keyword == null || keyword.length == 0) {
+      setState(() {
+        searching = false;
+      });
+      return;
+    }
+    List<Vocabulary> vs = await vp.searchVocabularyWithKeyword(keyword, offset: this.vocabularies.length);
     _appendVocabularyList(vs);
   }
 
@@ -50,6 +60,7 @@ class SearchPageState extends State<SearchPage> {
       this.vocabularies.addAll(vs);
       if(vs.length > 0)
         shouldReload = true;
+      searching = false;
     });
   }
 
@@ -61,7 +72,7 @@ class SearchPageState extends State<SearchPage> {
         child: ListView.builder(
           itemCount: vocabularies.length,
           itemBuilder: (context, position) {
-            return SmallVocabularyFoldableCard(vocabularies[position], key: UniqueKey());
+            return SmallVocabularyFoldableCard(vocabularies[position], foldable: true, key: UniqueKey());
           },
         ),
         onNotification: (ScrollNotification scrollInfo) {
@@ -73,6 +84,8 @@ class SearchPageState extends State<SearchPage> {
           return true;
         },
       );
+    } else if(keyword != null && keyword.length > 0 && searching) {
+      body = Center(child: CircularProgressIndicator());
     } else {
       body = Container(
         alignment: Alignment.center,
@@ -81,7 +94,7 @@ class SearchPageState extends State<SearchPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.asset("assets/launcher/icon_tired.png"),
-            Text("找不到相關詞彙", style: Theme.of(context).textTheme.body1,)
+            Text((keyword != null && keyword.length > 0)?"找不到相關詞彙":"輸入關鍵字尋找相關詞彙", style: Theme.of(context).textTheme.body1,)
           ],
         )
       );
@@ -117,10 +130,17 @@ class SearchPageState extends State<SearchPage> {
                   Expanded(
                     flex: 7,
                     child:TextField(
+                      controller: new TextEditingController(text: this.keyword),
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: '輸入關鍵字'
                       ),
+                      onChanged: (text) {
+                        setState((){
+                          this.keyword = text;
+                          refresh();
+                        });
+                      },
                     )
                   ),
                   Expanded(
@@ -137,21 +157,6 @@ class SearchPageState extends State<SearchPage> {
               }),
             )
         ),
-        // RaisedButton(
-        //   child: Wrap(
-        //     children: [
-        //       TextField(
-        //         decoration: InputDecoration(
-        //           border: InputBorder.none,
-        //           hintText: '輸入關鍵字'
-        //         ),
-        //       ),
-        //       Icon(Icons.arrow_forward),
-        //     ]
-        //   ), onPressed: () => setState((){
-        //     this.toggleSearch = !this.toggleSearch;
-        //   }),
-        // ),
     );
   }
 }
