@@ -41,22 +41,29 @@ class _BigCardPageState extends State<BigCardPage> {
     if(widget.vocabularyList == null) {
       String dbVer = OTGConfig.of(context).get(OTGConfig.keyDBVer, "0");
       List<Vocabulary> vs;
-      if(dbVer == "20200103") {
-        List<Vocabulary> vs = await vp.getVocabularyList();
+      // DB version already latest version
+      if(dbVer == OTGConfig.dbVersion) {
+        vs = await vp.getVocabularyList();
         if(vs.length > 0) {
           _appendVocabularyList(vs);
           return;
         }
-      } else {
-        // TODO: Update vocabulary library without wipe learning record.
-        await vp.deleteAll();
-        vs = [];
       }
+      vs = [];
       String contents = await getFileData("assets/dict/dict-twblg-merge.json");
       vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
       if(vs.length > 0) {
+        // If DB already available.
+        if(dbVer != "0") {
+          vs = await Future.wait(vs.map((vocabulary) async {
+            Vocabulary v = await vp.getVocabularyWithTitle(vocabulary.title);
+            vocabulary.learnt = v.learnt;
+            return vocabulary;
+          }));
+        }
+        await vp.deleteAll();
         vs = await vp.insertAll(vs);
-        OTGConfig.of(context).setKeyString(OTGConfig.keyDBVer, "20200103");
+        OTGConfig.of(context).setKeyString(OTGConfig.keyDBVer, OTGConfig.dbVersion);
         _appendVocabularyList(vs);
       }
     } else {
