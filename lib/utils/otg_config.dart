@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OTGConfig extends InheritedWidget {
+  static String get dbVersion => '20200103';
+  static String get listVersion => '20200125';
   static String get keyAutoPlayAudio => 'apa'; // 0: always. 1: only wifi. 2: never.
   static String get keyPlayAudioInGame => 'paig'; // 0: no. 1: yes.
-  static String get keyDBVer => 'dbver'; // 0: always. 1: only wifi. 2: never.
+  static String get keyDBVer => 'dbver'; // String, if != dbVersion, the db will be update.
+  static String get keyListVer => 'listver'; // String, if != listVersion, the list will be update.
   static String get discoveryMain => 'dMain';
   static String get discoveryToggle => 'dToggle';
   static List<String> get valueAutoPlayAudio => ["永遠自動播放", "僅在wifi環境下", "永不"];

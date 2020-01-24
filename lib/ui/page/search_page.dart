@@ -22,6 +22,7 @@ class SearchPageState extends State<SearchPage> {
   bool toggleSearch = true;
   bool searching = false;
   String keyword;
+  TextEditingController controller = new TextEditingController();
   SearchPageState();
   @override
   void initState() {
@@ -31,6 +32,11 @@ class SearchPageState extends State<SearchPage> {
     }
   }
 
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
   refresh() {
     setState(() {
       searching = true;
@@ -112,6 +118,7 @@ class SearchPageState extends State<SearchPage> {
           backgroundColor: widget.destination.color,
           onPressed: () => setState((){
             this.toggleSearch = !this.toggleSearch;
+            controller.text = this.keyword;
           }),
           tooltip: '搜尋',
           child: Icon(Icons.search),
@@ -133,7 +140,7 @@ class SearchPageState extends State<SearchPage> {
                     flex: 7,
                     child:TextField(
                       autofocus: true,
-                      controller: new TextEditingController(text: this.keyword),
+                      controller: controller,
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         hintStyle: TextStyle(color: Colors.white),

@@ -7,6 +7,7 @@ import 'package:oh_tai_gi/destination.dart';
 import 'package:oh_tai_gi/ui/page/big_card_page.dart';
 import 'package:oh_tai_gi/ui/page/small_card_page.dart';
 import 'package:oh_tai_gi/ui/component/small_vocabulary_list_card.dart';
+import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
 
 const bool IS_DEBUG = false;
@@ -126,8 +127,17 @@ class VocabularyListPageState extends State<VocabularyListPage> {
       vlp = VocabularyListProvider();
       await vlp.open();
     }
-    List<VocabularyList> vs = await vlp.getVocabularyLists();
-    List<VocabularyList> listsFromServer = await vlp.fetchVocabularyLists();
+
+    String listVer = OTGConfig.of(context).get(OTGConfig.keyListVer, "0");
+    List<VocabularyList> vs;
+    // DB version already latest version
+    if(listVer == OTGConfig.listVersion) {
+      vs = await vlp.getVocabularyLists();
+    } else {
+      await vlp.deleteAll();
+      vs = [];
+    }
+    List<VocabularyList> listsFromServer = await vlp.fetchVocabularyLists(skip: vs.length);
     List<VocabularyList> listsToInsert = [];
     listsFromServer.forEach((list){
       if(!vs.contains(list))
@@ -135,7 +145,8 @@ class VocabularyListPageState extends State<VocabularyListPage> {
     });
     listsToInsert = await vlp.insertAll(listsToInsert);
     vs.insertAll(0, listsToInsert);
-
+    OTGConfig.of(context).setKeyString(OTGConfig.keyListVer, OTGConfig.listVersion);
+    //backup plan
     if(vs.length == 0) {
       String contents = await getFileData("assets/dict/dict-list.json");
       vs.insertAll(0, json.decode(contents).map<VocabularyList>((json) => VocabularyList.fromJson(json)).toList());
