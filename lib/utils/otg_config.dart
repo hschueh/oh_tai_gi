@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:oh_tai_gi/db/vocabulary.dart';
+import 'package:oh_tai_gi/utils/migrate_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class OTGConfig extends InheritedWidget {
+class OTGConfig {
   static String get dbVersion => '20200103';
   static String get listVersion => '20200125';
   static String get keyAutoPlayAudio => 'apa'; // 0: always. 1: only wifi. 2: never.
@@ -16,8 +18,6 @@ class OTGConfig extends InheritedWidget {
   static Map<String, dynamic> _config;
   static SharedPreferences _prefs;
 
-  OTGConfig({ Widget child }) :super(child: child);
-
   static Future initialize() async {
     _prefs = await SharedPreferences.getInstance();
     _config = {
@@ -26,30 +26,41 @@ class OTGConfig extends InheritedWidget {
       discoveryMain: _prefs.get(discoveryMain)??0,
       discoveryToggle: _prefs.get(discoveryToggle)??0,
       keyDBVer: _prefs.get(keyDBVer)??"0",
+      keyListVer: _prefs.get(keyListVer)??"0",
     };
+
+    if(_config[keyDBVer] != dbVersion) {
+      await MigrateHelper.migrateVocabularyDB(_config[keyDBVer] != "0");
+      setKeyString(keyDBVer, dbVersion);
+    }
+
+    if(_config[keyListVer] != listVersion) {
+      await MigrateHelper.migrateListDB();
+      setKeyString(keyListVer, listVersion);
+    }
   }
 
-  dynamic get(String key, dynamic defaultValue) {
+  static dynamic get(String key, dynamic defaultValue) {
     if(_config == null || !_config.containsKey(key))
       return defaultValue;
     return _config[key];
   }
 
   static OTGConfig of(BuildContext context) {
-    return context.inheritFromWidgetOfExactType(OTGConfig);
+    return context.dependOnInheritedWidgetOfExactType(aspect: OTGConfig);
   }
 
-  void setKeyInt(String key, int value) async{
+  static void setKeyInt(String key, int value) async{
     _config[key] = value;
     await _prefs.setInt(key, value);
   }
 
-  void setKeyString(String key, String value) async{
+  static void setKeyString(String key, String value) async{
     _config[key] = value;
     await _prefs.setString(key, value);
   }
 
-  void setKeyBool(String key, bool value) async{
+  static void setKeyBool(String key, bool value) async{
     _config[key] = value;
     await _prefs.setBool(key, value);
   }

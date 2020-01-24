@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: _handleScrollNotification,
-      child: OTGConfig(child:Scaffold(
+      child: Scaffold(
         body: SafeArea(
           top: false,
           child: Stack(
@@ -203,7 +203,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
             ]
           ),
         ),
-      )
     );
   }
 }

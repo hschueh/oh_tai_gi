@@ -45,7 +45,7 @@ class SmallVocabularyCard extends StatelessWidget {
 
   void _tryToPrepareAudio(Vocabulary vocabulary, BuildContext context) async {
     int connectivity = await getConnectivityResult();
-    int autoPlaySetting = OTGConfig.of(context).get(OTGConfig.keyAutoPlayAudio, 0);
+    int autoPlaySetting = OTGConfig.get(OTGConfig.keyAutoPlayAudio, 0);
     if(autoPlaySetting > connectivity)
       return;
     for(int i = 0; i < vocabulary.heteronyms.length; ++i) {

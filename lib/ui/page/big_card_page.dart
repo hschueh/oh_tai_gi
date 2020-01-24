@@ -39,33 +39,8 @@ class _BigCardPageState extends State<BigCardPage> {
     vp = VocabularyProvider();
     await vp.open();
     if(widget.vocabularyList == null) {
-      String dbVer = OTGConfig.of(context).get(OTGConfig.keyDBVer, "0");
-      List<Vocabulary> vs;
-      // DB version already latest version
-      if(dbVer == OTGConfig.dbVersion) {
-        vs = await vp.getVocabularyList();
-        if(vs.length > 0) {
-          _appendVocabularyList(vs);
-          return;
-        }
-      }
-      vs = [];
-      String contents = await getFileData("assets/dict/dict-twblg-merge.json");
-      vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
-      if(vs.length > 0) {
-        // If DB already available.
-        if(dbVer != "0") {
-          vs = await Future.wait(vs.map((vocabulary) async {
-            Vocabulary v = await vp.getVocabularyWithTitle(vocabulary.title);
-            vocabulary.learnt = v.learnt;
-            return vocabulary;
-          }));
-        }
-        await vp.deleteAll();
-        vs = await vp.insertAll(vs);
-        OTGConfig.of(context).setKeyString(OTGConfig.keyDBVer, OTGConfig.dbVersion);
-        _appendVocabularyList(vs);
-      }
+      List<Vocabulary> vs = await vp.getVocabularyList();
+      _appendVocabularyList(vs);
     } else {
       List<Vocabulary> vs = [];
       for(int i = 0; i < widget.vocabularyList.list.length; ++i) {
@@ -89,7 +64,7 @@ class _BigCardPageState extends State<BigCardPage> {
     if(_index >= vocabularies.length)
       return;
     int connectivity = await getConnectivityResult();
-    int autoPlaySetting = OTGConfig.of(context).get(OTGConfig.keyAutoPlayAudio, 0);
+    int autoPlaySetting = OTGConfig.get(OTGConfig.keyAutoPlayAudio, 0);
     if(autoPlaySetting > connectivity)
       return;
     Vocabulary v = vocabularies[_index];

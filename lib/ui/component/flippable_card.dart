@@ -62,7 +62,7 @@ class FlippableCard extends StatelessWidget {
             splashColor: Colors.orangeAccent.withAlpha(30),
             onTap: (){
               globalKey.currentState.toggleCard();
-              int playAudio = OTGConfig.of(context).get(OTGConfig.keyPlayAudioInGame, 0);
+              int playAudio = OTGConfig.get(OTGConfig.keyPlayAudioInGame, 0);
               if(playAudio == 0)
                 return;
               _tryToPlayAudio(vocabulary, context);

@@ -7,6 +7,7 @@ import 'package:oh_tai_gi/destination.dart';
 import 'package:oh_tai_gi/ui/component/small_vocabulary_card.dart';
 import 'package:oh_tai_gi/ui/component/small_vocabulary_foldable_card.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 const bool IS_DEBUG = false;
 
@@ -25,12 +26,23 @@ class SmallCardListPageState extends State<SmallCardListPage> {
   List<Vocabulary> vocabularies = [];
   VocabularyProvider vp;
   bool shouldReload = true;
+  YoutubePlayerController _controller;
   SmallCardListPageState();
   @override
   void initState() {
     super.initState();
     if(widget != null && widget.vocabularyList != null) {
       refresh();
+      if(widget.vocabularyList.cover != null && widget.vocabularyList.cover.length > 0) {
+        _controller = YoutubePlayerController(
+            initialVideoId: YoutubePlayer.convertUrlToId(widget.vocabularyList.cover),
+            flags: YoutubePlayerFlags(
+                mute: false,
+                autoPlay: true,
+                forceHideAnnotation: true,
+            ),
+        );
+      }
     }
   }
 
@@ -90,12 +102,29 @@ class SmallCardListPageState extends State<SmallCardListPage> {
         },
       );
 
-      if(widget.switchToLearning!=null && OTGConfig.of(context).get(OTGConfig.discoveryToggle, 0) == 0) {
+      if(widget.switchToLearning!=null && OTGConfig.get(OTGConfig.discoveryToggle, 0) == 0) {
         FeatureDiscovery.discoverFeatures(
           context,
           const <String>{
             "switch_to_learning",
           },
+        );
+      }
+      
+      if(_controller != null) {
+        body = Column(
+          children: <Widget>[
+            Flexible(child:YoutubePlayer(
+                controller: _controller,
+                showVideoProgressIndicator: true,
+                progressIndicatorColor: Colors.amber,
+                progressColors: ProgressBarColors(
+                    playedColor: Colors.amber,
+                    handleColor: Colors.amberAccent,
+                ),
+            ), flex: 1,),
+            Flexible(child:body, flex: 3),
+          ],
         );
       }
     } else if(widget.vocabularyList != null) {
@@ -130,11 +159,11 @@ class SmallCardListPageState extends State<SmallCardListPage> {
           textColor: Colors.white,
           contentLocation: ContentLocation.above,
           onComplete: () async {
-            OTGConfig.of(context).setKeyInt(OTGConfig.discoveryToggle, 1);
+            OTGConfig.setKeyInt(OTGConfig.discoveryToggle, 1);
             return true;
           },
           onDismiss: () async {
-            OTGConfig.of(context).setKeyInt(OTGConfig.discoveryToggle, 1);
+            OTGConfig.setKeyInt(OTGConfig.discoveryToggle, 1);
             return true;
           },
           child: FloatingActionButton(

@@ -128,15 +128,7 @@ class VocabularyListPageState extends State<VocabularyListPage> {
       await vlp.open();
     }
 
-    String listVer = OTGConfig.of(context).get(OTGConfig.keyListVer, "0");
-    List<VocabularyList> vs;
-    // DB version already latest version
-    if(listVer == OTGConfig.listVersion) {
-      vs = await vlp.getVocabularyLists();
-    } else {
-      await vlp.deleteAll();
-      vs = [];
-    }
+    List<VocabularyList> vs = await vlp.getVocabularyLists();
     List<VocabularyList> listsFromServer = await vlp.fetchVocabularyLists(skip: vs.length);
     List<VocabularyList> listsToInsert = [];
     listsFromServer.forEach((list){
@@ -145,7 +137,6 @@ class VocabularyListPageState extends State<VocabularyListPage> {
     });
     listsToInsert = await vlp.insertAll(listsToInsert);
     vs.insertAll(0, listsToInsert);
-    OTGConfig.of(context).setKeyString(OTGConfig.keyListVer, OTGConfig.listVersion);
     //backup plan
     if(vs.length == 0) {
       String contents = await getFileData("assets/dict/dict-list.json");

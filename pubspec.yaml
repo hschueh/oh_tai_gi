@@ -29,6 +29,7 @@ dependencies:
   sqflite: ^1.1.7+1
   shared_preferences: ^0.5.4+5
   connectivity: ^0.4.5+3
+  youtube_player_flutter: ^6.0.3+2
   flutter:
     sdk: flutter
 

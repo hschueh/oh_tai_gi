@@ -35,8 +35,8 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     setState(() {
-      _autoPlayAudio = OTGConfig.of(context).get(OTGConfig.keyAutoPlayAudio, 0);
-      _playAudioInGame = OTGConfig.of(context).get(OTGConfig.keyPlayAudioInGame, 1);
+      _autoPlayAudio = OTGConfig.get(OTGConfig.keyAutoPlayAudio, 0);
+      _playAudioInGame = OTGConfig.get(OTGConfig.keyPlayAudioInGame, 1);
     });
   }
 
@@ -60,7 +60,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                 onPressed: () {
                   setState(() {
                     _autoPlayAudio = ((_autoPlayAudio)+1)%OTGConfig.valueAutoPlayAudio.length;
-                    OTGConfig.of(context).setKeyInt(OTGConfig.keyAutoPlayAudio, _autoPlayAudio);
+                    OTGConfig.setKeyInt(OTGConfig.keyAutoPlayAudio, _autoPlayAudio);
                   });
                 },
                 child: Text(
@@ -77,7 +77,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                 onPressed: () {
                   setState(() {
                     _playAudioInGame = ((_playAudioInGame)+1)%OTGConfig.valuePlayAudioInGame.length;
-                    OTGConfig.of(context).setKeyInt(OTGConfig.keyPlayAudioInGame, _playAudioInGame);
+                    OTGConfig.setKeyInt(OTGConfig.keyPlayAudioInGame, _playAudioInGame);
                   });
                 },
                 child: Text(
