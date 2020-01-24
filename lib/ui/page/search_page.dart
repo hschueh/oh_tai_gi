@@ -87,15 +87,17 @@ class SearchPageState extends State<SearchPage> {
     } else if(keyword != null && keyword.length > 0 && searching) {
       body = Center(child: CircularProgressIndicator());
     } else {
-      body = Container(
-        alignment: Alignment.center,
-        child:Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image.asset("assets/launcher/icon_tired.png"),
-            Text((keyword != null && keyword.length > 0)?"找不到相關詞彙":"輸入關鍵字尋找相關詞彙", style: Theme.of(context).textTheme.body1,)
-          ],
+      body = SingleChildScrollView(
+        child:Container(
+          alignment: Alignment.center,
+          child:Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset("assets/launcher/icon_tired.png"),
+              Text((keyword != null && keyword.length > 0)?"找不到相關詞彙":"輸入關鍵字尋找相關詞彙", style: Theme.of(context).textTheme.body1,)
+            ],
+          )
         )
       );
     }
@@ -120,9 +122,9 @@ class SearchPageState extends State<SearchPage> {
             child: new RawMaterialButton(
               padding: const EdgeInsets.only(left:25),
               shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(27.5)),
-              fillColor: widget.destination.color,
-              splashColor: widget.destination.color,
-              elevation: 0.0,
+              fillColor: widget.destination.color[200],
+              splashColor: widget.destination.color[200],
+              elevation: 2.0,
               child:
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -130,9 +132,11 @@ class SearchPageState extends State<SearchPage> {
                   Expanded(
                     flex: 7,
                     child:TextField(
+                      autofocus: true,
                       controller: new TextEditingController(text: this.keyword),
                       decoration: InputDecoration(
                         border: InputBorder.none,
+                        hintStyle: TextStyle(color: Colors.white),
                         hintText: '輸入關鍵字'
                       ),
                       onChanged: (text) {
