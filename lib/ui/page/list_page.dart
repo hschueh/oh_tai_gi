@@ -9,6 +9,7 @@ import 'package:oh_tai_gi/ui/page/small_card_page.dart';
 import 'package:oh_tai_gi/ui/component/small_vocabulary_list_card.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 const bool IS_DEBUG = false;
 
@@ -19,16 +20,23 @@ class ListRoutePage extends StatefulWidget {
   final VoidCallback onNavigation;
 
   @override
-  _ListRoutePageState createState() => _ListRoutePageState();
+  ListRoutePageState createState() => ListRoutePageState();
 }
 
-class _ListRoutePageState extends State<ListRoutePage> {
+class ListRoutePageState extends State<ListRoutePage> {
   VocabularyList vocabularyList;
   bool isList = true;
+  YoutubePlayerController _controller;
   void _setVocabularyList(BuildContext _context, VocabularyList list) {
     vocabularyList = list;
     Navigator.pushNamed(_context, "/list");
     isList = true;
+  }
+
+  void _setController(YoutubePlayerController controller) => _controller = controller;
+
+  pauseVideo() {
+    if(_controller != null) _controller.pause();
   }
 
   void _toggleMode(BuildContext _context) {
@@ -55,7 +63,12 @@ class _ListRoutePageState extends State<ListRoutePage> {
             builder: (BuildContext context) {
               switch(settings.name) {
                 case '/list':
-                  return SmallCardListPage(destination: widget.destination, vocabularyList: vocabularyList, switchToLearning: _toggleMode,);
+                  return SmallCardListPage(
+                    destination: widget.destination,
+                    vocabularyList: vocabularyList,
+                    switchToLearning: _toggleMode,
+                    setController: _setController
+                    );
                 case '/learn':
                   return BigCardPage(destination: widget.destination, vocabularyList: vocabularyList, switchToList: _toggleMode,);
                 case '/':

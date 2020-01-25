@@ -12,11 +12,12 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 const bool IS_DEBUG = false;
 
 class SmallCardListPage extends StatefulWidget {
-  SmallCardListPage({Key key, this.destination, this.vocabularyList, this.switchToLearning}) : super(key: key);
+  SmallCardListPage({Key key, this.destination, this.vocabularyList, this.switchToLearning, this.setController}) : super(key: key);
 
   final VocabularyList vocabularyList;
   final Destination destination;
   final Function switchToLearning;
+  final Function setController;
 
   @override
   SmallCardListPageState createState() => SmallCardListPageState();
@@ -38,11 +39,19 @@ class SmallCardListPageState extends State<SmallCardListPage> {
             initialVideoId: YoutubePlayer.convertUrlToId(widget.vocabularyList.cover),
             flags: YoutubePlayerFlags(
                 mute: false,
-                autoPlay: true,
+                autoPlay: false,
                 forceHideAnnotation: true,
             ),
         );
       }
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if(widget.setController != null && _controller != null) {
+      widget.setController(_controller);
     }
   }
 

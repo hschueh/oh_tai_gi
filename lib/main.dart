@@ -45,6 +45,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
 
   final GlobalKey<SmallCardListPageState> _keySmallCardPage = GlobalKey();
   final GlobalKey<FlipGamePageState> _keyFlipCardPage = GlobalKey();
+  final GlobalKey<ListRoutePageState> _keyListPage = GlobalKey();
   
 
   @override
@@ -64,7 +65,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
             return BigCardPage(key: UniqueKey(), destination: allDestinations[index]);
             break;
           case 1:
-            return ListDataHolder(child:ListRoutePage(key: UniqueKey(), onNavigation: () => _hide.forward(),destination: allDestinations[index]));
+            return ListRoutePage(key: _keyListPage, onNavigation: () => _hide.forward(),destination: allDestinations[index]);
             break;
           case 2:
             return FlipGamePage(key: _keyFlipCardPage, destination: allDestinations[index]);
@@ -187,6 +188,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
                     currentIndex: _currentIndex,
                     onTap: (int index) {
                       setState(() {
+                        if(_currentIndex == 1) {
+                          _keyListPage.currentState.pauseVideo();
+                        }
                         _currentIndex = index;
                       });
                     },
