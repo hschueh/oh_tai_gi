@@ -87,7 +87,7 @@ class SearchPageState extends State<SearchPage> {
               scrollInfo.metrics.maxScrollExtent) {
             retrieveVocabularyList();
           }
-          return true;
+          return false;
         },
       );
     } else if(keyword != null && keyword.length > 0 && searching) {

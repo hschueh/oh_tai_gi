@@ -107,7 +107,7 @@ class SmallCardListPageState extends State<SmallCardListPage> {
               scrollInfo.metrics.maxScrollExtent) {
             retrieveVocabularyList();
           }
-          return true;
+          return false;
         },
       );
 
