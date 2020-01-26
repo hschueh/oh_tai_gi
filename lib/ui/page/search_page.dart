@@ -113,7 +113,8 @@ class SearchPageState extends State<SearchPage> {
         backgroundColor: widget.destination.color,
       ),
       body: body,
-      floatingActionButton: this.toggleSearch?
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: AnimatedSwitcher(child: this.toggleSearch?
         FloatingActionButton(
           backgroundColor: widget.destination.color,
           onPressed: () => setState((){
@@ -167,6 +168,10 @@ class SearchPageState extends State<SearchPage> {
             }),
           )
         ),
+        duration: new Duration(milliseconds: 200),
+        transitionBuilder: (Widget child, Animation<double> animation) => 
+          ScaleTransition(child: child, scale: animation,),
+      ),
     );
   }
 }
