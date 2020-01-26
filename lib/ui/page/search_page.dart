@@ -126,47 +126,46 @@ class SearchPageState extends State<SearchPage> {
         Container(
           height: 55,
           width: MediaQuery.of(context).size.width * 0.9,
-            child: new RawMaterialButton(
-              padding: const EdgeInsets.only(left:25),
-              shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(27.5)),
-              fillColor: widget.destination.color[200],
-              splashColor: widget.destination.color[200],
-              elevation: 2.0,
-              child:
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Expanded(
-                    flex: 7,
-                    child:TextField(
-                      autofocus: true,
-                      controller: controller,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintStyle: TextStyle(color: Colors.white),
-                        hintText: '輸入關鍵字'
-                      ),
-                      onChanged: (text) {
-                        setState((){
-                          this.keyword = text;
-                          refresh();
-                        });
-                      },
-                    )
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
+          child: new RawMaterialButton(
+            padding: const EdgeInsets.only(left:25),
+            shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(27.5)),
+            fillColor: widget.destination.color[200],
+            splashColor: widget.destination.color[200],
+            elevation: 2.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  flex: 7,
+                  child:TextField(
+                    autofocus: true,
+                    controller: controller,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(color: Colors.white),
+                      hintText: '輸入關鍵字'
                     ),
+                    onChanged: (text) {
+                      setState((){
+                        this.keyword = text;
+                        refresh();
+                      });
+                    },
+                  )
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Icon(
+                    Icons.arrow_forward,
+                    color: Colors.white,
                   ),
-                ],
-              ),
-              onPressed: () => setState((){
-                this.toggleSearch = !this.toggleSearch;
-              }),
-            )
+                ),
+              ],
+            ),
+            onPressed: () => setState((){
+              this.toggleSearch = !this.toggleSearch;
+            }),
+          )
         ),
     );
   }
