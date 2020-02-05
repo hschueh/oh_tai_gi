@@ -101,7 +101,8 @@ class SmallCardListPageState extends State<SmallCardListPage> {
           },
         ),
         onNotification: (ScrollNotification scrollInfo) {
-          if (widget.vocabularyList == null &&
+          if (scrollInfo.depth == 0 &&
+            widget.vocabularyList == null &&
             shouldReload &&
             scrollInfo.metrics.pixels ==
               scrollInfo.metrics.maxScrollExtent) {

@@ -82,9 +82,10 @@ class SearchPageState extends State<SearchPage> {
           },
         ),
         onNotification: (ScrollNotification scrollInfo) {
-          if (shouldReload &&
+          if (scrollInfo.depth == 0 &&
+              shouldReload &&
               scrollInfo.metrics.pixels ==
-              scrollInfo.metrics.maxScrollExtent) {
+                scrollInfo.metrics.maxScrollExtent) {
             retrieveVocabularyList();
           }
           return false;
