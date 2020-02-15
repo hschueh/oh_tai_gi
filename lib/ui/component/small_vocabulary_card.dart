@@ -11,8 +11,9 @@ class SmallVocabularyCard extends StatelessWidget {
   Widget buildBody(BuildContext context) {
     List<Widget> children = <Widget>[];
     for(int i = 0; i < _vocabulary.heteronyms.length; ++i) {
-      children.add(Text(
-        "${_vocabulary.heteronyms[i].trs}" ,
+      children.add(SelectableText(
+        "${_vocabulary.heteronyms[i].trs}",
+        toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
         style: Theme.of(context).textTheme.subhead,
       ));
       for(int j = 0; j < _vocabulary.heteronyms[i].definitions.length; ++j) {
@@ -68,8 +69,9 @@ class SmallVocabularyCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Flexible(
-              child: Text(
+              child: SelectableText(
                 _vocabulary.title,
+                toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
                 style: Theme.of(context).textTheme.subhead,
               ),
               flex: 2,

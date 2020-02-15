@@ -16,8 +16,9 @@ class BigCard extends StatelessWidget {
   ListView buildBody(BuildContext context) {
     List<Widget> children = <Widget>[];
     for(int i = 0; i < _vocabulary.heteronyms.length; ++i) {
-      children.add(Text(
-        "${i+1}: ${_vocabulary.heteronyms[i].trs}" ,
+      children.add(SelectableText(
+        "${_vocabulary.heteronyms[i].trs}",
+        toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
         style: Theme.of(context).textTheme.display1,
       ));
       for(int j = 0; j < _vocabulary.heteronyms[i].definitions.length; ++j) {
@@ -65,8 +66,9 @@ class BigCard extends StatelessWidget {
             children: <Widget>[
               Row(
                 children: [
-                  Text(
+                  SelectableText(
                     _vocabulary.title,
+                    toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
                     style: Theme.of(context).textTheme.display2,
                   ),
                   SizedBox(width: 15,),

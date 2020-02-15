@@ -34,8 +34,9 @@ class _SmallVocabularyFoldableCardState extends State<SmallVocabularyFoldableCar
         needEllipsis = true;
         break;
       }
-      children.add(Text(
+      children.add(SelectableText(
         "${widget._vocabulary.heteronyms[i].trs}" ,
+        toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
         style: Theme.of(context).textTheme.subhead,
       ));
       for(int j = 0; j < widget._vocabulary.heteronyms[i].definitions.length; ++j) {
@@ -115,8 +116,9 @@ class _SmallVocabularyFoldableCardState extends State<SmallVocabularyFoldableCar
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Flexible(
-                  child: Text(
+                  child: SelectableText(
                     widget._vocabulary.title,
+                    toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
                     style: Theme.of(context).textTheme.subhead,
                   ),
                   flex: 2,
