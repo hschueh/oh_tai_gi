@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/db/vocabulary_list.dart';
 import 'package:oh_tai_gi/ui/component/big_card.dart';

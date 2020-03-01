@@ -11,6 +11,8 @@ class MigrateHelper {
     await vp.open();
     List<Vocabulary> vs = [];
     String contents = await getFileData("assets/dict/dict-twblg-merge.json");
+    String refTable = await getFileData("assets/dict/dict-ref.json");
+    Map refs = json.decode(refTable)['a'];
     vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
     if(vs.length > 0) {
       if(withOldVer) {
@@ -20,6 +22,10 @@ class MigrateHelper {
           return vocabulary;
         }));
       }
+      vs = vs.map((vocabulary) {
+        vocabulary.chinese = refs.containsKey(vocabulary.title)?refs[vocabulary.title]:"";
+        return vocabulary;
+      }).toList();
       await vp.deleteAll();
       vs = await vp.insertAll(vs);
     }

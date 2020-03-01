@@ -8,6 +8,7 @@ final String columnHashCode = 'hashCode';
 final String columnTitle = 'title';
 final String columnHeteronyms = 'heteronyms';
 final String columnLearnt = 'learnt';
+final String columnChinese = 'chinese';
 
 final String columnTRS = 'trs';
 final String columnAudioId = 'audio_id';
@@ -102,6 +103,7 @@ class Vocabulary {
   int id;
   int hashTitle;
   String title;
+  String chinese;
   List<Heteronym> heteronyms;
   int learnt;
 
@@ -116,6 +118,7 @@ class Vocabulary {
       columnTitle: title,
       columnLearnt: learnt,
       columnHashCode: hashTitle,
+      columnChinese: chinese,
       columnHeteronyms: json.encode(heteronyms)
     };
     if (id != null) {
@@ -129,6 +132,7 @@ class Vocabulary {
     hashTitle = target.hashTitle;
     learnt = target.learnt;
     heteronyms = target.heteronyms;
+    chinese = target.chinese;
   }
 
   Vocabulary.fromString(String string) : this.fromJson(json.decode(string));
@@ -138,6 +142,7 @@ class Vocabulary {
     title = map[columnTitle];
     hashTitle = title.hashCode;
     learnt = map.containsKey(columnLearnt)?map[columnLearnt]:0;
+    chinese = map.containsKey(columnChinese)?map[columnChinese]:"";
     heteronyms = (map[columnHeteronyms] is String)?
       json.decode(map[columnHeteronyms]).map<Heteronym>((item) => Heteronym.fromJson(item)).toList():
       map[columnHeteronyms].map<Heteronym>((json) => Heteronym.fromJson(json)).toList();

@@ -15,6 +15,7 @@ class SmallVocabularyCard extends StatelessWidget {
         "${_vocabulary.heteronyms[i].trs}",
         toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
         style: Theme.of(context).textTheme.subhead,
+        maxLines: 1,
       ));
       for(int j = 0; j < _vocabulary.heteronyms[i].definitions.length; ++j) {
         children.add(
@@ -73,6 +74,7 @@ class SmallVocabularyCard extends StatelessWidget {
                 _vocabulary.title,
                 toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
                 style: Theme.of(context).textTheme.subhead,
+                maxLines: 1,
               ),
               flex: 2,
               fit: FlexFit.tight,

@@ -38,6 +38,7 @@ class _SmallVocabularyFoldableCardState extends State<SmallVocabularyFoldableCar
         "${widget._vocabulary.heteronyms[i].trs}" ,
         toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
         style: Theme.of(context).textTheme.subhead,
+        maxLines: 1,
       ));
       for(int j = 0; j < widget._vocabulary.heteronyms[i].definitions.length; ++j) {
         if(children.length > 3 && _folded) {
@@ -120,6 +121,7 @@ class _SmallVocabularyFoldableCardState extends State<SmallVocabularyFoldableCar
                     widget._vocabulary.title,
                     toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
                     style: Theme.of(context).textTheme.subhead,
+                    maxLines: 1,
                   ),
                   flex: 2,
                   fit: FlexFit.tight,

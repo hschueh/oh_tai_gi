@@ -15,11 +15,18 @@ class BigCard extends StatelessWidget {
 
   ListView buildBody(BuildContext context) {
     List<Widget> children = <Widget>[];
+    if(_vocabulary.chinese.isNotEmpty) {
+      children.add(Text(
+        "[華] ${_vocabulary.chinese}",
+        style: Theme.of(context).textTheme.headline,
+      ));
+    }
     for(int i = 0; i < _vocabulary.heteronyms.length; ++i) {
       children.add(SelectableText(
         "${_vocabulary.heteronyms[i].trs}",
         toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
         style: Theme.of(context).textTheme.display1,
+        maxLines: 1,
       ));
       for(int j = 0; j < _vocabulary.heteronyms[i].definitions.length; ++j) {
         children.add(
@@ -70,6 +77,7 @@ class BigCard extends StatelessWidget {
                     _vocabulary.title,
                     toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
                     style: Theme.of(context).textTheme.display2,
+                    maxLines: 1,
                   ),
                   SizedBox(width: 15,),
                   InkWell(
