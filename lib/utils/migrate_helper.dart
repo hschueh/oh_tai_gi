@@ -16,8 +16,16 @@ class MigrateHelper {
     vs.insertAll(0, json.decode(contents).map<Vocabulary>((json) => Vocabulary.fromJson(json)).toList());
     if(vs.length > 0) {
       if(withOldVer) {
+        List<Vocabulary> vss = await vp.getVocabularyList(limit: 100000, where: '$columnLearnt > ?', whereArgs: [0]);
         vs = await Future.wait(vs.map((vocabulary) async {
-          Vocabulary v = await vp.getVocabularyWithTitle(vocabulary.title);
+          Vocabulary v = vss.firstWhere(
+            (learntVocabulary) {
+              return learntVocabulary.title == vocabulary.title;
+            }, 
+            orElse: (){
+              return null;
+            }
+          );
           if(v != null) vocabulary.learnt = v.learnt;
           return vocabulary;
         }));
