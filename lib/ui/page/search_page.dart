@@ -57,7 +57,7 @@ class SearchPageState extends State<SearchPage> {
       });
       return;
     }
-    List<Vocabulary> vs = await vp.searchVocabularyWithKeyword(keyword, offset: this.vocabularies.length);
+    List<Vocabulary> vs = await vp.searchVocabularyWithKeyword(keyword, ['$columnTitle', '$columnChinese', '$columnHeteronyms'], offset: this.vocabularies.length);
     _appendVocabularyList(vs);
   }
 

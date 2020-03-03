@@ -3,7 +3,7 @@ import 'package:oh_tai_gi/utils/migrate_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OTGConfig {
-  static String get dbVersion => '20200302';
+  static String get dbVersion => '20200303';
   static String get listVersion => '20200125';
   static String get keyAutoPlayAudio => 'apa'; // 0: always. 1: only wifi. 2: never.
   static String get keyPlayAudioInGame => 'paig'; // 0: no. 1: yes.

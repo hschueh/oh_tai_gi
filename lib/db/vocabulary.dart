@@ -204,11 +204,19 @@ class VocabularyProvider {
     return <Vocabulary>[];
   }
 
-  Future<List<Vocabulary>> searchVocabularyWithKeyword(String keyword, {offset: 0, limit: 50}) async {
+  Future<List<Vocabulary>> searchVocabularyWithKeyword(String keyword, List<String> columns, {offset: 0, limit: 50}) async {
+    var buffer = new StringBuffer();
+    for(String column in columns) {
+      if(buffer.isNotEmpty) {
+        buffer.write(" OR ");
+      }
+      buffer.write('$column LIKE ?');
+    }
     return await getVocabularyList(offset: offset,
       limit: limit,
-      where: '$columnTitle LIKE ? OR $columnHeteronyms LIKE ?',
-      whereArgs: ['%$keyword%', '%$keyword%']);
+      where: buffer.toString(),
+      whereArgs: columns.map((column)=>'%$keyword%').toList(growable: false)
+    );
   }
 
   Future<Vocabulary> getVocabularyWithTitle(String title) async {
