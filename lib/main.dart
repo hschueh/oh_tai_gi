@@ -109,6 +109,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
         },
       );
     }
+
+    isSearchKeywordEmpty().then((isEmpty)=>{
+      if(!isEmpty) {
+        setState(() {
+          _currentIndex = 4;
+        })
+      }
+    });
   }
 
   @override

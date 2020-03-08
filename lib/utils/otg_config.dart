@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/utils/migrate_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +28,9 @@ class OTGConfig {
       keyDBVer: _prefs.get(keyDBVer)??"0",
       keyListVer: _prefs.get(keyListVer)??"0",
     };
+
+    VocabularyProvider vp = VocabularyProvider();
+    await vp.open();
 
     if(_config[keyDBVer] != dbVersion) {
       await MigrateHelper.migrateVocabularyDB(_config[keyDBVer] != "0");

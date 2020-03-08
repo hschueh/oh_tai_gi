@@ -25,6 +25,7 @@ class _BigCardPageState extends State<BigCardPage> {
   int _index = 0;
   List<Vocabulary> vocabularies = [];
   VocabularyProvider vp;
+  bool isFirst = true;
   _BigCardPageState();
 
   @override
@@ -61,6 +62,10 @@ class _BigCardPageState extends State<BigCardPage> {
   void _tryToPlayAudio() async {
     if(_index >= vocabularies.length)
       return;
+    if(isFirst) {
+      isFirst = false;
+      return;
+    }
     int connectivity = await getConnectivityResult();
     int autoPlaySetting = OTGConfig.get(OTGConfig.keyAutoPlayAudio, 0);
     if(autoPlaySetting > connectivity)

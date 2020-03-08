@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:connectivity/connectivity.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show MethodChannel, rootBundle;
 
 import 'secret.dart';
+
+const platform = const MethodChannel('app.ohtaigi.channel');
 
 // Assumes the given path is a text-file-asset.
 Future<String> getFileData(String path) async {
@@ -51,4 +53,17 @@ Future<double> getBannerHeight() async{
     return 24;
   }
   return 24;
+}
+
+Future<String> getSearchKeyword() async {
+  String searchKeyword = await platform.invokeMethod("getSearchKeyword");
+  if (searchKeyword != null && searchKeyword.isNotEmpty) {
+    return searchKeyword;
+  } else {
+    return "";
+  }
+}
+
+Future<bool> isSearchKeywordEmpty() async {
+  return await platform.invokeMethod("isSearchKeywordEmpty");
 }

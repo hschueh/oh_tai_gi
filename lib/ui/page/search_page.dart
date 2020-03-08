@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/destination.dart';
 import 'package:oh_tai_gi/ui/component/small_vocabulary_foldable_card.dart';
+import 'package:oh_tai_gi/utils/utils.dart';
 
 const bool IS_DEBUG = false;
 
@@ -24,12 +26,23 @@ class SearchPageState extends State<SearchPage> {
   String keyword;
   TextEditingController controller = new TextEditingController();
   SearchPageState();
+
+  static const platform = const MethodChannel('app.ohtaigi.channel');
+  
   @override
   void initState() {
     super.initState();
     if(widget != null) {
       refresh();
     }
+    getSearchKeyword().then((onValue)=>{
+      if(onValue.isNotEmpty) {
+        setState((){
+          this.keyword = onValue;
+          refresh();
+        })
+      }
+    });
   }
 
   @override
