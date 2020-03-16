@@ -76,7 +76,9 @@ class BigCard extends StatelessWidget {
                   SelectableText(
                     _vocabulary.title,
                     toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
-                    style: Theme.of(context).textTheme.display2,
+                    style: Theme.of(context).textTheme.display2.copyWith(
+                      fontFamilyFallback: ["MOEDICT"],
+                    ),
                     maxLines: 1,
                   ),
                   SizedBox(width: 15,),

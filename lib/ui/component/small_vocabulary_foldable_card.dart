@@ -120,7 +120,9 @@ class _SmallVocabularyFoldableCardState extends State<SmallVocabularyFoldableCar
                   child: SelectableText(
                     widget._vocabulary.title,
                     toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subhead.copyWith(
+                      fontFamilyFallback: ["MOEDICT"],
+                    ),
                     maxLines: 1,
                   ),
                   flex: 2,

@@ -26,7 +26,9 @@ class SmallVocabularyListCard extends StatelessWidget {
                 alignment: Alignment.topLeft,
                 child:Text(
                 _vocabularyList.title,
-                style: Theme.of(context).textTheme.headline,
+                style: Theme.of(context).textTheme.headline.copyWith(
+                  fontFamilyFallback: ["MOEDICT"],
+                ),
               )),
               Align(
                 alignment: Alignment.bottomRight,

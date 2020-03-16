@@ -237,13 +237,18 @@ void main() {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
         runApp(
-          FeatureDiscovery(child:MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: HomePage(),
-            navigatorObservers: [
-              FirebaseAnalyticsObserver(analytics: analytics),
-            ],
-          ))
+          FeatureDiscovery(
+            child: MaterialApp(
+              theme: ThemeData(
+                fontFamily: 'huninn',
+              ),
+              debugShowCheckedModeBanner: false,
+              home: HomePage(),
+              navigatorObservers: [
+                FirebaseAnalyticsObserver(analytics: analytics),
+              ],
+            )
+          )
         );
       });
     }

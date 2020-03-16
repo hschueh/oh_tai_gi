@@ -15,7 +15,9 @@ class FlippableCard extends StatelessWidget {
     if(isFirst)
       return Center(child: Text(
           vocabulary.title,
-          style: Theme.of(context).textTheme.headline,
+          style: Theme.of(context).textTheme.headline.copyWith(
+            fontFamilyFallback: ["MOEDICT"],
+          ),
         ));
     List<Widget> children = <Widget>[];
     for(int i = 0; i < vocabulary.heteronyms.length; ++i) {

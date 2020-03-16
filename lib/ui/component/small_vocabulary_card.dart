@@ -73,7 +73,9 @@ class SmallVocabularyCard extends StatelessWidget {
               child: SelectableText(
                 _vocabulary.title,
                 toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
-                style: Theme.of(context).textTheme.subhead,
+                style: Theme.of(context).textTheme.subhead.copyWith(
+                  fontFamilyFallback: ["MOEDICT"],
+                ),
                 maxLines: 1,
               ),
               flex: 2,
