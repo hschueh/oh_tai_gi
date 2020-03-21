@@ -5,7 +5,7 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
 
 class AudioPlayerHolder {
-  static AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY)
+  static AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.MEDIA_PLAYER)
     ..onPlayerCompletion.listen((event) {
       finished = true;
     })
