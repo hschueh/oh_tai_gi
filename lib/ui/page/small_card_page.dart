@@ -40,7 +40,8 @@ class SmallCardListPageState extends State<SmallCardListPage> {
             flags: YoutubePlayerFlags(
                 mute: false,
                 autoPlay: false,
-                forceHideAnnotation: false
+                forceHideAnnotation: false,
+                captionLanguage: 'zh'
             ),
         );
       }
@@ -108,7 +109,7 @@ class SmallCardListPageState extends State<SmallCardListPage> {
               scrollInfo.metrics.maxScrollExtent) {
             retrieveVocabularyList();
           }
-          return false;
+          return _controller != null;
         },
       );
 

@@ -56,6 +56,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
       return AnimationController(vsync: this, duration: Duration(milliseconds: 200));
     }).toList();
     _faders[_currentIndex].value = 1.0;
+    _hide = AnimationController(vsync: this, duration: kThemeAnimationDuration);
     _destinationKeys = List<Key>.generate(allDestinations.length, (int index) => GlobalKey()).toList();
     _destinationPages = List<Widget>.generate(
       allDestinations.length,
@@ -65,7 +66,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
             return BigCardPage(key: UniqueKey(), destination: allDestinations[index]);
             break;
           case 1:
-            return ListRoutePage(key: _keyListPage, onNavigation: () => _hide.forward(),destination: allDestinations[index]);
+            return ListRoutePage(key: _keyListPage, forward: () => _hide.forward(), reverse: () => _hide.reverse(), destination: allDestinations[index]);
             break;
           case 2:
             return FlipGamePage(key: _keyFlipCardPage, destination: allDestinations[index]);
@@ -83,7 +84,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
             return UnfinishedPage(key: UniqueKey(), destination: allDestinations[index]);
         }
       }).toList();
-    _hide = AnimationController(vsync: this, duration: kThemeAnimationDuration);
 
     if(USE_FIREBASE_ADMOB) {
       BannerAd banner = BannerAd(
@@ -196,9 +196,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
                     currentIndex: _currentIndex,
                     onTap: (int index) {
                       setState(() {
-                        if(_currentIndex == 1) {
-                          _keyListPage.currentState.pauseVideo();
-                        }
                         _currentIndex = index;
                       });
                     },
@@ -233,7 +230,8 @@ void main() {
   } else {
     Admob.initialize(getAdAppId());
   }
-  OTGConfig.initialize().then((_) {
+  OTGConfig.initialize().then((_)async{
+    await SystemChrome.setEnabledSystemUIOverlays([]);
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
         runApp(

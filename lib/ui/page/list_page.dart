@@ -14,10 +14,11 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 const bool IS_DEBUG = false;
 
 class ListRoutePage extends StatefulWidget {
-  const ListRoutePage({ Key key, this.destination, this.onNavigation }) : super(key: key);
+  const ListRoutePage({ Key key, this.destination, this.forward, this.reverse }) : super(key: key);
 
   final Destination destination;
-  final VoidCallback onNavigation;
+  final VoidCallback forward;
+  final VoidCallback reverse;
 
   @override
   ListRoutePageState createState() => ListRoutePageState();
@@ -29,7 +30,7 @@ class ListRoutePageState extends State<ListRoutePage> {
   YoutubePlayerController _controller;
   void _setVocabularyList(BuildContext _context, VocabularyList list) {
     vocabularyList = list;
-    Navigator.pushNamed(_context, "/list");
+    Navigator.of(_context).pushNamed("/list");
     isList = true;
   }
 
@@ -41,9 +42,9 @@ class ListRoutePageState extends State<ListRoutePage> {
 
   void _toggleMode(BuildContext _context) {
     if(isList)
-      Navigator.popAndPushNamed(_context, "/learn");
+      Navigator.of(_context).popAndPushNamed("/learn");
     else
-      Navigator.popAndPushNamed(_context, "/list");
+      Navigator.of(_context).popAndPushNamed("/list");
     
     isList = !isList;
   }
@@ -55,7 +56,7 @@ class ListRoutePageState extends State<ListRoutePage> {
         setVocabularyList: _setVocabularyList,
         child: Navigator(
         observers: <NavigatorObserver>[
-          ViewNavigatorObserver(widget.onNavigation),
+          ViewNavigatorObserver(widget.forward, widget.reverse, pauseVideo),
         ],
         onGenerateRoute: (RouteSettings settings) {
           return MaterialPageRoute(
@@ -68,7 +69,7 @@ class ListRoutePageState extends State<ListRoutePage> {
                     vocabularyList: vocabularyList,
                     switchToLearning: _toggleMode,
                     setController: _setController
-                    );
+                  );
                 case '/learn':
                   return BigCardPage(destination: widget.destination, vocabularyList: vocabularyList, switchToList: _toggleMode,);
                 case '/':
@@ -85,15 +86,17 @@ class ListRoutePageState extends State<ListRoutePage> {
 
 
 class ViewNavigatorObserver extends NavigatorObserver {
-  ViewNavigatorObserver(this.onNavigation);
+  ViewNavigatorObserver(this._forward, this._reverse, this._pause);
 
-  final VoidCallback onNavigation;
+  final VoidCallback _forward;
+  final VoidCallback _reverse;
+  final VoidCallback _pause;
 
   void didPop(Route<dynamic> route, Route<dynamic> previousRoute) {
-    onNavigation();
+    if(route.settings.name=="/list") _pause();
   }
   void didPush(Route<dynamic> route, Route<dynamic> previousRoute) {
-    onNavigation();
+    route.settings.name=="/list"?_reverse():_forward();
   }
 }
 

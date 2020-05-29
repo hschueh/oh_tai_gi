@@ -16,6 +16,7 @@ class BigCard extends StatelessWidget {
   ListView buildBody(BuildContext context) {
     List<Widget> children = <Widget>[];
     if(_vocabulary.chinese.isNotEmpty) {
+      children.add(SizedBox(height: 10));
       children.add(Text(
         "[華] ${_vocabulary.chinese}",
         style: Theme.of(context).textTheme.headline,
