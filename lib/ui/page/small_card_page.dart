@@ -40,7 +40,7 @@ class SmallCardListPageState extends State<SmallCardListPage> {
             flags: YoutubePlayerFlags(
                 mute: false,
                 autoPlay: false,
-                forceHideAnnotation: true,
+                forceHideAnnotation: false
             ),
         );
       }
