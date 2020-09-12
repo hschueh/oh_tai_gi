@@ -7,13 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:oh_tai_gi/ui/page/big_card_page.dart';
-import 'package:oh_tai_gi/ui/page/flip_game_page.dart';
-import 'package:oh_tai_gi/ui/page/list_page.dart';
 import 'package:oh_tai_gi/ui/page/search_page.dart';
-import 'package:oh_tai_gi/ui/page/small_card_page.dart';
-import 'package:oh_tai_gi/ui/page/configuration_page.dart';
-import 'package:oh_tai_gi/ui/page/unused_page.dart';
 
 import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
@@ -22,12 +16,7 @@ import 'destination.dart';
 const USE_FIREBASE_ADMOB = false;
 
 const List<Destination> allDestinations = <Destination>[
-  Destination(0, '凊彩學學', Icons.shuffle, Colors.teal),
-  Destination(1, '主題詞彙', Icons.list, Colors.cyan),
-  Destination(2, '𨑨迌溫習', Icons.videogame_asset, Colors.orange),
-  Destination(3, '學習歷程', Icons.repeat, Colors.blue),
-  Destination(4, '揣詞', Icons.search, Colors.green),
-  Destination(5, '設定', Icons.settings, Colors.grey)
+  Destination(0, '揣詞', Icons.search, Colors.cyan),
 ];
 
 class HomePage extends StatefulWidget {
@@ -36,54 +25,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomePage> {
-  List<Key> _destinationKeys;
-  List<Widget> _destinationPages;
-  List<AnimationController> _faders;
   AnimationController _hide;
-  int _currentIndex = 0;
   Widget bannerAds = SizedBox(width: 0, height: 0,);
-
-  final GlobalKey<SmallCardListPageState> _keySmallCardPage = GlobalKey();
-  final GlobalKey<FlipGamePageState> _keyFlipCardPage = GlobalKey();
-  final GlobalKey<ListRoutePageState> _keyListPage = GlobalKey();
-  
 
   @override
   void initState() {
     super.initState();
-
-    _faders = allDestinations.map<AnimationController>((Destination destination) {
-      return AnimationController(vsync: this, duration: Duration(milliseconds: 200));
-    }).toList();
-    _faders[_currentIndex].value = 1.0;
-    _hide = AnimationController(vsync: this, duration: kThemeAnimationDuration);
-    _destinationKeys = List<Key>.generate(allDestinations.length, (int index) => GlobalKey()).toList();
-    _destinationPages = List<Widget>.generate(
-      allDestinations.length,
-      (int index) {
-        switch (index) {
-          case 0:
-            return BigCardPage(key: UniqueKey(), destination: allDestinations[index]);
-            break;
-          case 1:
-            return ListRoutePage(key: _keyListPage, forward: () => _hide.forward(), reverse: () => _hide.reverse(), destination: allDestinations[index]);
-            break;
-          case 2:
-            return FlipGamePage(key: _keyFlipCardPage, destination: allDestinations[index]);
-            break;
-          case 3:
-            return SmallCardListPage(key: _keySmallCardPage, destination: allDestinations[index]);
-            break;
-          case 4:
-            return SearchPage(key: UniqueKey(), destination: allDestinations[index]);
-            break;
-          case 5:
-            return ConfigurationPage(key: UniqueKey(), destination: allDestinations[index]);
-            break;
-          default:
-            return UnfinishedPage(key: UniqueKey(), destination: allDestinations[index]);
-        }
-      }).toList();
 
     if(USE_FIREBASE_ADMOB) {
       BannerAd banner = BannerAd(
@@ -109,109 +56,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin<HomeP
         },
       );
     }
-
-    isSearchKeywordEmpty().then((isEmpty)=>{
-      if(!isEmpty) {
-        setState(() {
-          _currentIndex = 4;
-        })
-      }
-    });
   }
 
   @override
   void dispose() {
-    for (AnimationController controller in _faders)
-      controller.dispose();
     _hide.dispose();
     super.dispose();
   }
 
-  bool _handleScrollNotification(ScrollNotification notification) {
-    if (notification.depth == 0) {
-      if (notification is UserScrollNotification) {
-        final UserScrollNotification userScroll = notification;
-        switch (userScroll.direction) {
-          case ScrollDirection.forward:
-            _hide.forward();
-            break;
-          case ScrollDirection.reverse:
-            _hide.reverse();
-            break;
-          case ScrollDirection.idle:
-            break;
-        }
-      }
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return NotificationListener<ScrollNotification>(
-      onNotification: _handleScrollNotification,
-      child: Scaffold(
+    return Scaffold(
         body: SafeArea(
           top: false,
-          child: Stack(
-            fit: StackFit.expand,
-            children: allDestinations.map((Destination destination) {
-              final Widget view = FadeTransition(
-                opacity: _faders[destination.index].drive(CurveTween(curve: Curves.fastOutSlowIn)),
-                child: KeyedSubtree(
-                  key: _destinationKeys[destination.index],
-                  child: _destinationPages[destination.index],
-                ),
-              );
-              if (destination.index == _currentIndex) {
-                _faders[destination.index].forward();
-                if(_currentIndex == 3) {
-                  _keySmallCardPage.currentState.refresh();
-                } else if (_currentIndex == 2) {
-                  _keyFlipCardPage.currentState.refresh();
-                }
-                // TODO Does big card page need to refresh?
-                return view;
-              } else {
-                _faders[destination.index].reverse();
-                if (_faders[destination.index].isAnimating) {
-                  return IgnorePointer(child: view);
-                }
-                return Offstage(child: view);
-              }
-            }).toList(),
-          ),
+          child: SearchPage(key: UniqueKey(), destination: allDestinations[0])
         ),
-        bottomNavigationBar:
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children:[
-              bannerAds,
-              ClipRect(
-                child: SizeTransition(
-                  sizeFactor: _hide,
-                  axisAlignment: -1.0,
-                  child: BottomNavigationBar(
-                    currentIndex: _currentIndex,
-                    onTap: (int index) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                    },
-                    items: allDestinations.map((Destination destination) {
-                      return BottomNavigationBarItem(
-                        icon: Icon(destination.icon),
-                        backgroundColor: destination.color,
-                        title: Text(destination.title)
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-            ]
-          ),
-        ),
+        bottomNavigationBar:bannerAds,
     );
   }
 }

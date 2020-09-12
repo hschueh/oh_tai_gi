@@ -114,7 +114,7 @@ class SearchPageState extends State<SearchPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Image.asset("assets/launcher/icon_tired.png"),
+              (keyword != null && keyword.length > 0)?Image.asset("assets/launcher/icon_tired.png"):null,
               Text((keyword != null && keyword.length > 0)?"找不到相關詞彙":"輸入關鍵字尋找相關詞彙", style: Theme.of(context).textTheme.body1,)
             ],
           )
@@ -123,7 +123,7 @@ class SearchPageState extends State<SearchPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.destination.title),
+        title: Text("揣臺語"),
         backgroundColor: widget.destination.color,
       ),
       body: body,
