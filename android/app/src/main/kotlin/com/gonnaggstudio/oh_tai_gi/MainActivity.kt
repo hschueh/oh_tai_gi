@@ -1,4 +1,4 @@
-package com.gonnaggstudio.oh_tai_gi
+package com.gonnaggstudio.tshue_tai_gi
 
 import android.content.Intent
 import android.os.Build

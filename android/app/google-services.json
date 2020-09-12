@@ -15,6 +15,51 @@
       },
       "oauth_client": [
         {
+          "client_id": "275648812286-0cf246sqnmqs6t7qkp17mk71envpgj89.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gonnaggstudio.oh_tai_gi",
+            "certificate_hash": "a9b5d2dbf8d1d9f23884d74801a72d85549f82ff"
+          }
+        },
+        {
+          "client_id": "275648812286-nov274lm8vcfvibq3k8h5a3dke3ae56h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlsAGyiJeMywgQZXoX-4EgqdbJ4ywIzho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "275648812286-nov274lm8vcfvibq3k8h5a3dke3ae56h.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "275648812286-9rf0bulrk550jv8v71t76f3fg3ed8sdq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.gonnaggstudio.ohTaiGi"
+              }
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-8550386526282187~6915989844"
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:275648812286:android:78b6b9dca2f349bac041af",
+        "android_client_info": {
+          "package_name": "com.gonnaggstudio.tshue_tai_gi"
+        }
+      },
+      "oauth_client": [
+        {
           "client_id": "275648812286-nov274lm8vcfvibq3k8h5a3dke3ae56h.apps.googleusercontent.com",
           "client_type": 3
         }

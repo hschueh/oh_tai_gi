@@ -42,7 +42,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.gonnaggstudio.oh_tai_gi"
+        applicationId "com.gonnaggstudio.tshue_tai_gi"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
