@@ -1,0 +1,11 @@
+A Taiwanese (tâi-gí) learning app inspired by moedict & quizlet
+
+<h3>Functions</h3>
+
+<ul>
+<li>Learning new words</li>
+<li>Watching video and learning related words</li>
+<li>Reviewing words with card flipping game</li>
+<li>Recording the progress</li>
+<li>Searching related words</li>
+</ul>
