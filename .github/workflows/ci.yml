@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+env:
+  FLUTTER_VERSION: 3.47.9
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: cp lib/utils/secret.dart.example lib/utils/secret.dart
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  build-android:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flavor: [play, foss]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Prepare the Google Play flavor
+        if: matrix.flavor == 'play'
+        run: cp lib/utils/secret.dart.example lib/utils/secret.dart
+      - name: Prepare the F-Droid flavor
+        if: matrix.flavor == 'foss'
+        run: scripts/make_foss.sh
+      - run: flutter pub get
+      # Unsigned release build: what F-Droid does, and it checks R8/minify.
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.flavor }}-release-unsigned
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error

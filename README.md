@@ -30,7 +30,7 @@ flutter run
   `lib/services/*.dart` for the no-op `*_foss.dart` versions. `secret.dart`
   is not needed. See `docs/fdroid-build-recipe.yml`.
 
-Release signing reads `android/key.properties`; without it the release
-build is signed with the debug key.
+Release signing reads `android/key.properties`; without it release builds
+are left unsigned (as F-Droid expects).
 
 See [docs/MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md) for the Flutter 3 migration notes.

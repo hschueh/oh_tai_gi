@@ -11,14 +11,14 @@
 | Stage | 狀態 | 驗證 |
 |---|---|---|
 | 0 準備 | ✅ | – |
-| 1 Android 結構 | ✅ | ⚠️ 未實際 Gradle build（環境無 Android SDK） |
+| 1 Android 結構 | ✅ | ⚠️ 雲端環境無 Android SDK；改由 GitHub Actions（`.github/workflows/ci.yml`）build Play / FOSS 兩個 flavor |
 | 2 iOS 結構 | ✅ | ⚠️ 需在 Mac 上 build |
 | 3 pubspec | ✅ | `flutter pub get` ✅ |
 | 4 null safety | ✅ | `flutter analyze`：No issues found ✅ |
 | 5 套件 API / 資料相容 | ✅ | DB migration 測試 5/5 ✅ |
 | 6 Framework API | ✅ | `flutter analyze` ✅ |
-| 7 驗證 | 🟡 | `flutter test` 12/12 ✅；APK build 與實機測試待做 |
-| 8 F-Droid | 🟡 | FOSS flavor：analyze ✅ test 12/12 ✅；待打 tag 提交 |
+| 7 驗證 | 🟡 | `flutter test` 20/20 ✅；APK build 交給 CI；實機測試待做 |
+| 8 F-Droid | 🟡 | FOSS flavor：analyze ✅ test ✅；待打 tag 提交 |
 
 ---
 
@@ -102,14 +102,16 @@ Dart **不保證** `String.hashCode` 在不同 SDK 版本間一致。如果新 D
 - [x] `namespace "com.gonnaggstudio.oh_tai_gi"`，移除 manifest 中的 `package=`
 - [x] 移除 Fabric、jcenter；Crashlytics 改用 `com.google.firebase.crashlytics` gradle plugin
 - [x] compileSdk/targetSdk 跟隨 `flutter.compileSdkVersion` / `flutter.targetSdkVersion`，minSdk 用 `flutter.minSdkVersion`
-- [x] Release signing：`key.properties` 不存在時 fallback 到 debug key（方便 CI / F-Droid）
+  - ⚠️ **minSdk 從 16 變成 24**（Flutter 3.47 與 google_mobile_ads 9 的最低需求）：Android 7.0 以下的使用者會停留在 1.0.21，release notes 要寫
+- [x] Release signing：`key.properties` 不存在時 release 不簽章（F-Droid 自己簽；避免誤把 debug key 簽的 AAB 上傳到 Play）
 - [x] `MainActivity.kt` 改用 v2 embedding（`configureFlutterEngine`），保留 `PROCESS_TEXT`「揣臺語」功能，並補上 `onNewIntent`（`singleTop` 時第二次選字也能用）
 - [x] Manifest：移除 `io.flutter.app.FlutterApplication`、加 `flutterEmbedding=2`、`android:exported="true"`、`<queries>` for PROCESS_TEXT
 
 ### Stage 2 – iOS 專案結構升級
-- [x] 以新範本重建 `Podfile`（`platform :ios, '13.0'`）、`AppFrameworkInfo.plist`、xcconfig
+- [x] 以新範本重建 Xcode 專案（Swift Package Manager、UIScene、iOS 15）、`AppFrameworkInfo.plist`、xcconfig
 - [x] 保留 `GoogleService-Info.plist`、App icon、`Info.plist` 的顯示名稱與 AdMob `GADApplicationIdentifier`
-- [x] 刪除過時的 `Flutter.podspec`、`Podfile.lock`
+- [x] 刪除過時的 `Podfile`、`Flutter.podspec`、`Podfile.lock`（Flutter 需要 CocoaPods 時會自動產生）
+- [ ] Crashlytics dSYM 上傳：舊的 Fabric run script 已移除，需要在 Mac 上跑 `flutterfire configure` 補上 upload-symbols build phase，否則 iOS 當機報告沒有符號
 - [ ] ⚠️ 這個雲端環境是 Linux，無法實際 build iOS；需要在 Mac 上 `flutter build ios` 驗證（專案已改用 Swift Package Manager，Flutter 會在需要時自動產生 Podfile）
 
 ### Stage 3 – pubspec 與相依套件
@@ -125,7 +127,7 @@ Dart **不保證** `String.hashCode` 在不同 SDK 版本間一致。如果新 D
 - [x] 舊 widget 測試 / unused_page 清理
 
 ### Stage 5 – 套件 API 遷移 & 資料相容
-- [x] `AudioPlayerHolder` 改寫成 audioplayers 6（用 `onPlayerComplete` + `Completer`，取代 busy-wait loop）
+- [x] `AudioPlayerHolder` 改寫成 audioplayers 6（等待 `onPlayerStateChanged` 離開 playing，取代 busy-wait loop）；音訊設成 `mixWithOthers`，不搶背景音樂的 audio focus（與舊版行為相同）
 - [x] `getConnectivityResult()` 改用 connectivity_plus 的 List 回傳
 - [x] `fetchVocabularyLists`：`Uri.parse`、加 timeout、try/catch → 伺服器掛掉時能走本地 `dict-list.json` 備援
 - [x] 廣告：抽成 `lib/services/ads.dart`（`google_mobile_ads` BannerAd + AdWidget）
@@ -167,7 +169,7 @@ Dart **不保證** `String.hashCode` 在不同 SDK 版本間一致。如果新 D
    （例如 `https://raw.githubusercontent.com/hschueh/oh_tai_gi/master/assets/dict/dict-list.json`），
    不用維護伺服器、社群也能透過 PR 新增主題。
 2. **語音改 HTTPS**：`http://t.moedict.tw` 是明文；確認 `https://` 可用後就能拿掉 `usesCleartextTraffic`。
-3. **GitHub Actions CI**：每個 PR 自動跑 `flutter analyze` + `flutter test` + `flutter build apk`，避免下次又一次落後五年。
+3. ~~**GitHub Actions CI**~~：已加入 `.github/workflows/ci.yml`。
 4. **Material 3 改版**：遷移完成後可以開 `useMaterial3: true`，用 `ColorScheme.fromSeed` 搭配各分頁原本的主題色，外觀會現代很多。
 5. **間隔重複（Spaced Repetition）**：`learnt` 現在只是次數；可以加一個「下次複習時間」欄位，做成 SM-2 之類的演算法，學習效果會好很多。
 6. **深色模式**、**Web 版**（sqflite → drift 或 sqflite_common_ffi_web）也都是低成本就能加的功能。
