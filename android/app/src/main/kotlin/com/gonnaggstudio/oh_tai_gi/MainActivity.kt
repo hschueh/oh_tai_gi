@@ -1,45 +1,57 @@
 package com.gonnaggstudio.oh_tai_gi
 
 import android.content.Intent
-import android.os.Build
-import android.os.Bundle
-import io.flutter.app.FlutterActivity
-import io.flutter.plugin.common.MethodCall
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugins.GeneratedPluginRegistrant
 
-class MainActivity: FlutterActivity() {
-  private var searchKeyword = ""
+/**
+ * Hosts the Flutter UI and handles the "揣臺語" (PROCESS_TEXT) action, which
+ * lets users select text in any app and look it up in O̍h Tâi Gí.
+ */
+class MainActivity : FlutterActivity() {
+    private var searchKeyword = ""
+    private var channel: MethodChannel? = null
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    GeneratedPluginRegistrant.registerWith(this)
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        handleIntent(intent)
 
-    val action = intent.action
-    val type = intent.type
-
-    if (Intent.ACTION_PROCESS_TEXT == action && type != null) {
-      if ("text/plain" == type) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-          searchKeyword = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
+        channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).apply {
+            setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getSearchKeyword" -> {
+                        result.success(searchKeyword)
+                        searchKeyword = ""
+                    }
+                    "isSearchKeywordEmpty" -> result.success(searchKeyword.isEmpty())
+                    else -> result.notImplemented()
+                }
+            }
         }
-        println("searchKeyword is $searchKeyword")
-      }
     }
 
-    MethodChannel(getFlutterView(), "app.ohtaigi.channel").setMethodCallHandler { methodCall: MethodCall, result: MethodChannel.Result ->
-      try {
-        if (methodCall.method!!.contentEquals(charSequence = "getSearchKeyword")) {
-          println("searchKeyword is ${searchKeyword}")
-          result.success(searchKeyword)
-          searchKeyword = ""
-        } else if (methodCall.method!!.contentEquals("isSearchKeywordEmpty")) {
-          println("searchKeyword is empty: ${if (searchKeyword.isEmpty()) "Yes" else "No"}")
-          result.success(searchKeyword.isEmpty())
+    // With launchMode="singleTop", selecting text a second time while the app
+    // is running delivers the intent here instead of recreating the activity.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (handleIntent(intent)) {
+            channel?.invokeMethod("onSearchKeyword", searchKeyword)
         }
-      } catch (e: Exception) {
-        result.notImplemented()
-      }
     }
-  }
+
+    private fun handleIntent(intent: Intent?): Boolean {
+        if (intent?.action != Intent.ACTION_PROCESS_TEXT || intent.type != "text/plain") {
+            return false
+        }
+        val text = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()
+        if (text.isNullOrBlank()) return false
+        searchKeyword = text
+        return true
+    }
+
+    companion object {
+        private const val CHANNEL = "app.ohtaigi.channel"
+    }
 }
