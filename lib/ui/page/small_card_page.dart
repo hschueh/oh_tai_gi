@@ -16,12 +16,14 @@ class SmallCardListPage extends StatefulWidget {
       required this.destination,
       this.vocabularyList,
       this.switchToLearning,
-      this.setController});
+      this.setController,
+      this.clearController});
 
   final VocabularyList? vocabularyList;
   final Destination destination;
   final SwitchMode? switchToLearning;
-  final ValueChanged<YoutubePlayerController?>? setController;
+  final ValueChanged<YoutubePlayerController>? setController;
+  final ValueChanged<YoutubePlayerController>? clearController;
 
   @override
   SmallCardListPageState createState() => SmallCardListPageState();
@@ -54,13 +56,17 @@ class SmallCardListPageState extends State<SmallCardListPage> {
         );
       }
     }
-    widget.setController?.call(_controller);
+    final controller = _controller;
+    if (controller != null) widget.setController?.call(controller);
   }
 
   @override
   void dispose() {
-    widget.setController?.call(null);
-    _controller?.close();
+    final controller = _controller;
+    if (controller != null) {
+      widget.clearController?.call(controller);
+      controller.close();
+    }
     super.dispose();
   }
 

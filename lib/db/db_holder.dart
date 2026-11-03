@@ -79,14 +79,28 @@ class DBHolder {
 
   factory DBHolder() => _instance;
 
+  /// Closes the database; the next [initialize] opens it again.
+  Future<void> close() async {
+    final opened = db;
+    db = null;
+    _opening = null;
+    await opened?.close();
+  }
+
   /// Opens the database once; concurrent callers share the same future.
   Future<Database> initialize() async {
     final opened = db;
     if (opened != null) return opened;
-    _opening ??= () async {
+    final opening = _opening ??= () async {
       final path = join(await getDatabasesPath(), databaseName);
       return db = await openOhTaiGiDatabase(path);
     }();
-    return _opening!;
+    try {
+      return await opening;
+    } catch (_) {
+      // Let the next call try again instead of caching the failure.
+      _opening = null;
+      rethrow;
+    }
   }
 }

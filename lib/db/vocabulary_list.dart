@@ -91,8 +91,6 @@ class VocabularyList {
 }
 
 class VocabularyListProvider {
-  Database? _db;
-
   VocabularyListProvider._privateConstructor();
 
   static final VocabularyListProvider _instance =
@@ -100,17 +98,16 @@ class VocabularyListProvider {
 
   factory VocabularyListProvider() => _instance;
 
+  /// The database shared by all providers, see [DBHolder].
   Database get db {
-    final db = _db;
+    final db = DBHolder().db;
     if (db == null) {
       throw StateError('VocabularyListProvider.open() must be awaited first.');
     }
     return db;
   }
 
-  Future<void> open() async {
-    _db ??= await DBHolder().initialize();
-  }
+  Future<void> open() => DBHolder().initialize();
 
   Future<VocabularyList> insert(VocabularyList vocabularyList) async {
     vocabularyList.id =
@@ -202,8 +199,6 @@ class VocabularyListProvider {
     return batch.commit(continueOnError: true);
   }
 
-  Future<void> close() async {
-    await _db?.close();
-    _db = null;
-  }
+  /// Closes the database shared by all providers.
+  Future<void> close() => DBHolder().close();
 }

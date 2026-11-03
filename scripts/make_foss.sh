@@ -19,7 +19,9 @@ sed -i -e '/# NONFREE$/d' pubspec.yaml
 sed -i -e '/\/\/ FIREBASE$/d' android/settings.gradle.kts android/app/build.gradle.kts
 sed -i -e '/ADMOB_START/,/ADMOB_END/d' android/app/src/main/AndroidManifest.xml
 
+# Guarded so that running the script twice is harmless.
 for service in lib/services/*_foss.dart; do
+  [ -e "$service" ] || continue
   mv "$service" "${service%_foss.dart}.dart"
 done
 

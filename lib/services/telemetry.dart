@@ -22,7 +22,9 @@ class Telemetry {
     final crashlytics = FirebaseCrashlytics.instance;
     // Only collect crashes from release builds.
     await crashlytics.setCrashlyticsCollectionEnabled(!kDebugMode);
-    FlutterError.onError = crashlytics.recordFlutterFatalError;
+    // Framework errors (e.g. layout overflows) are non-fatal, as in 1.0.21,
+    // so they do not count against the crash-free rate.
+    FlutterError.onError = crashlytics.recordFlutterError;
     PlatformDispatcher.instance.onError = (error, stack) {
       crashlytics.recordError(error, stack, fatal: true);
       return true;

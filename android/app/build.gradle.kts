@@ -11,7 +11,8 @@ plugins {
 }
 
 // Release signing is read from android/key.properties when it exists. Without
-// it (CI, F-Droid, contributors) the release build falls back to the debug key.
+// it (CI, F-Droid) release builds are left unsigned, so that an artifact
+// signed with the wrong key can never be uploaded to Google Play by mistake.
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
@@ -49,12 +50,9 @@ android {
 
     buildTypes {
         release {
-            signingConfig =
-                if (keystorePropertiesFile.exists()) {
-                    signingConfigs.getByName("release")
-                } else {
-                    signingConfigs.getByName("debug")
-                }
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 }

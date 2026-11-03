@@ -34,8 +34,15 @@ class ListRoutePageState extends State<ListRoutePage> {
     isList = true;
   }
 
-  void _setController(YoutubePlayerController? controller) =>
+  void _setController(YoutubePlayerController controller) =>
       _controller = controller;
+
+  /// Only forgets [controller] if it is still the current one: when the user
+  /// opens another list quickly, the old page is disposed after the new page
+  /// registered its controller.
+  void _clearController(YoutubePlayerController controller) {
+    if (identical(_controller, controller)) _controller = null;
+  }
 
   void pauseVideo() => _controller?.pauseVideo();
 
@@ -69,6 +76,7 @@ class ListRoutePageState extends State<ListRoutePage> {
                     vocabularyList: list,
                     switchToLearning: _toggleMode,
                     setController: _setController,
+                    clearController: _clearController,
                   );
                 case '/learn' when list != null:
                   return BigCardPage(
