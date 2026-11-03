@@ -110,7 +110,7 @@ Dart **不保證** `String.hashCode` 在不同 SDK 版本間一致。如果新 D
 - [x] 以新範本重建 `Podfile`（`platform :ios, '13.0'`）、`AppFrameworkInfo.plist`、xcconfig
 - [x] 保留 `GoogleService-Info.plist`、App icon、`Info.plist` 的顯示名稱與 AdMob `GADApplicationIdentifier`
 - [x] 刪除過時的 `Flutter.podspec`、`Podfile.lock`
-- [ ] ⚠️ 這個雲端環境是 Linux，無法實際 build iOS；需要在 Mac 上 `pod install && flutter build ios` 驗證
+- [ ] ⚠️ 這個雲端環境是 Linux，無法實際 build iOS；需要在 Mac 上 `flutter build ios` 驗證（專案已改用 Swift Package Manager，Flutter 會在需要時自動產生 Podfile）
 
 ### Stage 3 – pubspec 與相依套件
 - [x] `environment: sdk: ^3.10.0`
