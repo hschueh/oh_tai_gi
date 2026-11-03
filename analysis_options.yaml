@@ -1,0 +1,15 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - lib/utils/secret.dart
+    - build/**
+    - android/**
+    - ios/**
+
+linter:
+  rules:
+    # Legacy names such as AdAppId / GAME_SIZE are kept for now.
+    constant_identifier_names: false
+    non_constant_identifier_names: false
+    avoid_print: false

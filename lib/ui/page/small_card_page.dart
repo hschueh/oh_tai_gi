@@ -1,189 +1,197 @@
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/material.dart';
-
-import 'package:oh_tai_gi/db/vocabulary_list.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
+import 'package:oh_tai_gi/db/vocabulary_list.dart';
 import 'package:oh_tai_gi/destination.dart';
-import 'package:oh_tai_gi/ui/component/small_vocabulary_card.dart';
 import 'package:oh_tai_gi/ui/component/small_vocabulary_foldable_card.dart';
+import 'package:oh_tai_gi/ui/page/big_card_page.dart' show SwitchMode;
 import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-const bool IS_DEBUG = false;
-
+/// Lists either the learnt vocabularies ("學習歷程") or the vocabularies of one
+/// vocabulary list, with its YouTube video on top when it has one.
 class SmallCardListPage extends StatefulWidget {
-  SmallCardListPage({Key key, this.destination, this.vocabularyList, this.switchToLearning, this.setController}) : super(key: key);
+  const SmallCardListPage(
+      {super.key,
+      required this.destination,
+      this.vocabularyList,
+      this.switchToLearning,
+      this.setController});
 
-  final VocabularyList vocabularyList;
+  final VocabularyList? vocabularyList;
   final Destination destination;
-  final Function switchToLearning;
-  final Function setController;
+  final SwitchMode? switchToLearning;
+  final ValueChanged<YoutubePlayerController?>? setController;
 
   @override
   SmallCardListPageState createState() => SmallCardListPageState();
 }
 
 class SmallCardListPageState extends State<SmallCardListPage> {
-  List<Vocabulary> vocabularies = [];
-  VocabularyProvider vp;
+  final List<Vocabulary> vocabularies = [];
+  final VocabularyProvider vp = VocabularyProvider();
   bool shouldReload = true;
-  YoutubePlayerController _controller;
-  SmallCardListPageState();
+  bool _discoveryStarted = false;
+  YoutubePlayerController? _controller;
+
   @override
   void initState() {
     super.initState();
-    if(widget != null && widget.vocabularyList != null) {
+    final list = widget.vocabularyList;
+    if (list != null) {
       refresh();
-      if(widget.vocabularyList.cover != null && widget.vocabularyList.cover.length > 0) {
-        _controller = YoutubePlayerController(
-            initialVideoId: YoutubePlayer.convertUrlToId(widget.vocabularyList.cover),
-            flags: YoutubePlayerFlags(
-                mute: false,
-                autoPlay: false,
-                forceHideAnnotation: false,
-                captionLanguage: 'zh'
-            ),
+      final videoId = list.cover.isNotEmpty
+          ? YoutubePlayerController.convertUrlToId(list.cover)
+          : null;
+      if (videoId != null) {
+        _controller = YoutubePlayerController.fromVideoId(
+          videoId: videoId,
+          autoPlay: false,
+          params: const YoutubePlayerParams(
+            captionLanguage: 'zh',
+            showFullscreenButton: true,
+          ),
         );
       }
     }
+    widget.setController?.call(_controller);
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if(widget.setController != null && _controller != null) {
-      widget.setController(_controller);
-    }
+  void dispose() {
+    widget.setController?.call(null);
+    _controller?.close();
+    super.dispose();
   }
 
-  refresh() {
-    this.vocabularies.clear();
+  void refresh() {
+    vocabularies.clear();
     retrieveVocabularyList();
   }
 
-  void retrieveVocabularyList() async {
+  Future<void> retrieveVocabularyList() async {
     shouldReload = false;
-    if(vp == null) {
-      vp = VocabularyProvider();
-      await vp.open();
-    }
-
-    if(widget.vocabularyList == null) {
-      List<Vocabulary> vs = await vp.getVocabularyList(offset: this.vocabularies.length, where: '$columnLearnt > ?', whereArgs: [0]);
-      _appendVocabularyList(vs);
+    await vp.open();
+    final list = widget.vocabularyList;
+    final List<Vocabulary> vs;
+    if (list == null) {
+      vs = await vp.getVocabularyList(
+          offset: vocabularies.length,
+          where: '$columnLearnt > ?',
+          whereArgs: [0]);
     } else {
-      List<Vocabulary> vs = [];
-      for(int i = 0; i < widget.vocabularyList.list.length; ++i) {
-        Vocabulary v = await vp.getVocabularyWithTitle(widget.vocabularyList.list[i]);
-        if(v != null)
-          vs.add(v);
-      }
-      _appendVocabularyList(vs);
+      vs = await vp.getVocabulariesWithTitles(list.list);
     }
+    if (!mounted) return;
+    setState(() {
+      vocabularies.addAll(vs);
+      if (vs.isNotEmpty) shouldReload = true;
+    });
   }
 
-  void _appendVocabularyList(List<Vocabulary> vs) {
-    setState(() {
-      this.vocabularies.addAll(vs);
-      if(vs.length > 0)
-        shouldReload = true;
+  void _maybeStartFeatureDiscovery() {
+    if (_discoveryStarted ||
+        widget.switchToLearning == null ||
+        OTGConfig.get(OTGConfig.discoveryToggle, 0) != 0) {
+      return;
+    }
+    _discoveryStarted = true;
+    // Must not be started while building.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        FeatureDiscovery.discoverFeatures(context, const {'switch_to_learning'});
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final list = widget.vocabularyList;
     Widget body;
-    if(vocabularies.length > 0) {
+    if (vocabularies.isNotEmpty) {
       body = NotificationListener<ScrollNotification>(
         child: ListView.builder(
           itemCount: vocabularies.length,
           itemBuilder: (context, position) {
-            return SmallVocabularyFoldableCard(vocabularies[position], key: UniqueKey());
+            return SmallVocabularyFoldableCard(vocabularies[position],
+                key: ObjectKey(vocabularies[position]));
           },
         ),
-        onNotification: (ScrollNotification scrollInfo) {
+        onNotification: (scrollInfo) {
           if (scrollInfo.depth == 0 &&
-            widget.vocabularyList == null &&
-            shouldReload &&
-            scrollInfo.metrics.pixels ==
-              scrollInfo.metrics.maxScrollExtent) {
+              list == null &&
+              shouldReload &&
+              scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
             retrieveVocabularyList();
           }
           return _controller != null;
         },
       );
 
-      if(widget.switchToLearning!=null && OTGConfig.get(OTGConfig.discoveryToggle, 0) == 0) {
-        FeatureDiscovery.discoverFeatures(
-          context,
-          const <String>{
-            "switch_to_learning",
-          },
-        );
-      }
-      
-      if(_controller != null) {
+      _maybeStartFeatureDiscovery();
+
+      final controller = _controller;
+      if (controller != null) {
         body = Column(
-          children: <Widget>[
-            Flexible(child:YoutubePlayer(
-                controller: _controller,
-                showVideoProgressIndicator: true,
-                progressIndicatorColor: Colors.amber,
-                progressColors: ProgressBarColors(
-                    playedColor: Colors.amber,
-                    handleColor: Colors.amberAccent,
-                ),
-            ), flex: 1,),
-            Flexible(child:body, flex: 3),
+          children: [
+            Flexible(
+              flex: 1,
+              child: YoutubePlayer(controller: controller),
+            ),
+            Flexible(flex: 3, child: body),
           ],
         );
       }
-    } else if(widget.vocabularyList != null) {
-      body = Center(child: CircularProgressIndicator());
+    } else if (list != null) {
+      body = const Center(child: CircularProgressIndicator());
     } else {
       body = Container(
         alignment: Alignment.center,
-        child:Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset("assets/launcher/icon_tired.png"),
-            Text("你還沒有學過的單詞！", style: Theme.of(context).textTheme.body1,)
+            Image.asset('assets/launcher/icon_tired.png'),
+            Text('你還沒有學過的單詞！',
+                style: Theme.of(context).textTheme.bodyMedium),
           ],
-        )
+        ),
       );
     }
+    final switchToLearning = widget.switchToLearning;
     return Scaffold(
       appBar: AppBar(
-        title: widget.switchToLearning!=null?Text(widget.vocabularyList.title):Text(widget.destination.title),
+        title: Text(switchToLearning != null && list != null
+            ? list.title
+            : widget.destination.title),
         backgroundColor: widget.destination.color,
       ),
       body: body,
-      floatingActionButton: widget.switchToLearning!=null?
-        DescribedFeatureOverlay(
-          featureId: 'switch_to_learning', // Unique id that identifies this overlay.
-          tapTarget: const Icon(Icons.local_library), // The widget that will be displayed as the tap target.
-          title: Text('進入學習模式'),
-          description: Text('點擊進入字卡學習模式，\n也可以選擇直接瀏覽此主題的字彙。'),
-          backgroundColor: Theme.of(context).primaryColor,
-          targetColor: Colors.white,
-          textColor: Colors.white,
-          contentLocation: ContentLocation.above,
-          onComplete: () async {
-            OTGConfig.setKeyInt(OTGConfig.discoveryToggle, 1);
-            return true;
-          },
-          onDismiss: () async {
-            OTGConfig.setKeyInt(OTGConfig.discoveryToggle, 1);
-            return true;
-          },
-          child: FloatingActionButton(
-            onPressed: () => widget.switchToLearning(context),
-            tooltip: '開始學習',
-            child: Icon(Icons.local_library),
-          )
-        ):
-        null,
+      floatingActionButton: switchToLearning != null
+          ? DescribedFeatureOverlay(
+              featureId: 'switch_to_learning',
+              tapTarget: const Icon(Icons.local_library),
+              title: const Text('進入學習模式'),
+              description: const Text('點擊進入字卡學習模式，\n也可以選擇直接瀏覽此主題的字彙。'),
+              backgroundColor: Theme.of(context).primaryColor,
+              targetColor: Colors.white,
+              textColor: Colors.white,
+              contentLocation: ContentLocation.above,
+              onComplete: () async {
+                await OTGConfig.setKeyInt(OTGConfig.discoveryToggle, 1);
+                return true;
+              },
+              onDismiss: () async {
+                await OTGConfig.setKeyInt(OTGConfig.discoveryToggle, 1);
+                return true;
+              },
+              child: FloatingActionButton(
+                onPressed: () => switchToLearning(context),
+                tooltip: '開始學習',
+                child: const Icon(Icons.local_library),
+              ),
+            )
+          : null,
     );
   }
 }

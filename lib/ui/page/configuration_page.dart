@@ -4,40 +4,74 @@ import 'package:oh_tai_gi/db/vocabulary_list.dart';
 import 'package:oh_tai_gi/destination.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
 
-
-const bool IS_DEBUG = false;
-
 class ConfigurationPage extends StatefulWidget {
-  ConfigurationPage({Key key, this.destination}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  const ConfigurationPage({super.key, required this.destination});
 
   final Destination destination;
 
   @override
-  _ConfigurationPageState createState() => _ConfigurationPageState();
+  State<ConfigurationPage> createState() => _ConfigurationPageState();
 }
 
 class _ConfigurationPageState extends State<ConfigurationPage> {
-  int _autoPlayAudio;
-  int _playAudioInGame;
+  int _autoPlayAudio = OTGConfig.get(OTGConfig.keyAutoPlayAudio, 0);
+  int _playAudioInGame = OTGConfig.get(OTGConfig.keyPlayAudioInGame, 1);
 
-  _ConfigurationPageState();
-  
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    setState(() {
-      _autoPlayAudio = OTGConfig.get(OTGConfig.keyAutoPlayAudio, 0);
-      _playAudioInGame = OTGConfig.get(OTGConfig.keyPlayAudioInGame, 1);
-    });
+  Future<void> _clearLearningHistory() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('清空學習紀錄'),
+        content: const Text('所有學過的單詞紀錄都會被清除，確定嗎？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('清空'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final vp = VocabularyProvider();
+    await vp.open();
+    final vs = await vp.getVocabularyList(
+        limit: 1000000, where: '$columnLearnt > ?', whereArgs: [0]);
+    for (final v in vs) {
+      v.learnt = 0;
+    }
+    await vp.updateAll(vs);
+    final vlp = VocabularyListProvider();
+    await vlp.open();
+    await vlp.deleteAll();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('學習紀錄已清空')));
+  }
+
+  Widget _settingRow(String label, String value, Color color,
+      VoidCallback onPressed) {
+    final style = Theme.of(context).textTheme.titleLarge;
+    return Row(
+      children: [
+        Expanded(child: Text(label, style: style)),
+        TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: color,
+            padding: const EdgeInsets.all(8.0),
+            shape: const RoundedRectangleBorder(),
+          ).copyWith(
+            overlayColor: const WidgetStatePropertyAll(Colors.cyanAccent),
+          ),
+          onPressed: onPressed,
+          child: Text(value, style: style),
+        ),
+      ],
+    );
   }
 
   @override
@@ -48,69 +82,37 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
         backgroundColor: widget.destination.color,
       ),
       body: Container(
-        padding: EdgeInsets.all(5.0),
+        padding: const EdgeInsets.all(5.0),
         child: ListView(
-          children: <Widget>[
-            Row(children: <Widget>[
-              Expanded(child:Text("自動播放/預載語音", style: Theme.of(context).textTheme.title)),
-              FlatButton(
-                color: _autoPlayAudio<2?Colors.cyan:Colors.grey,
-                padding: EdgeInsets.all(8.0),
-                splashColor: Colors.cyanAccent,
-                onPressed: () {
-                  setState(() {
-                    _autoPlayAudio = ((_autoPlayAudio)+1)%OTGConfig.valueAutoPlayAudio.length;
-                    OTGConfig.setKeyInt(OTGConfig.keyAutoPlayAudio, _autoPlayAudio);
-                  });
-                },
-                child: Text(
-                  OTGConfig.valueAutoPlayAudio[_autoPlayAudio], style: Theme.of(context).textTheme.title
-                ),
-              )
-            ],),
-            Row(children: <Widget>[
-              Expanded(child:Text("翻牌遊戲播放語音", style: Theme.of(context).textTheme.title)),
-              FlatButton(
-                color: Colors.cyan,
-                padding: EdgeInsets.all(8.0),
-                splashColor: Colors.cyanAccent,
-                onPressed: () {
-                  setState(() {
-                    _playAudioInGame = ((_playAudioInGame)+1)%OTGConfig.valuePlayAudioInGame.length;
-                    OTGConfig.setKeyInt(OTGConfig.keyPlayAudioInGame, _playAudioInGame);
-                  });
-                },
-                child: Text(
-                  OTGConfig.valuePlayAudioInGame[_playAudioInGame], style: Theme.of(context).textTheme.title
-                ),
-              )
-            ],),
-            Row(children: <Widget>[
-              Expanded(child:Text("清空學習紀錄", style: Theme.of(context).textTheme.title)),
-              FlatButton(
-                color: Colors.cyan,
-                padding: EdgeInsets.all(8.0),
-                splashColor: Colors.cyanAccent,
-                onPressed: () {
-                  VocabularyProvider().getVocabularyList(limit: 100000, where: '$columnLearnt > ?', whereArgs: [0])
-                    .then((List<Vocabulary> vs){
-                      vs = vs.map((v){
-                        v.learnt = 0;
-                        return v;
-                      }).toList();
-                      VocabularyProvider().updateAll(vs).then(
-                        (result) => print("Clean learnt finished.")
-                      );
-                    });
-                  VocabularyListProvider().deleteAll();
-                },
-                child: Text(
-                  "清空", style: Theme.of(context).textTheme.title
-                ),
-              )
-            ],),
+          children: [
+            _settingRow(
+              '自動播放/預載語音',
+              OTGConfig.valueAutoPlayAudio[_autoPlayAudio],
+              _autoPlayAudio < 2 ? Colors.cyan : Colors.grey,
+              () {
+                setState(() {
+                  _autoPlayAudio =
+                      (_autoPlayAudio + 1) % OTGConfig.valueAutoPlayAudio.length;
+                });
+                OTGConfig.setKeyInt(OTGConfig.keyAutoPlayAudio, _autoPlayAudio);
+              },
+            ),
+            _settingRow(
+              '翻牌遊戲播放語音',
+              OTGConfig.valuePlayAudioInGame[_playAudioInGame],
+              Colors.cyan,
+              () {
+                setState(() {
+                  _playAudioInGame = (_playAudioInGame + 1) %
+                      OTGConfig.valuePlayAudioInGame.length;
+                });
+                OTGConfig.setKeyInt(
+                    OTGConfig.keyPlayAudioInGame, _playAudioInGame);
+              },
+            ),
+            _settingRow('清空學習紀錄', '清空', Colors.cyan, _clearLearningHistory),
           ],
-        )
+        ),
       ),
     );
   }

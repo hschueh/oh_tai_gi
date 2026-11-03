@@ -1,48 +1,44 @@
-import 'package:oh_tai_gi/db/db_holder.dart';
-import 'package:http/http.dart' as http;
-import 'package:sqflite/sqflite.dart';
+import 'dart:async';
 import 'dart:convert';
 
-final String tableVocabularyList = 'vocabulary_list';
-final String columnUId = '_id';
-final String columnMId = 'mongoId';
-final String columnTitle = 'title';
-final String columnCover = 'cover';
-final String columnProvider = 'privider';
-final String columnList = 'list';
-final String columnHashCode = 'hashCode';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'package:oh_tai_gi/db/db_holder.dart';
+import 'package:sqflite/sqflite.dart';
 
-int valueOf(dynamic obj) {
-  if(obj is int)
-    return obj;
-  else if(obj is String)
-    return int.parse(obj);
-  else
-    return 0;
-}
+const String tableVocabularyList = 'vocabulary_list';
+const String columnUId = '_id';
+const String columnMId = 'mongoId';
+const String columnTitle = 'title';
+const String columnCover = 'cover';
+// Misspelled in the original schema; kept for compatibility.
+const String columnProvider = 'privider';
+const String columnList = 'list';
+const String columnHashCode = 'hashCode';
+
+const String vocabularyListServer = 'http://ohtaigi.ddns.net:3000';
 
 class VocabularyList {
-  int id;
-  int hashTitle;
-  String mid;
-  String title;
-  String cover;
-  String provider;
-  List<String> list;
+  int? id;
+  int hashTitle = 0;
+  String? mid;
+  String title = '';
+  String cover = '';
+  String provider = '';
+  List<String> list = [];
 
   VocabularyList();
 
-  String toString() {
-    return json.encode(toJson());
-  }
+  @override
+  String toString() => json.encode(toJson());
 
   Map<String, dynamic> toJson() {
-    var map = <String, dynamic>{
+    final map = <String, dynamic>{
       columnTitle: title,
       columnCover: cover,
       columnProvider: provider,
       columnList: json.encode(list),
-      columnHashCode: hashTitle
+      columnHashCode: hashTitle,
     };
     if (id != null) {
       map[columnUId] = id;
@@ -52,6 +48,7 @@ class VocabularyList {
     }
     return map;
   }
+
   void clone(VocabularyList target) {
     id = target.id;
     mid = target.mid;
@@ -62,143 +59,151 @@ class VocabularyList {
     hashTitle = target.hashTitle;
   }
 
-  VocabularyList.fromString(String string) : this.fromJson(json.decode(string));
+  VocabularyList.fromString(String string)
+      : this.fromJson(json.decode(string) as Map<String, dynamic>);
 
   VocabularyList.fromJson(Map<String, dynamic> map) {
-    id = map[columnUId];
-    mid = map[columnMId];
-    title = map[columnTitle];
-    provider = map[columnProvider];
-    cover = map[columnCover];
+    final uid = map[columnUId];
+    id = uid is int ? uid : null;
+    mid = map[columnMId]?.toString();
+    title = map[columnTitle] as String? ?? '';
+    provider = map[columnProvider] as String? ?? '';
+    cover = map[columnCover] as String? ?? '';
     hashTitle = title.hashCode;
-    if(map[columnList] is List<String>) {
-      list = map[columnList];
-    } else if(map[columnList] is List) {
-      list = new List<String>.from(map[columnList]);
-    } else {
-      list = new List<String>.from(json.decode(map[columnList]));
+    final rawList = map[columnList];
+    if (rawList is List) {
+      list = List<String>.from(rawList);
+    } else if (rawList is String) {
+      list = List<String>.from(json.decode(rawList) as List);
     }
   }
 
   @override
   bool operator ==(Object other) =>
-    identical(this, other) ||
-    other is VocabularyList &&
-    runtimeType == other.runtimeType &&
-    title == other.title &&
-    json.encode(list) == json.encode(other.list);
+      identical(this, other) ||
+      other is VocabularyList &&
+          runtimeType == other.runtimeType &&
+          title == other.title &&
+          listEquals(list, other.list);
+
+  @override
+  int get hashCode => Object.hash(title, Object.hashAll(list));
 }
 
 class VocabularyListProvider {
-  Database db;
+  Database? _db;
 
   VocabularyListProvider._privateConstructor();
 
-  static final VocabularyListProvider _instance = VocabularyListProvider._privateConstructor();
+  static final VocabularyListProvider _instance =
+      VocabularyListProvider._privateConstructor();
 
-  factory VocabularyListProvider(){
-    return _instance;
+  factory VocabularyListProvider() => _instance;
+
+  Database get db {
+    final db = _db;
+    if (db == null) {
+      throw StateError('VocabularyListProvider.open() must be awaited first.');
+    }
+    return db;
   }
 
-  Future open() async {
-    if(db == null) {
-      if(DBHolder().db == null) {
-        await DBHolder().initialize();
-      }
-      db = DBHolder().db;
-    }
-    return;
+  Future<void> open() async {
+    _db ??= await DBHolder().initialize();
   }
 
   Future<VocabularyList> insert(VocabularyList vocabularyList) async {
-    vocabularyList.id = await db.insert(tableVocabularyList, vocabularyList.toJson());
+    vocabularyList.id =
+        await db.insert(tableVocabularyList, vocabularyList.toJson());
     return vocabularyList;
   }
 
-  Future<List<dynamic>> insertAll(List<VocabularyList> vocabularyLists) async {
-    Batch batch = db.batch();
-    for(int i = 0; i < vocabularyLists.length; ++i)
-      batch.insert(tableVocabularyList, vocabularyLists[i].toJson());
-    List<dynamic> ret = await batch.commit(continueOnError: true);
-    ret.asMap().forEach((index, value) => vocabularyLists[index].id = value);
+  Future<List<VocabularyList>> insertAll(
+      List<VocabularyList> vocabularyLists) async {
+    final batch = db.batch();
+    for (final vocabularyList in vocabularyLists) {
+      batch.insert(tableVocabularyList, vocabularyList.toJson());
+    }
+    final ret = await batch.commit(continueOnError: true);
+    for (var i = 0; i < ret.length; ++i) {
+      final value = ret[i];
+      if (value is int) vocabularyLists[i].id = value;
+    }
     return vocabularyLists;
   }
 
-  Future<VocabularyList> getVocabulary(int id) async {
-    List<Map> maps = await db.query(tableVocabularyList,
-        where: '$columnUId = ?',
-        whereArgs: [id]);
-    if (maps.length > 0) {
-      return VocabularyList.fromJson(maps.first);
-    }
-    return null;
+  Future<VocabularyList?> getVocabulary(int id) async {
+    final maps = await db
+        .query(tableVocabularyList, where: '$columnUId = ?', whereArgs: [id]);
+    return maps.isNotEmpty ? VocabularyList.fromJson(maps.first) : null;
   }
 
-  Future<List<VocabularyList>> getVocabularyLists({offset: 0, limit: 50, dynamic where, List<dynamic> whereArgs}) async {
-    List<Map> maps = await db.query(tableVocabularyList, limit: limit, offset: offset, where: where, whereArgs: whereArgs, orderBy: '$columnUId DESC');
-    if (maps.length > 0) {
-      return List.generate(maps.length, (i) {
-        return VocabularyList.fromJson(maps[i]);
-      });
-    }
-    return <VocabularyList>[];
+  Future<List<VocabularyList>> getVocabularyLists({
+    int offset = 0,
+    int limit = 50,
+    String? where,
+    List<Object?>? whereArgs,
+  }) async {
+    final maps = await db.query(tableVocabularyList,
+        limit: limit,
+        offset: offset,
+        where: where,
+        whereArgs: whereArgs,
+        orderBy: '$columnUId DESC');
+    return maps.map(VocabularyList.fromJson).toList();
   }
 
-  Future<List<VocabularyList>> fetchVocabularyLists({num skip = 0}) async {
-    final response = await http.get('http://ohtaigi.ddns.net:3000/list?skip=$skip');
-    if (response.statusCode == 200) {
-      // If server returns an OK response, parse the JSON.
-      return json.decode(response.body)
-        .map<VocabularyList>((json) {
-          dynamic mid = (json as Map).remove(columnUId);
-          (json as Map)[columnMId] = mid;
-          return VocabularyList.fromJson(json);
-        }).toList();
-    } else {
-      // If that response was not OK, throw an error.
+  /// Fetches new vocabulary lists from the server. Returns an empty list when
+  /// the server cannot be reached, so callers can fall back to the bundled
+  /// `assets/dict/dict-list.json`.
+  Future<List<VocabularyList>> fetchVocabularyLists(
+      {int skip = 0, http.Client? client}) async {
+    final uri = Uri.parse('$vocabularyListServer/list?skip=$skip');
+    try {
+      final response = await (client?.get(uri) ?? http.get(uri))
+          .timeout(const Duration(seconds: 10));
+      if (response.statusCode != 200) return [];
+      final decoded = json.decode(utf8.decode(response.bodyBytes)) as List;
+      return decoded.map<VocabularyList>((item) {
+        final map = Map<String, dynamic>.from(item as Map);
+        map[columnMId] = map.remove(columnUId);
+        return VocabularyList.fromJson(map);
+      }).toList();
+    } catch (e) {
+      debugPrint('Failed to fetch vocabulary lists from $uri: $e');
       return [];
     }
   }
 
-  Future<VocabularyList> getVocabularyListWithTitle(String title) async {
-    return await getVocabularyListWithTitleHash(title.hashCode);
+  Future<VocabularyList?> getVocabularyListWithTitle(String title) async {
+    final maps = await db.query(tableVocabularyList,
+        where: '$columnTitle = ?', whereArgs: [title], limit: 1);
+    return maps.isNotEmpty ? VocabularyList.fromJson(maps.first) : null;
   }
 
-  Future<VocabularyList> getVocabularyListWithTitleHash(int titleHashCode) async {
-    List<Map> maps = await db.query(tableVocabularyList,
-        where: '$columnHashCode = ?',
-        whereArgs: [titleHashCode]);
-    if (maps.length > 0) {
-      return VocabularyList.fromJson(maps.first);
-    }
-    return null;
+  Future<int> delete(int id) {
+    return db
+        .delete(tableVocabularyList, where: '$columnUId = ?', whereArgs: [id]);
   }
 
-  Future<int> delete(int id) async {
-    return await db.delete(tableVocabularyList, where: '$columnUId = ?', whereArgs: [id]);
-  }
+  Future<int> deleteAll() => db.delete(tableVocabularyList);
 
-  Future<int> deleteWithHashTitle(int titleHashCode) async {
-    return await db.delete(tableVocabularyList, where: '$columnHashCode = ?', whereArgs: [titleHashCode]);
-  }
-
-  Future<int> deleteAll() async {
-    return await db.delete(tableVocabularyList);
-  }
-
-  Future<int> update(VocabularyList vocabulary) async {
-    return await db.update(tableVocabularyList, vocabulary.toJson(),
+  Future<int> update(VocabularyList vocabulary) {
+    return db.update(tableVocabularyList, vocabulary.toJson(),
         where: '$columnUId = ?', whereArgs: [vocabulary.id]);
   }
 
-
-  Future<List<dynamic>> updateAll(List<VocabularyList> vocabularyList) async {
-    Batch batch = db.batch();
-    for(int i = 0; i < vocabularyList.length; ++i)
-      batch.update(tableVocabularyList, vocabularyList[i].toJson(), where: '$columnUId = ?', whereArgs: [vocabularyList[i].id]);
-    List<dynamic> ret = await batch.commit(continueOnError: true);
-    return ret;
+  Future<List<Object?>> updateAll(List<VocabularyList> vocabularyList) {
+    final batch = db.batch();
+    for (final item in vocabularyList) {
+      batch.update(tableVocabularyList, item.toJson(),
+          where: '$columnUId = ?', whereArgs: [item.id]);
+    }
+    return batch.commit(continueOnError: true);
   }
 
-  Future close() async => db.close();
+  Future<void> close() async {
+    await _db?.close();
+    _db = null;
+  }
 }

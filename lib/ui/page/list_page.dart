@@ -2,122 +2,138 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:oh_tai_gi/db/vocabulary_list.dart';
-
 import 'package:oh_tai_gi/destination.dart';
+import 'package:oh_tai_gi/ui/component/small_vocabulary_list_card.dart';
 import 'package:oh_tai_gi/ui/page/big_card_page.dart';
 import 'package:oh_tai_gi/ui/page/small_card_page.dart';
-import 'package:oh_tai_gi/ui/component/small_vocabulary_list_card.dart';
-import 'package:oh_tai_gi/utils/otg_config.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-const bool IS_DEBUG = false;
-
+/// The "主題詞彙" tab: a nested navigator with the vocabulary lists (`/`), the
+/// words of one list (`/list`) and the flash cards of one list (`/learn`).
 class ListRoutePage extends StatefulWidget {
-  const ListRoutePage({ Key key, this.destination, this.forward, this.reverse }) : super(key: key);
+  const ListRoutePage(
+      {super.key, required this.destination, this.forward, this.reverse});
 
   final Destination destination;
-  final VoidCallback forward;
-  final VoidCallback reverse;
+  final VoidCallback? forward;
+  final VoidCallback? reverse;
 
   @override
   ListRoutePageState createState() => ListRoutePageState();
 }
 
 class ListRoutePageState extends State<ListRoutePage> {
-  VocabularyList vocabularyList;
+  VocabularyList? vocabularyList;
   bool isList = true;
-  YoutubePlayerController _controller;
-  void _setVocabularyList(BuildContext _context, VocabularyList list) {
+  YoutubePlayerController? _controller;
+
+  void _setVocabularyList(BuildContext context, VocabularyList list) {
     vocabularyList = list;
-    Navigator.of(_context).pushNamed("/list");
+    Navigator.of(context).pushNamed('/list');
     isList = true;
   }
 
-  void _setController(YoutubePlayerController controller) => _controller = controller;
+  void _setController(YoutubePlayerController? controller) =>
+      _controller = controller;
 
-  pauseVideo() {
-    if(_controller != null) _controller.pause();
-  }
+  void pauseVideo() => _controller?.pauseVideo();
 
-  void _toggleMode(BuildContext _context) {
-    if(isList)
-      Navigator.of(_context).popAndPushNamed("/learn");
-    else
-      Navigator.of(_context).popAndPushNamed("/list");
-    
+  void _toggleMode(BuildContext context) {
+    if (isList) {
+      Navigator.of(context).popAndPushNamed('/learn');
+    } else {
+      Navigator.of(context).popAndPushNamed('/list');
+    }
     isList = !isList;
   }
 
   @override
   Widget build(BuildContext context) {
     return ListDataHolder(
-        vocabularyList: vocabularyList,
-        setVocabularyList: _setVocabularyList,
-        child: Navigator(
-        observers: <NavigatorObserver>[
+      vocabularyList: vocabularyList,
+      setVocabularyList: _setVocabularyList,
+      child: Navigator(
+        observers: [
           ViewNavigatorObserver(widget.forward, widget.reverse, pauseVideo),
         ],
-        onGenerateRoute: (RouteSettings settings) {
+        onGenerateRoute: (settings) {
           return MaterialPageRoute(
             settings: settings,
-            builder: (BuildContext context) {
-              switch(settings.name) {
-                case '/list':
+            builder: (context) {
+              final list = vocabularyList;
+              switch (settings.name) {
+                case '/list' when list != null:
                   return SmallCardListPage(
                     destination: widget.destination,
-                    vocabularyList: vocabularyList,
+                    vocabularyList: list,
                     switchToLearning: _toggleMode,
-                    setController: _setController
+                    setController: _setController,
                   );
-                case '/learn':
-                  return BigCardPage(destination: widget.destination, vocabularyList: vocabularyList, switchToList: _toggleMode,);
-                case '/':
+                case '/learn' when list != null:
+                  return BigCardPage(
+                    destination: widget.destination,
+                    vocabularyList: list,
+                    switchToList: _toggleMode,
+                  );
                 default:
                   return VocabularyListPage(destination: widget.destination);
               }
             },
           );
         },
-      )
+      ),
     );
   }
 }
 
-
 class ViewNavigatorObserver extends NavigatorObserver {
   ViewNavigatorObserver(this._forward, this._reverse, this._pause);
 
-  final VoidCallback _forward;
-  final VoidCallback _reverse;
+  final VoidCallback? _forward;
+  final VoidCallback? _reverse;
   final VoidCallback _pause;
 
-  void didPop(Route<dynamic> route, Route<dynamic> previousRoute) {
-    if(route.settings.name=="/list") _pause();
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    if (route.settings.name == '/list') _pause();
   }
-  void didPush(Route<dynamic> route, Route<dynamic> previousRoute) {
-    route.settings.name=="/list"?_reverse():_forward();
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    // Hide the bottom navigation bar while browsing a list.
+    if (route.settings.name == '/list') {
+      _reverse?.call();
+    } else {
+      _forward?.call();
+    }
   }
 }
 
 class ListDataHolder extends InheritedWidget {
-  ListDataHolder({ this.vocabularyList, this.setVocabularyList, Widget child }) :super(child: child);
+  const ListDataHolder(
+      {super.key,
+      this.vocabularyList,
+      required this.setVocabularyList,
+      required super.child});
 
-  final VocabularyList vocabularyList;
-  final Function setVocabularyList;
+  final VocabularyList? vocabularyList;
+  final OnVocabularyListTap setVocabularyList;
 
   static ListDataHolder of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<ListDataHolder>();
+    final holder =
+        context.dependOnInheritedWidgetOfExactType<ListDataHolder>();
+    assert(holder != null, 'No ListDataHolder found in context');
+    return holder!;
   }
 
   @override
-  bool updateShouldNotify(InheritedWidget oldWidget) {
-    return (oldWidget as ListDataHolder).vocabularyList.toString() != vocabularyList.toString();
-  }
+  bool updateShouldNotify(ListDataHolder oldWidget) =>
+      oldWidget.vocabularyList != vocabularyList;
 }
 
 class VocabularyListPage extends StatefulWidget {
-  VocabularyListPage({Key key, this.destination}) : super(key: key);
+  const VocabularyListPage({super.key, required this.destination});
 
   final Destination destination;
 
@@ -126,73 +142,74 @@ class VocabularyListPage extends StatefulWidget {
 }
 
 class VocabularyListPageState extends State<VocabularyListPage> {
-  List<VocabularyList> _vocabularyLists = [];
-  VocabularyListProvider vlp;
+  final List<VocabularyList> _vocabularyLists = [];
+  final VocabularyListProvider vlp = VocabularyListProvider();
   int _newCount = 0;
-  VocabularyListPageState() {
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
     refresh();
   }
 
-  refresh() {
-    this._vocabularyLists.clear();
+  void refresh() {
+    _vocabularyLists.clear();
     retrieveVocabularyList();
   }
 
-  void retrieveVocabularyList() async {
-    if(vlp == null) {
-      vlp = VocabularyListProvider();
-      await vlp.open();
-    }
+  Future<void> retrieveVocabularyList() async {
+    await vlp.open();
 
-    List<VocabularyList> vs = await vlp.getVocabularyLists();
-    List<VocabularyList> listsFromServer = await vlp.fetchVocabularyLists(skip: vs.length);
-    List<VocabularyList> listsToInsert = [];
-    listsFromServer.forEach((list){
-      if(!vs.contains(list))
-        listsToInsert.add(list);
-    });
+    var vs = await vlp.getVocabularyLists();
+    final listsFromServer = await vlp.fetchVocabularyLists(skip: vs.length);
+    var listsToInsert =
+        listsFromServer.where((list) => !vs.contains(list)).toList();
     listsToInsert = await vlp.insertAll(listsToInsert);
     vs.insertAll(0, listsToInsert);
-    //backup plan
-    if(vs.length == 0) {
-      String contents = await getFileData("assets/dict/dict-list.json");
-      vs.insertAll(0, json.decode(contents).map<VocabularyList>((json) => VocabularyList.fromJson(json)).toList());
+    // Backup plan: the lists bundled with the app.
+    if (vs.isEmpty) {
+      final contents = await getFileData('assets/dict/dict-list.json');
+      vs = (json.decode(contents) as List)
+          .map<VocabularyList>(
+              (item) => VocabularyList.fromJson(item as Map<String, dynamic>))
+          .toList();
       vs = await vlp.insertAll(vs);
     }
-    _appendVocabularyList(vs, listsToInsert.length);
-  }
-
-  void _appendVocabularyList(List<VocabularyList> vs, int newCount) {
+    if (!mounted) return;
     setState(() {
-      this._vocabularyLists.addAll(vs);
-      this._newCount = newCount;
+      _vocabularyLists.addAll(vs);
+      _newCount = listsToInsert.length;
+      _loading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget body;
-    if(_vocabularyLists.length > 0) {
+    final Widget body;
+    if (_vocabularyLists.isNotEmpty) {
       body = ListView.builder(
         itemCount: _vocabularyLists.length,
         itemBuilder: (context, position) {
-          return new SmallVocabularyListCard(
+          return SmallVocabularyListCard(
             _vocabularyLists[position],
             _newCount > position,
             ListDataHolder.of(context).setVocabularyList,
-            key: UniqueKey(),
           );
         },
       );
+    } else if (_loading) {
+      body = const Center(child: CircularProgressIndicator());
     } else {
       body = Container(
         alignment: Alignment.center,
-        child:Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset("assets/launcher/icon_tired.png"),
-            Text("資料庫中沒有單字表", style: Theme.of(context).textTheme.body1,)
+            Image.asset('assets/launcher/icon_tired.png'),
+            Text('資料庫中沒有單字表',
+                style: Theme.of(context).textTheme.bodyMedium),
           ],
         ),
       );

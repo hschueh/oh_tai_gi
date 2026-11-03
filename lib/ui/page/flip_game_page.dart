@@ -1,13 +1,12 @@
-import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
-import 'package:oh_tai_gi/ui/component/flippable_card.dart';
-
 import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/destination.dart';
+import 'package:oh_tai_gi/ui/component/flip_card.dart';
+import 'package:oh_tai_gi/ui/component/flippable_card.dart';
 import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 
 class FlipGamePage extends StatefulWidget {
-  FlipGamePage({Key key, this.destination}) : super(key: key);
+  const FlipGamePage({super.key, required this.destination});
 
   final Destination destination;
 
@@ -17,100 +16,98 @@ class FlipGamePage extends StatefulWidget {
 
 class FlipGamePageState extends State<FlipGamePage> {
   static const int GAME_SIZE = 6;
-  List<Vocabulary> vocabularies = [];
-  List<int> shuffler = List<int>.generate(GAME_SIZE*2, (i) => i);
+  final List<Vocabulary> vocabularies = [];
+  final List<int> shuffler = List<int>.generate(GAME_SIZE * 2, (i) => i);
+  final List<GlobalKey<FlipCardState>> keys =
+      List<GlobalKey<FlipCardState>>.generate(
+          GAME_SIZE * 2, (i) => GlobalKey<FlipCardState>());
+  final VocabularyProvider vp = VocabularyProvider();
   int correctCnt = 0;
-  List<GlobalKey<FlipCardState>> keys = List<GlobalKey<FlipCardState>>.generate(GAME_SIZE*2, (i) => GlobalKey<FlipCardState>());
-  VocabularyProvider vp;
-  GlobalKey<FlipCardState> flippedKey;
-  Vocabulary flippedVocabulary;
-  FlipGamePageState();
+  GlobalKey<FlipCardState>? flippedKey;
+  Vocabulary? flippedVocabulary;
 
-  onFlip(GlobalKey<FlipCardState> key, Vocabulary vocabulary) {
-    if(flippedKey == null) {
+  void onFlip(GlobalKey<FlipCardState> key, Vocabulary vocabulary) {
+    final previousKey = flippedKey;
+    final previousVocabulary = flippedVocabulary;
+    if (previousKey == null || previousVocabulary == null) {
       flippedKey = key;
       flippedVocabulary = vocabulary;
       return;
     }
 
-    if(vocabulary.id != flippedVocabulary.id) {
-      flippedKey.currentState.toggleCard();
-      key.currentState.toggleCard();
+    if (vocabulary.id != previousVocabulary.id) {
+      previousKey.currentState?.toggleCard();
+      key.currentState?.toggleCard();
     } else {
       ++correctCnt;
-      if(correctCnt == GAME_SIZE) {
+      if (correctCnt == GAME_SIZE) {
         correctCnt = 0;
-        AudioPlayerHolder.playLocal("win.wav");
-
-        List<Vocabulary> vs = vocabularies.sublist(0, GAME_SIZE);
-        vs = vs.map((v){
-          v.learnt = v.learnt+1;
-          return v;
-        }).toList();
-        vp.updateAll(vs).then(
-          (result) => refresh()
-        );
-
+        AudioPlayerHolder.playLocal('win.wav');
+        final vs = vocabularies.sublist(0, GAME_SIZE);
+        for (final v in vs) {
+          v.learnt = v.learnt + 1;
+        }
+        vp.updateAll(vs).then((_) => refresh());
       } else {
-        AudioPlayerHolder.playLocal("correct.wav");
+        AudioPlayerHolder.playLocal('correct.wav');
       }
     }
     flippedKey = null;
     flippedVocabulary = null;
   }
 
-  refresh() {
-    keys.forEach((key) {
-      // toggle back to front
-      if(key.currentWidget != null && !key.currentState.isFront) {
+  void refresh() {
+    for (final key in keys) {
+      // Toggle back to the front.
+      final state = key.currentState;
+      if (state != null && !state.isFront) {
         Future.delayed(const Duration(milliseconds: 1000), () {
-          key.currentState.toggleCard();
+          key.currentState?.toggleCard();
         });
       }
-    });
-    this.vocabularies.clear();
+    }
+    vocabularies.clear();
+    flippedKey = null;
+    flippedVocabulary = null;
+    correctCnt = 0;
     retrieveVocabularyList();
     shuffler.shuffle();
   }
 
-  void retrieveVocabularyList() async {
-    if(vp == null) {
-      vp = VocabularyProvider();
-      await vp.open();
-    }
-    List<Vocabulary> vs = await vp.getVocabularyList(where: '$columnLearnt > ?', whereArgs: [0], limit: GAME_SIZE);
-    _appendVocabularyList(vs);
-  }
-
-  void _appendVocabularyList(List<Vocabulary> vs) {
-    setState(() {
-      this.vocabularies.addAll(vs);
-    });
+  Future<void> retrieveVocabularyList() async {
+    await vp.open();
+    final vs = await vp.getVocabularyList(
+        where: '$columnLearnt > ?', whereArgs: [0], limit: GAME_SIZE);
+    if (!mounted) return;
+    setState(() => vocabularies.addAll(vs));
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget body;
-    if(vocabularies.length >= GAME_SIZE) {
+    final Widget body;
+    if (vocabularies.length >= GAME_SIZE) {
       body = GridView.builder(
-        itemCount: GAME_SIZE*2,
+        itemCount: GAME_SIZE * 2,
         itemBuilder: (context, position) {
-          int realPos = shuffler[position];
-          return FlippableCard(vocabularies[(realPos/2).floor()], realPos%2 == 0, onFlip, keys[realPos], key: UniqueKey());
+          final realPos = shuffler[position];
+          return FlippableCard(vocabularies[realPos ~/ 2], realPos % 2 == 0,
+              onFlip, keys[realPos]);
         },
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        gridDelegate:
+            const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
       );
     } else {
       body = Container(
         alignment: Alignment.center,
-        child:Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset("assets/launcher/icon_tired.png"),
-            Text("學過的單詞還不足以開始遊戲！", style: Theme.of(context).textTheme.body1,)
+            Image.asset('assets/launcher/icon_tired.png'),
+            Text('學過的單詞還不足以開始遊戲！',
+                style: Theme.of(context).textTheme.bodyMedium),
           ],
-        )
+        ),
       );
     }
     return Scaffold(
@@ -119,11 +116,6 @@ class FlipGamePageState extends State<FlipGamePage> {
         backgroundColor: widget.destination.color,
       ),
       body: body,
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => _next(true),
-      //   tooltip: 'Increment',
-      //   child: Icon(Icons.thumb_up),
-      // ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

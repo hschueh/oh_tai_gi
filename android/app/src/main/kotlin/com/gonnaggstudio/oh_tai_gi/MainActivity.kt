@@ -38,6 +38,7 @@ class MainActivity : FlutterActivity() {
         setIntent(intent)
         if (handleIntent(intent)) {
             channel?.invokeMethod("onSearchKeyword", searchKeyword)
+            searchKeyword = ""
         }
     }
 

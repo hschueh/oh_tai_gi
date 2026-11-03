@@ -3,63 +3,62 @@ import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 
 class BigCard extends StatelessWidget {
-  final Vocabulary _vocabulary;
-  final bool isEnd;
-  BigCard(this._vocabulary,{Key key, this.isEnd = false}) : super(key: key);
+  const BigCard(this._vocabulary, {super.key, this.isEnd = false});
 
-  void _tryToPlayAudio(Vocabulary vocabulary, BuildContext context) async {
-    for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
-      await AudioPlayerHolder.tryToPlayAudioReturnOnCompletion(vocabulary.heteronyms[i].aid);
+  final Vocabulary? _vocabulary;
+  final bool isEnd;
+
+  Future<void> _tryToPlayAudio(Vocabulary vocabulary) async {
+    for (final heteronym in vocabulary.heteronyms) {
+      await AudioPlayerHolder.tryToPlayAudioReturnOnCompletion(heteronym.aid);
     }
   }
 
-  ListView buildBody(BuildContext context) {
-    List<Widget> children = <Widget>[];
-    if(_vocabulary.chinese.isNotEmpty) {
-      children.add(SizedBox(height: 10));
-      children.add(Text(
-        "[華] ${_vocabulary.chinese}",
-        style: Theme.of(context).textTheme.headline,
-      ));
-    }
-    for(int i = 0; i < _vocabulary.heteronyms.length; ++i) {
-      children.add(SelectableText(
-        "${_vocabulary.heteronyms[i].trs}",
-        toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
-        style: Theme.of(context).textTheme.display1,
-        maxLines: 1,
-      ));
-      for(int j = 0; j < _vocabulary.heteronyms[i].definitions.length; ++j) {
-        children.add(
-          Row(
-            children: <Widget>[
-              SizedBox(width: 10.0),
-              Flexible(child:Text(
-                "• ${_vocabulary.heteronyms[i].definitions[j].def}" ,
-                style: Theme.of(context).textTheme.headline,
-              )),
-            ],
-          )
-        );
-      }
-    }
-    return ListView(children: children);
+  Widget buildBody(BuildContext context, Vocabulary vocabulary) {
+    final textTheme = Theme.of(context).textTheme;
+    return ListView(
+      children: [
+        if (vocabulary.chinese.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Text('[華] ${vocabulary.chinese}', style: textTheme.headlineSmall),
+        ],
+        for (final heteronym in vocabulary.heteronyms) ...[
+          SelectableText(
+            heteronym.trs ?? '',
+            style: textTheme.headlineMedium,
+            maxLines: 1,
+          ),
+          for (final definition in heteronym.definitions)
+            Row(
+              children: [
+                const SizedBox(width: 10.0),
+                Flexible(
+                  child: Text('• ${definition.def ?? ''}',
+                      style: textTheme.headlineSmall),
+                ),
+              ],
+            ),
+        ],
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if(_vocabulary == null) {
-      if(isEnd) {
+    final vocabulary = _vocabulary;
+    if (vocabulary == null) {
+      if (isEnd) {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset("assets/launcher/icon_tired.png"),
-            Text("學完囉，返回上個頁面挑選其他的字彙表或馬上開始複習吧", style: Theme.of(context).textTheme.body1,)
+            Image.asset('assets/launcher/icon_tired.png'),
+            Text('學完囉，返回上個頁面挑選其他的字彙表或馬上開始複習吧',
+                style: Theme.of(context).textTheme.bodyMedium),
           ],
         );
       }
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     return Card(
@@ -67,35 +66,33 @@ class BigCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
-          onTap: (){},
+          onTap: () {},
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
+            children: [
               Row(
                 children: [
-                  SelectableText(
-                    _vocabulary.title,
-                    toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
-                    style: Theme.of(context).textTheme.display2.copyWith(
-                      fontFamilyFallback: ["MOEDICT"],
+                  Flexible(
+                    child: SelectableText(
+                      vocabulary.title,
+                      style: Theme.of(context)
+                          .textTheme
+                          .displaySmall
+                          ?.copyWith(fontFamilyFallback: const ['MOEDICT']),
+                      maxLines: 1,
                     ),
-                    maxLines: 1,
                   ),
-                  SizedBox(width: 15,),
+                  const SizedBox(width: 15),
                   InkWell(
                     splashColor: Colors.blue.withAlpha(30),
-                    onTap: (){
-                      _tryToPlayAudio(_vocabulary, context);
-                    },
-                    child: Icon(Icons.volume_up, size: 35,),
+                    onTap: () => _tryToPlayAudio(vocabulary),
+                    child: const Icon(Icons.volume_up, size: 35),
                   ),
-                ]
+                ],
               ),
-              Expanded(
-                child: buildBody(context)
-              ),
-            ]
+              Expanded(child: buildBody(context, vocabulary)),
+            ],
           ),
         ),
       ),

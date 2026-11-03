@@ -1,150 +1,121 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
-import 'package:oh_tai_gi/utils/otg_config.dart';
-import 'package:oh_tai_gi/utils/utils.dart';
+import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 
 class SmallVocabularyFoldableCard extends StatefulWidget {
-  final Vocabulary _vocabulary;
+  const SmallVocabularyFoldableCard(this.vocabulary,
+      {super.key, this.foldable = false});
+
+  final Vocabulary vocabulary;
   final bool foldable;
-  SmallVocabularyFoldableCard(this._vocabulary,{Key key, this.foldable = false}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _SmallVocabularyFoldableCardState();
+  State<SmallVocabularyFoldableCard> createState() =>
+      _SmallVocabularyFoldableCardState();
 }
 
-class _SmallVocabularyFoldableCardState extends State<SmallVocabularyFoldableCard> {
-  bool _folded = true;
+class _SmallVocabularyFoldableCardState
+    extends State<SmallVocabularyFoldableCard> {
+  /// Maximum number of lines shown while folded.
+  static const int _foldedLines = 4;
 
-  _SmallVocabularyFoldableCardState();
-
-
-  @override
-  void initState() {
-    super.initState();
-    _folded = widget.foldable?true:false;
-  }
+  late bool _folded = widget.foldable;
 
   Widget buildBody(BuildContext context) {
-    List<Widget> children = <Widget>[];
-    bool needEllipsis = false;
-    for(int i = 0; i < widget._vocabulary.heteronyms.length && !needEllipsis; ++i) {
-      if(children.length > 3 && _folded) {
+    final textTheme = Theme.of(context).textTheme;
+    final children = <Widget>[];
+    var needEllipsis = false;
+    outer:
+    for (final heteronym in widget.vocabulary.heteronyms) {
+      if (_folded && children.length >= _foldedLines) {
         needEllipsis = true;
         break;
       }
       children.add(SelectableText(
-        "${widget._vocabulary.heteronyms[i].trs}" ,
-        toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
-        style: Theme.of(context).textTheme.subhead,
+        heteronym.trs ?? '',
+        style: textTheme.titleMedium,
         maxLines: 1,
       ));
-      for(int j = 0; j < widget._vocabulary.heteronyms[i].definitions.length; ++j) {
-        if(children.length > 3 && _folded) {
+      for (final definition in heteronym.definitions) {
+        if (_folded && children.length >= _foldedLines) {
           needEllipsis = true;
-          break;
+          break outer;
         }
-        children.add(
-          Row(
-            children: <Widget>[
-              SizedBox(width: 5.0),
-              Flexible(child:Text(
-                "• ${widget._vocabulary.heteronyms[i].definitions[j].def}" ,
-                style: Theme.of(context).textTheme.body1,
-              )),
-            ],
-          )
-        );
+        children.add(Row(
+          children: [
+            const SizedBox(width: 5.0),
+            Flexible(
+              child: Text('• ${definition.def ?? ''}',
+                  style: textTheme.bodyMedium),
+            ),
+          ],
+        ));
       }
     }
-    if(needEllipsis)
-      children.add(
-        Text(
-          "點開看閣較濟..." ,
-          style: Theme.of(context).textTheme.body2.copyWith(color: Colors.blue[200]),
-        )
-      );
+    if (needEllipsis) {
+      children.add(Text(
+        '點開看閣較濟...',
+        style: textTheme.bodyLarge?.copyWith(color: Colors.blue[200]),
+      ));
+    }
     return Flexible(
       flex: 7,
       fit: FlexFit.tight,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: children
+        children: children,
       ),
     );
   }
 
-
-  void _tryToPlayAudio(Vocabulary vocabulary, BuildContext context) async {
-    for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
-      await AudioPlayerHolder.tryToPlayAudioReturnOnCompletion(vocabulary.heteronyms[i].aid);
-    }
-  }
-
-  void _tryToPrepareAudio(Vocabulary vocabulary, BuildContext context) async {
-    int connectivity = await getConnectivityResult();
-    int autoPlaySetting = OTGConfig.get(OTGConfig.keyAutoPlayAudio, 0);
-    if(autoPlaySetting > connectivity)
-      return;
-    for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
-      await AudioPlayerHolder.prepareAudio(vocabulary.heteronyms[i].aid);
+  Future<void> _tryToPlayAudio(Vocabulary vocabulary) async {
+    for (final heteronym in vocabulary.heteronyms) {
+      await AudioPlayerHolder.tryToPlayAudioReturnOnCompletion(heteronym.aid);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if(widget._vocabulary == null)
-      return Center(child: CircularProgressIndicator());
-      // Not working properly.
-      // _tryToPrepareAudio(_vocabulary, context);
     return GestureDetector(
       onTap: () {
-        setState(() {
-          if(widget.foldable)
-            _folded = !_folded;
-        });
+        if (widget.foldable) setState(() => _folded = !_folded);
       },
-      child:Card(
+      child: Card(
         margin: const EdgeInsets.all(4.0),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
           child: ConstrainedBox(
-            constraints: new BoxConstraints(
-              minHeight: 100.0,
-            ),
+            constraints: const BoxConstraints(minHeight: 100.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
+              children: [
                 Flexible(
-                  child: SelectableText(
-                    widget._vocabulary.title,
-                    toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
-                    style: Theme.of(context).textTheme.subhead.copyWith(
-                      fontFamilyFallback: ["MOEDICT"],
-                    ),
-                    maxLines: 1,
-                  ),
                   flex: 2,
                   fit: FlexFit.tight,
+                  child: SelectableText(
+                    widget.vocabulary.title,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontFamilyFallback: const ['MOEDICT']),
+                    maxLines: 1,
+                  ),
                 ),
                 Flexible(
-                  child: InkWell(
-                    splashColor: Colors.blue.withAlpha(30),
-                    onTap: (){
-                      _tryToPlayAudio(widget._vocabulary, context);
-                    },
-                    child: Icon(Icons.volume_up, size: 25,),
-                  ),
                   flex: 1,
                   fit: FlexFit.tight,
+                  child: InkWell(
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: () => _tryToPlayAudio(widget.vocabulary),
+                    child: const Icon(Icons.volume_up, size: 25),
+                  ),
                 ),
                 buildBody(context),
-              ]
+              ],
             ),
-          )
+          ),
         ),
-      )
+      ),
     );
   }
 }

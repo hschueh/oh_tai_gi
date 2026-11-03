@@ -1,83 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
-import 'package:flip_card/flip_card.dart';
+import 'package:oh_tai_gi/ui/component/flip_card.dart';
+import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
 
+typedef OnCardFlip = void Function(
+    GlobalKey<FlipCardState> key, Vocabulary vocabulary);
+
 class FlippableCard extends StatelessWidget {
+  const FlippableCard(this.vocabulary, this.isFirst, this.onFlip, this.globalKey,
+      {super.key});
+
   final Vocabulary vocabulary;
   final bool isFirst;
   final GlobalKey<FlipCardState> globalKey;
-  final Function(GlobalKey<FlipCardState>, Vocabulary) onFlip;
-  FlippableCard(this.vocabulary, this.isFirst, this.onFlip, this.globalKey, {Key key}) : super(key: key);
+  final OnCardFlip onFlip;
 
   Widget buildBody(BuildContext context) {
-    if(isFirst)
-      return Center(child: Text(
+    final textTheme = Theme.of(context).textTheme;
+    if (isFirst) {
+      return Center(
+        child: Text(
           vocabulary.title,
-          style: Theme.of(context).textTheme.headline.copyWith(
-            fontFamilyFallback: ["MOEDICT"],
-          ),
-        ));
-    List<Widget> children = <Widget>[];
-    for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
-      children.add(Text(
-        "${vocabulary.heteronyms[i].trs}" ,
-        style: Theme.of(context).textTheme.headline,
-      ));
-      for(int j = 0; j < vocabulary.heteronyms[i].definitions.length; ++j) {
-        children.add(Text(
-          "• ${vocabulary.heteronyms[i].definitions[j].def}" ,
-          style: Theme.of(context).textTheme.subhead,
-        ));
-      }
-    }
-    return Container(
-        child: ListView(children: children)
+          style: textTheme.headlineSmall
+              ?.copyWith(fontFamilyFallback: const ['MOEDICT']),
+        ),
       );
+    }
+    return ListView(
+      children: [
+        for (final heteronym in vocabulary.heteronyms) ...[
+          Text(heteronym.trs ?? '', style: textTheme.headlineSmall),
+          for (final definition in heteronym.definitions)
+            Text('• ${definition.def ?? ''}', style: textTheme.titleMedium),
+        ],
+      ],
+    );
   }
 
-  void _tryToPlayAudio(Vocabulary vocabulary, BuildContext context) async {
-    for(int i = 0; i < vocabulary.heteronyms.length; ++i) {
-      await AudioPlayerHolder.tryToPlayAudioReturnOnCompletion(vocabulary.heteronyms[i].aid);
+  Future<void> _tryToPlayAudio(Vocabulary vocabulary) async {
+    for (final heteronym in vocabulary.heteronyms) {
+      await AudioPlayerHolder.tryToPlayAudioReturnOnCompletion(heteronym.aid);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if(vocabulary == null)
-      return Center(child: CircularProgressIndicator());
-    // Not working properly.
-    // _tryToPrepareAudio(_vocabulary, context);
     return FlipCard(
       key: globalKey,
       flipOnTouch: false,
-      onFlipDone: (flipped){
-        if(!flipped) onFlip(globalKey, vocabulary);
+      onFlipDone: (isFront) {
+        if (!isFront) onFlip(globalKey, vocabulary);
       },
       front: Container(
-        margin: EdgeInsets.all(2),
+        margin: const EdgeInsets.all(2),
         height: 100,
         width: 100,
         child: Card(
+          color: Colors.orange[200],
           child: InkWell(
             splashColor: Colors.orangeAccent.withAlpha(30),
-            onTap: (){
-              globalKey.currentState.toggleCard();
-              int playAudio = OTGConfig.get(OTGConfig.keyPlayAudioInGame, 0);
-              if(playAudio == 0)
-                return;
-              _tryToPlayAudio(vocabulary, context);
-            }),
-          color: Colors.orange[200],
+            onTap: () {
+              globalKey.currentState?.toggleCard();
+              final playAudio = OTGConfig.get(OTGConfig.keyPlayAudioInGame, 0);
+              if (playAudio == 0) return;
+              _tryToPlayAudio(vocabulary);
+            },
+          ),
         ),
       ),
       back: Container(
-        margin: EdgeInsets.all(2),
+        margin: const EdgeInsets.all(2),
         height: 100,
         width: 100,
-        child: Card(color: Colors.orange[200], child: buildBody(context),)
-      )
+        child: Card(color: Colors.orange[200], child: buildBody(context)),
+      ),
     );
   }
 }
