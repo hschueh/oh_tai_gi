@@ -8,13 +8,27 @@ import 'package:oh_tai_gi/db/vocabulary_list.dart' show VocabularyListProvider;
 import 'package:oh_tai_gi/utils/migrate_helper.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-/// Creates a database exactly like app version 1.0.21 (schema version 2) did,
-/// with `hashCode` values that do NOT match the current SDK's
-/// `String.hashCode`, to simulate a hash function change between Dart SDKs.
-Future<void> createLegacyV2Database(String path) async {
+/// The database states an existing user can be in before this release.
+enum LegacyDatabase {
+  /// Installed 1.0.x with schema 2 directly (`chinese text not null`).
+  freshV2,
+
+  /// Installed a schema-1 version, later upgraded by the old app with
+  /// `alter table ... add column chinese text default ""` (nullable column).
+  v1UpgradedToV2,
+
+  /// Still on schema 1: upgraded straight from v1 to v3 by this release.
+  v1,
+}
+
+/// Creates a legacy database with `hashCode` values that do NOT match the
+/// current SDK's `String.hashCode`, to simulate a hash function change
+/// between Dart SDKs.
+Future<void> createLegacyDatabase(String path, LegacyDatabase kind) async {
+  final version = kind == LegacyDatabase.freshV2 ? 2 : 1;
   final db = await databaseFactoryFfi.openDatabase(path,
       options: OpenDatabaseOptions(
-        version: 2,
+        version: version,
         onCreate: (db, version) async {
           await db.execute('''
             create table vocabulary_list (
@@ -32,8 +46,8 @@ Future<void> createLegacyV2Database(String path) async {
               hashCode integer not null,
               title text not null,
               heteronyms text not null,
-              learnt integer not null,
-              chinese text not null)
+              learnt integer not null
+              ${version >= 2 ? ', chinese text not null' : ''})
             ''');
         },
       ));
@@ -53,7 +67,7 @@ Future<void> createLegacyV2Database(String path) async {
       'title': title,
       'heteronyms': heteronyms,
       'learnt': i, // 一: 0, 二: 1, 三: 2
-      'chinese': '',
+      if (version >= 2) 'chinese': '',
     });
   }
   await db.insert('vocabulary_list', {
@@ -64,35 +78,57 @@ Future<void> createLegacyV2Database(String path) async {
     'cover': '',
     'privider': 'O̍h Tâi Gí',
   });
+  if (kind == LegacyDatabase.v1UpgradedToV2) {
+    // What the 1.0.x onUpgrade did; the column is nullable.
+    await db.execute(
+        'alter table vocabulary add column chinese text default ""');
+    await db.setVersion(2);
+    // A row whose chinese is NULL, which that schema allowed.
+    await db.rawUpdate("update vocabulary set chinese = null where title = '三'");
+  }
   await db.close();
 }
 
 void main() {
-  late Directory tempDir;
-  late String dbPath;
-
   setUpAll(sqfliteFfiInit);
+
+  for (final kind in LegacyDatabase.values) {
+    group('from ${kind.name}', () => migrationTests(kind));
+  }
+
+  test('a fresh install creates the latest schema', () async {
+    final tempDir = await Directory.systemTemp.createTemp('oh_tai_gi_test');
+    final db = await openOhTaiGiDatabase('${tempDir.path}/fresh.db',
+        factory: databaseFactoryFfi);
+    expect(await db.getVersion(), databaseVersion);
+    final columns = await db.rawQuery('pragma table_info(vocabulary)');
+    expect(columns.map((c) => c['name']), contains(columnChinese));
+    await db.close();
+    await tempDir.delete(recursive: true);
+  });
+}
+
+void migrationTests(LegacyDatabase kind) {
+  late Directory tempDir;
 
   setUp(() async {
     tempDir = await Directory.systemTemp.createTemp('oh_tai_gi_test');
-    dbPath = '${tempDir.path}/$databaseName';
-    await createLegacyV2Database(dbPath);
+    final dbPath = '${tempDir.path}/$databaseName';
+    await createLegacyDatabase(dbPath, kind);
     DBHolder().db =
         await openOhTaiGiDatabase(dbPath, factory: databaseFactoryFfi);
-    await VocabularyProvider().open();
-    await VocabularyListProvider().open();
   });
 
   tearDown(() async {
-    await VocabularyProvider().close();
-    await VocabularyListProvider().close();
-    DBHolder().db = null;
+    await DBHolder().close();
     await tempDir.delete(recursive: true);
   });
 
-  test('upgrades schema 2 to 3 and adds the title indexes', () async {
+  test('upgrades to the latest schema and adds the title indexes', () async {
     final db = DBHolder().db!;
-    expect(await db.getVersion(), 3);
+    expect(await db.getVersion(), databaseVersion);
+    final columns = await db.rawQuery('pragma table_info(vocabulary)');
+    expect(columns.map((c) => c['name']), contains(columnChinese));
     final indexes = await db.rawQuery(
         "select name from sqlite_master where type = 'index' and name like '%title'");
     expect(indexes.map((row) => row['name']),
@@ -137,14 +173,5 @@ void main() {
     expect({for (final v in all) v.title: v.learnt},
         {'一': 0, '二': 1, '三': 2, '四': 0});
     expect((await vp.getVocabularyWithTitle('四'))!.chinese, '四');
-  });
-
-  test('a fresh install creates the latest schema', () async {
-    final path = '${tempDir.path}/fresh.db';
-    final db = await openOhTaiGiDatabase(path, factory: databaseFactoryFfi);
-    expect(await db.getVersion(), databaseVersion);
-    final columns = await db.rawQuery('pragma table_info(vocabulary)');
-    expect(columns.map((c) => c['name']), contains(columnChinese));
-    await db.close();
   });
 }
