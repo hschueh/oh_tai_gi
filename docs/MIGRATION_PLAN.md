@@ -6,6 +6,20 @@
 > 2. Google Play 版本（含 Firebase / AdMob）與 F-Droid 版本（無非自由元件）都能建置。
 > 3. 每一個階段都是一個獨立 commit，可以單獨 review／回滾。
 
+## 進度總覽（2026-11-03）
+
+| Stage | 狀態 | 驗證 |
+|---|---|---|
+| 0 準備 | ✅ | – |
+| 1 Android 結構 | ✅ | ⚠️ 未實際 Gradle build（環境無 Android SDK） |
+| 2 iOS 結構 | ✅ | ⚠️ 需在 Mac 上 build |
+| 3 pubspec | ✅ | `flutter pub get` ✅ |
+| 4 null safety | ✅ | `flutter analyze`：No issues found ✅ |
+| 5 套件 API / 資料相容 | ✅ | DB migration 測試 5/5 ✅ |
+| 6 Framework API | ✅ | `flutter analyze` ✅ |
+| 7 驗證 | 🟡 | `flutter test` 12/12 ✅；APK build 與實機測試待做 |
+| 8 F-Droid | 🟡 | FOSS flavor：analyze ✅ test 12/12 ✅；待打 tag 提交 |
+
 ---
 
 ## 0. 現況盤點
@@ -76,58 +90,58 @@ Dart **不保證** `String.hashCode` 在不同 SDK 版本間一致。如果新 D
 每個 Stage 結束都要：`flutter analyze` 沒有 error →（能跑的話）`flutter test` → commit。
 
 ### Stage 0 – 準備工作
-- [ ] 安裝 Flutter 3.47.9 stable（雲端環境用）
-- [ ] 新增 `lib/utils/secret.dart.example`（`secret.dart` 被 gitignore，沒有它無法編譯）
-- [ ] 更新 `.gitignore`（新版 Flutter 產生的檔案）
-- [ ] 本文件
+- [x] 安裝 Flutter 3.47.9 stable（雲端環境用）
+- [x] 新增 `lib/utils/secret.dart.example`（`secret.dart` 被 gitignore，沒有它無法編譯）
+- [x] 更新 `.gitignore`（新版 Flutter 產生的檔案）
+- [x] 本文件
 
 ### Stage 1 – Android 專案結構升級
-- [ ] 用 `flutter create` 產生新版 android 範本做參考
-- [ ] `settings.gradle`：改用 `dev.flutter.flutter-plugin-loader` + `pluginManagement`
-- [ ] `build.gradle`（root / app）：`plugins {}` DSL、AGP 8.x、Kotlin 2.x、Gradle wrapper 8.x、Java 17
-- [ ] `namespace "com.gonnaggstudio.oh_tai_gi"`，移除 manifest 中的 `package=`
-- [ ] 移除 Fabric、jcenter；Crashlytics 改用 `com.google.firebase.crashlytics` gradle plugin
-- [ ] compileSdk/targetSdk 跟隨 `flutter.compileSdkVersion` / `flutter.targetSdkVersion`，minSdk 用 `flutter.minSdkVersion`
-- [ ] Release signing：`key.properties` 不存在時 fallback 到 debug key（方便 CI / F-Droid）
-- [ ] `MainActivity.kt` 改用 v2 embedding（`configureFlutterEngine`），保留 `PROCESS_TEXT`「揣臺語」功能，並補上 `onNewIntent`（`singleTop` 時第二次選字也能用）
-- [ ] Manifest：移除 `io.flutter.app.FlutterApplication`、加 `flutterEmbedding=2`、`android:exported="true"`、`<queries>` for PROCESS_TEXT
+- [x] 用 `flutter create` 產生新版 android 範本做參考
+- [x] `settings.gradle`：改用 `dev.flutter.flutter-plugin-loader` + `pluginManagement`
+- [x] `build.gradle`（root / app）：`plugins {}` DSL、AGP 8.x、Kotlin 2.x、Gradle wrapper 8.x、Java 17
+- [x] `namespace "com.gonnaggstudio.oh_tai_gi"`，移除 manifest 中的 `package=`
+- [x] 移除 Fabric、jcenter；Crashlytics 改用 `com.google.firebase.crashlytics` gradle plugin
+- [x] compileSdk/targetSdk 跟隨 `flutter.compileSdkVersion` / `flutter.targetSdkVersion`，minSdk 用 `flutter.minSdkVersion`
+- [x] Release signing：`key.properties` 不存在時 fallback 到 debug key（方便 CI / F-Droid）
+- [x] `MainActivity.kt` 改用 v2 embedding（`configureFlutterEngine`），保留 `PROCESS_TEXT`「揣臺語」功能，並補上 `onNewIntent`（`singleTop` 時第二次選字也能用）
+- [x] Manifest：移除 `io.flutter.app.FlutterApplication`、加 `flutterEmbedding=2`、`android:exported="true"`、`<queries>` for PROCESS_TEXT
 
 ### Stage 2 – iOS 專案結構升級
-- [ ] 以新範本重建 `Podfile`（`platform :ios, '13.0'`）、`AppFrameworkInfo.plist`、xcconfig
-- [ ] 保留 `GoogleService-Info.plist`、App icon、`Info.plist` 的顯示名稱與 AdMob `GADApplicationIdentifier`
-- [ ] 刪除過時的 `Flutter.podspec`、`Podfile.lock`
+- [x] 以新範本重建 `Podfile`（`platform :ios, '13.0'`）、`AppFrameworkInfo.plist`、xcconfig
+- [x] 保留 `GoogleService-Info.plist`、App icon、`Info.plist` 的顯示名稱與 AdMob `GADApplicationIdentifier`
+- [x] 刪除過時的 `Flutter.podspec`、`Podfile.lock`
 - [ ] ⚠️ 這個雲端環境是 Linux，無法實際 build iOS；需要在 Mac 上 `pod install && flutter build ios` 驗證
 
 ### Stage 3 – pubspec 與相依套件
-- [ ] `environment: sdk: ^3.10.0`
-- [ ] 依上方對照表更新/替換套件
-- [ ] 加入 `analysis_options.yaml`（`flutter_lints`）
+- [x] `environment: sdk: ^3.10.0`
+- [x] 依上方對照表更新/替換套件
+- [x] 加入 `analysis_options.yaml`（`flutter_lints`）
 
 ### Stage 4 – Dart 3 null safety 遷移（最大的一塊）
-- [ ] models：`Vocabulary` / `Heteronym` / `Definition` / `VocabularyList` 欄位型別化、`fromJson` 容錯
-- [ ] providers：`Database?` → `late final`、回傳 `Future<Vocabulary?>`
-- [ ] 所有 widget：`{Key key}` → `{super.key}`、`required`、`late`
-- [ ] `Function` 型別改為明確的 typedef
-- [ ] 舊 widget 測試 / unused_page 清理
+- [x] models：`Vocabulary` / `Heteronym` / `Definition` / `VocabularyList` 欄位型別化、`fromJson` 容錯
+- [x] providers：`Database?` → `late final`、回傳 `Future<Vocabulary?>`
+- [x] 所有 widget：`{Key key}` → `{super.key}`、`required`、`late`
+- [x] `Function` 型別改為明確的 typedef
+- [x] 舊 widget 測試 / unused_page 清理
 
 ### Stage 5 – 套件 API 遷移 & 資料相容
-- [ ] `AudioPlayerHolder` 改寫成 audioplayers 6（用 `onPlayerComplete` + `Completer`，取代 busy-wait loop）
-- [ ] `getConnectivityResult()` 改用 connectivity_plus 的 List 回傳
-- [ ] `fetchVocabularyLists`：`Uri.parse`、加 timeout、try/catch → 伺服器掛掉時能走本地 `dict-list.json` 備援
-- [ ] 廣告：抽成 `lib/services/ads.dart`（`google_mobile_ads` BannerAd + AdWidget）
-- [ ] 統計/當機回報：抽成 `lib/services/telemetry.dart`（firebase_core + analytics + crashlytics）
-- [ ] FlipCard 自己實作 `lib/ui/component/flip_card.dart`
-- [ ] DB：title 查詢、DB v3 index、`hashCode` 相容性處理
-- [ ] 新增 DB migration 測試
+- [x] `AudioPlayerHolder` 改寫成 audioplayers 6（用 `onPlayerComplete` + `Completer`，取代 busy-wait loop）
+- [x] `getConnectivityResult()` 改用 connectivity_plus 的 List 回傳
+- [x] `fetchVocabularyLists`：`Uri.parse`、加 timeout、try/catch → 伺服器掛掉時能走本地 `dict-list.json` 備援
+- [x] 廣告：抽成 `lib/services/ads.dart`（`google_mobile_ads` BannerAd + AdWidget）
+- [x] 統計/當機回報：抽成 `lib/services/telemetry.dart`（firebase_core + analytics + crashlytics）
+- [x] FlipCard 自己實作 `lib/ui/component/flip_card.dart`
+- [x] DB：title 查詢、DB v3 index、`hashCode` 相容性處理
+- [x] 新增 DB migration 測試
 
 ### Stage 6 – Flutter framework API 遷移
-- [ ] textTheme、按鈕、BottomNavigationBar、SystemChrome、SelectableText…（見上方列表）
-- [ ] `ThemeData(useMaterial3: false, fontFamily: 'huninn')`
-- [ ] `flutter analyze` 0 error、盡量 0 warning
+- [x] textTheme、按鈕、BottomNavigationBar、SystemChrome、SelectableText…（見上方列表）
+- [x] `ThemeData(useMaterial3: false, fontFamily: 'huninn')`
+- [x] `flutter analyze` 0 error、盡量 0 warning
 
 ### Stage 7 – 驗證
-- [ ] `flutter test`（model + DB migration + widget smoke test）
-- [ ] `flutter build apk --debug`（若雲端環境能裝 Android SDK）
+- [x] `flutter test`（model + DB migration + widget smoke test）
+- [ ] `flutter build apk --debug`：⚠️ 雲端環境的網路政策擋住 `dl.google.com`（Android SDK 與 Google Maven），無法在這裡驗證，需在本機執行
 - [ ] 手動驗證清單（需要實機）：
   - 從舊版 1.0.21 覆蓋安裝 → 學習歷程還在、主題詞彙列表內容正常
   - 隨機學習左右滑、自動播放語音
@@ -137,12 +151,13 @@ Dart **不保證** `String.hashCode` 在不同 SDK 版本間一致。如果新 D
   - 廣告 banner 顯示
 
 ### Stage 8 – F-Droid 與發佈
-- [ ] 目前 F-Droid 是用一串 `sed` 把 firebase/admob 砍掉後再 build；程式碼結構改變後那串 sed 一定會壞
-- [ ] 讓 F-Droid recipe 變簡單：Firebase/AdMob 的程式碼都集中在 `lib/services/`，
+- [x] 目前 F-Droid 是用一串 `sed` 把 firebase/admob 砍掉後再 build；程式碼結構改變後那串 sed 一定會壞
+- [x] 讓 F-Droid recipe 變簡單：Firebase/AdMob 的程式碼都集中在 `lib/services/`，
   另外提供 `lib/services/*_foss.dart` 無操作版本 + 一支 `scripts/make_foss.sh`，
   F-Droid 的 prebuild 只要跑這支腳本即可
-- [ ] 版本號升到 `1.1.0+23`
-- [ ] 準備提交給 fdroiddata 的新 recipe（`srclibs: flutter@3.47.9`）
+- [x] 版本號升到 `1.1.0+23`
+- [x] 新 recipe 草稿：`docs/fdroid-build-recipe.yml`
+- [ ] 打 tag `v1.1.0` 後提交到 fdroiddata
 
 ---
 
