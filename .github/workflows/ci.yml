@@ -49,7 +49,7 @@ jobs:
       - run: flutter pub get
       # Unsigned release build: what F-Droid does, and it checks R8/minify.
       - run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: app-${{ matrix.flavor }}-release-unsigned
           path: build/app/outputs/flutter-apk/*.apk
