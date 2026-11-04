@@ -165,9 +165,8 @@ Dart **不保證** `String.hashCode` 在不同 SDK 版本間一致。如果新 D
 
 ## 💡 額外建議（不在這次範圍，但值得考慮）
 
-1. **後端已失聯**：`ohtaigi.ddns.net` DNS 查不到。建議把「主題詞彙」改成直接讀 GitHub 上的 JSON
-   （例如 `https://raw.githubusercontent.com/hschueh/oh_tai_gi/master/assets/dict/dict-list.json`），
-   不用維護伺服器、社群也能透過 PR 新增主題。
+1. ~~**後端已失聯**~~：已移除 `server/`，「主題詞彙」改為透過 HTTPS 讀取 GitHub 上的
+   `assets/dict/dict-list.json`，不用維護伺服器、社群也能透過 PR 新增主題。
 2. **語音改 HTTPS**：`http://t.moedict.tw` 是明文；確認 `https://` 可用後就能拿掉 `usesCleartextTraffic`。
 3. ~~**GitHub Actions CI**~~：已加入 `.github/workflows/ci.yml`。
 4. **Material 3 改版**：遷移完成後可以開 `useMaterial3: true`，用 `ColorScheme.fromSeed` 搭配各分頁原本的主題色，外觀會現代很多。

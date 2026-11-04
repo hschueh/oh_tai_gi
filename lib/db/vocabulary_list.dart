@@ -16,7 +16,10 @@ const String columnProvider = 'privider';
 const String columnList = 'list';
 const String columnHashCode = 'hashCode';
 
-const String vocabularyListServer = 'http://ohtaigi.ddns.net:3000';
+/// The vocabulary lists are the JSON file in this repo, served over HTTPS, so
+/// new lists can be published without releasing the app or running a server.
+const String vocabularyListUrl =
+    'https://raw.githubusercontent.com/hschueh/oh_tai_gi/master/assets/dict/dict-list.json';
 
 class VocabularyList {
   int? id;
@@ -90,6 +93,14 @@ class VocabularyList {
   int get hashCode => Object.hash(title, Object.hashAll(list));
 }
 
+/// The [fetched] lists that aren't stored yet. Lists are matched by title, so
+/// correcting a published list doesn't add a second copy of it.
+List<VocabularyList> vocabularyListsToInsert(
+    List<VocabularyList> stored, List<VocabularyList> fetched) {
+  final titles = stored.map((list) => list.title).toSet();
+  return fetched.where((list) => titles.add(list.title)).toList();
+}
+
 class VocabularyListProvider {
   VocabularyListProvider._privateConstructor();
 
@@ -150,20 +161,20 @@ class VocabularyListProvider {
     return maps.map(VocabularyList.fromJson).toList();
   }
 
-  /// Fetches new vocabulary lists from the server. Returns an empty list when
-  /// the server cannot be reached, so callers can fall back to the bundled
+  /// Fetches every published vocabulary list. Returns an empty list when they
+  /// cannot be fetched, so callers can fall back to the bundled
   /// `assets/dict/dict-list.json`.
   Future<List<VocabularyList>> fetchVocabularyLists(
-      {int skip = 0, http.Client? client}) async {
-    final uri = Uri.parse('$vocabularyListServer/list?skip=$skip');
+      {http.Client? client}) async {
+    final uri = Uri.parse(vocabularyListUrl);
     try {
       final response = await (client?.get(uri) ?? http.get(uri))
           .timeout(const Duration(seconds: 10));
       if (response.statusCode != 200) return [];
       final decoded = json.decode(utf8.decode(response.bodyBytes)) as List;
       return decoded.map<VocabularyList>((item) {
-        final map = Map<String, dynamic>.from(item as Map);
-        map[columnMId] = map.remove(columnUId);
+        // The local row id is assigned on insert, never taken from the file.
+        final map = Map<String, dynamic>.from(item as Map)..remove(columnUId);
         return VocabularyList.fromJson(map);
       }).toList();
     } catch (e) {

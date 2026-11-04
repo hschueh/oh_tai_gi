@@ -169,11 +169,11 @@ class VocabularyListPageState extends State<VocabularyListPage> {
   Future<void> retrieveVocabularyList() async {
     await vlp.open();
 
-    var vs = await vlp.getVocabularyLists();
-    final listsFromServer = await vlp.fetchVocabularyLists(skip: vs.length);
-    var listsToInsert =
-        listsFromServer.where((list) => !vs.contains(list)).toList();
-    listsToInsert = await vlp.insertAll(listsToInsert);
+    // No limit: a stored list missing from this query would be inserted again.
+    var vs = await vlp.getVocabularyLists(limit: -1);
+    final fetched = await vlp.fetchVocabularyLists();
+    final listsToInsert =
+        await vlp.insertAll(vocabularyListsToInsert(vs, fetched));
     vs.insertAll(0, listsToInsert);
     // Backup plan: the lists bundled with the app.
     if (vs.isEmpty) {
