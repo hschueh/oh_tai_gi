@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oh_tai_gi/db/db_holder.dart';
 import 'package:oh_tai_gi/db/vocabulary.dart';
-import 'package:oh_tai_gi/db/vocabulary_list.dart' show VocabularyListProvider;
+import 'package:oh_tai_gi/db/vocabulary_list.dart'
+    show VocabularyList, VocabularyListProvider;
 import 'package:oh_tai_gi/utils/migrate_helper.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -156,6 +157,18 @@ void migrationTests(LegacyDatabase kind) {
         await VocabularyProvider().getVocabulariesWithTitles(list!.list);
     // Keeps the list order and skips titles missing from the dictionary.
     expect(words.map((v) => v.title), ['三', '一']);
+  });
+
+  test('an unlimited query returns every stored vocabulary list', () async {
+    final vlp = VocabularyListProvider();
+    final before = await vlp.getVocabularyLists(limit: -1);
+    await vlp.insertAll([
+      for (var i = 0; i < 60; ++i) VocabularyList()..title = 'list $i',
+    ]);
+
+    final all = await vlp.getVocabularyLists(limit: -1);
+
+    expect(all, hasLength(before.length + 60));
   });
 
   test('rebuilding the dictionary keeps learning progress', () async {
