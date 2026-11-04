@@ -1,32 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:oh_tai_gi/db/vocabulary.dart';
 import 'package:oh_tai_gi/db/vocabulary_list.dart';
+import 'package:oh_tai_gi/destination.dart';
 import 'package:oh_tai_gi/ui/component/big_card.dart';
-
 import 'package:oh_tai_gi/utils/audio_player_holder.dart';
 import 'package:oh_tai_gi/utils/otg_config.dart';
-import 'package:oh_tai_gi/db/vocabulary.dart';
-import 'package:oh_tai_gi/destination.dart';
 import 'package:oh_tai_gi/utils/utils.dart';
 
-const bool IS_DEBUG = false;
+typedef SwitchMode = void Function(BuildContext context);
 
 class BigCardPage extends StatefulWidget {
-  BigCardPage({Key key, this.destination, this.vocabularyList, this.switchToList}) : super(key: key);
+  const BigCardPage(
+      {super.key,
+      required this.destination,
+      this.vocabularyList,
+      this.switchToList});
 
   final Destination destination;
-  final VocabularyList vocabularyList;
-  final Function switchToList;
+  final VocabularyList? vocabularyList;
+  final SwitchMode? switchToList;
 
   @override
-  _BigCardPageState createState() => _BigCardPageState();
+  State<BigCardPage> createState() => _BigCardPageState();
 }
 
 class _BigCardPageState extends State<BigCardPage> {
   int _index = 0;
-  List<Vocabulary> vocabularies = [];
-  VocabularyProvider vp;
+  final List<Vocabulary> vocabularies = [];
+  final VocabularyProvider vp = VocabularyProvider();
   bool isFirst = true;
-  _BigCardPageState();
+  bool _loaded = false;
 
   @override
   void initState() {
@@ -34,144 +37,142 @@ class _BigCardPageState extends State<BigCardPage> {
     initialize();
   }
 
-  void initialize() async {
-    vp = VocabularyProvider();
+  Future<void> initialize() async {
     await vp.open();
-    if(widget.vocabularyList == null) {
-      List<Vocabulary> vs = await vp.getVocabularyList();
-      _appendVocabularyList(vs);
+    final list = widget.vocabularyList;
+    if (list == null) {
+      _appendVocabularyList(await vp.getVocabularyList());
     } else {
-      List<Vocabulary> vs = [];
-      for(int i = 0; i < widget.vocabularyList.list.length; ++i) {
-        Vocabulary v = await vp.getVocabularyWithTitle(widget.vocabularyList.list[i]);
-        if(v != null)
-          vs.add(v);
-      }
-      _appendVocabularyList(vs);
+      _appendVocabularyList(await vp.getVocabulariesWithTitles(list.list));
     }
+    _loaded = true;
   }
 
-  void retrieveNextBatch() async {
-      List<Vocabulary> vs = await vp.getVocabularyList(offset: vocabularies.length);
-      if(vs.length > 0) {
-        _appendVocabularyList(vs);
-        return;
-      }
+  Future<void> retrieveNextBatch() async {
+    // A vocabulary list is loaded at once; only the random mode is paged.
+    if (widget.vocabularyList != null) return;
+    final vs = await vp.getVocabularyList(offset: vocabularies.length);
+    if (vs.isNotEmpty) _appendVocabularyList(vs);
   }
 
-  void _tryToPlayAudio() async {
-    if(_index >= vocabularies.length)
-      return;
-    if(isFirst) {
+  Future<void> _tryToPlayAudio() async {
+    if (_index >= vocabularies.length) return;
+    if (isFirst) {
       isFirst = false;
       return;
     }
-    int connectivity = await getConnectivityResult();
-    int autoPlaySetting = OTGConfig.get(OTGConfig.keyAutoPlayAudio, 0);
-    if(autoPlaySetting > connectivity)
-      return;
-    Vocabulary v = vocabularies[_index];
-    for(int i = 0; i < v.heteronyms.length; ++i) {
-      await AudioPlayerHolder.tryToPlayAudioReturnOnCompletion(v.heteronyms[i].aid);
+    final connectivity = await getConnectivityResult();
+    final autoPlaySetting = OTGConfig.get(OTGConfig.keyAutoPlayAudio, 0);
+    if (autoPlaySetting > connectivity) return;
+    final v = vocabularies[_index];
+    for (final heteronym in v.heteronyms) {
+      await AudioPlayerHolder.tryToPlayAudioReturnOnCompletion(heteronym.aid);
     }
   }
 
   void _next(bool thumbUp) {
-    Vocabulary v = vocabularies[_index];
-    v.learnt = v.learnt+1;
-    vp.update(v).then(
-      (result) => print("Update result: $result")
-    );
-    setState(() {
-      _index++;
-      if(_index >= vocabularies.length)
-        retrieveNextBatch();
-      _tryToPlayAudio();
-    });
+    final v = vocabularies[_index];
+    v.learnt = v.learnt + 1;
+    vp.update(v);
+    setState(() => _index++);
+    if (_index >= vocabularies.length) retrieveNextBatch();
+    _tryToPlayAudio();
   }
 
   void _appendVocabularyList(List<Vocabulary> vs) {
-    setState(() {
-      this.vocabularies.addAll(vs);
-      _tryToPlayAudio();
-    });
+    if (!mounted) return;
+    setState(() => vocabularies.addAll(vs));
+    _tryToPlayAudio();
   }
 
   @override
   Widget build(BuildContext context) {
-    Vocabulary v;
-    if(_index < vocabularies.length) {
-      v = vocabularies[_index];
-    }
+    final Vocabulary? v =
+        _index < vocabularies.length ? vocabularies[_index] : null;
+    final list = widget.vocabularyList;
+    final switchToList = widget.switchToList;
     return Scaffold(
       appBar: AppBar(
-        title: widget.switchToList!=null?Text(widget.vocabularyList.title):Text(widget.destination.title),
+        title: Text(switchToList != null && list != null
+            ? list.title
+            : widget.destination.title),
         backgroundColor: widget.destination.color,
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children:[
+        children: [
           Flexible(
             fit: FlexFit.loose,
             child: Container(
               margin: const EdgeInsets.fromLTRB(32.0, 16.0, 32.0, 0),
               child: Dismissible(
+                key: UniqueKey(),
+                // Nothing to swipe while loading or after the last card.
+                direction: v == null
+                    ? DismissDirection.none
+                    : DismissDirection.horizontal,
                 background: Card(
                   color: Colors.green[300],
-                  child:Container(
+                  child: Container(
                     padding: const EdgeInsets.only(left: 15),
                     alignment: Alignment.centerLeft,
-                    child: Image.asset("assets/launcher/icon_pos.png",
+                    child: Image.asset(
+                      'assets/launcher/icon_pos.png',
                       filterQuality: FilterQuality.high,
                       scale: 1.2,
                     ),
-                  )
+                  ),
                 ),
                 secondaryBackground: Card(
                   color: Colors.yellow[300],
-                  child:Container(
+                  child: Container(
                     padding: const EdgeInsets.only(right: 15),
                     alignment: Alignment.centerRight,
                     child: Image.asset(
-                      "assets/launcher/icon_neg.png",
+                      'assets/launcher/icon_neg.png',
                       filterQuality: FilterQuality.high,
                       scale: 1.2,
                     ),
-                  )
+                  ),
                 ),
-                onDismissed: (DismissDirection direction){
-                  if(direction == DismissDirection.startToEnd) {
+                onDismissed: (direction) {
+                  if (direction == DismissDirection.startToEnd) {
                     _next(true);
-                  } else if(direction == DismissDirection.endToStart) {
+                  } else if (direction == DismissDirection.endToStart) {
                     _next(false);
                   }
                 },
-                child:BigCard(v, isEnd: widget.vocabularyList != null &&
-                                        _index >= widget.vocabularyList.list.length &&
-                                        _index >= vocabularies.length,),
-                key: UniqueKey(),
+                child: BigCard(
+                  v,
+                  // Titles missing from the dictionary are skipped, so
+                  // compare against what was actually loaded.
+                  isEnd: list != null &&
+                      _loaded &&
+                      _index >= vocabularies.length,
+                ),
               ),
             ),
           ),
-          _index==0?Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children:[
-              Icon(Icons.help),
-              Text(
-                "記得了就往右滑，還沒記住往左滑",
-                style: Theme.of(context).textTheme.subtitle
-              )
-            ]
-          ):SizedBox(width: 0, height: 0,),
-        ]
+          if (_index == 0)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(Icons.help),
+                Text('記得了就往右滑，還沒記住往左滑',
+                    style: Theme.of(context).textTheme.titleSmall),
+              ],
+            ),
+        ],
       ),
-      floatingActionButton: widget.switchToList!=null?FloatingActionButton(
-        onPressed: () => widget.switchToList(context),
-        tooltip: 'switchToList',
-        child: Icon(Icons.list),
-      ):null,
+      floatingActionButton: switchToList != null
+          ? FloatingActionButton(
+              onPressed: () => switchToList(context),
+              tooltip: 'switchToList',
+              child: const Icon(Icons.list),
+            )
+          : null,
     );
   }
 }
